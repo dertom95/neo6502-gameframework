@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "wavaudio.h": "c",
+        "tusb.h": "c"
+    }
+}

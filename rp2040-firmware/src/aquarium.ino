@@ -7,7 +7,8 @@
 
 #include <PicoDVI.h>
 #include "sprites.h" // Graphics data
-#include "audio.h"
+#include "wavaudio.h"
+#include "modplayer.h"
 
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
@@ -94,14 +95,18 @@ void randomsprite(uint8_t i) {
 void setup() { // Runs once on startup
   Serial.begin(9600);
 
-  audio_setup();
+  //audio_setup();
+  modplayer_setup();
   
   if (!display.begin()) { // Blink LED if insufficient RAM
     pinMode(LED_BUILTIN, OUTPUT);
     for (;;) digitalWrite(LED_BUILTIN, (millis() / 500) & 1);
   }
 
-  set_sys_clock_khz(176000, true); 
+  display.setTextColor(1);
+
+
+ // set_sys_clock_khz(176000, true); 
 
 
   // Initialize color palette from table in sprites.h. Rather than
@@ -177,13 +182,17 @@ void drawGrayscaleBitmap(int16_t x, int16_t y,
 }
 
 
+
 uint8_t frame = 0; // Counter for animation
 unsigned long last = 0;
 void loop() { // Runs once every frame
-  unsigned long current = millis();
-  Serial.printf("delta:%d\n",(current-last));
-  last = current;
-  audio_loop();
+  //tuh_task();  
+
+    //tud_task(); // device task
+
+  //audio_loop();
+  modplayer_loop();
+
   display.fillScreen(0);                       // Clear back framebuffer,
   for (int x=0; x<display.width(); x += 192) { // Tile background sprite
     // Although DVIGFX8 is a COLOR display type, we leverage GFX's
@@ -218,6 +227,12 @@ void loop() { // Runs once every frame
     }
   }
 
+  display.setCursor(10,10);
+  unsigned long current = millis();
+  Serial.printf("delta:%d\n",(current-last));
+  display.printf("fps:%d",(int)1000/(current-last));
+  last = current;
+  
   // Swap front/back buffers, do not duplicate current screen state
   // to next frame, we'll draw it new from scratch each time.
   display.swap();
