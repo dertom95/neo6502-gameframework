@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "wavaudio.h": "c",
-        "tusb.h": "c"
+        "tusb.h": "c",
+        "tilemap.h": "c"
     }
 }

@@ -13,6 +13,10 @@
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
+extern void keyboard_setup();
+extern void keyboard_loop();
+
+
  // Pico HDMI for Olimex Neo6502 
  static const struct dvi_serialiser_cfg pico_neo6502_cfg = {
    .pio = DVI_DEFAULT_PIO_INST,
@@ -97,6 +101,7 @@ void setup() { // Runs once on startup
 
   //audio_setup();
   modplayer_setup();
+  keyboard_setup();
   
   if (!display.begin()) { // Blink LED if insufficient RAM
     pinMode(LED_BUILTIN, OUTPUT);
@@ -192,6 +197,7 @@ void loop() { // Runs once every frame
 
   //audio_loop();
   modplayer_loop();
+  keyboard_loop();
 
   display.fillScreen(0);                       // Clear back framebuffer,
   for (int x=0; x<display.width(); x += 192) { // Tile background sprite
