@@ -2,6 +2,8 @@
     "files.associations": {
         "wavaudio.h": "c",
         "tusb.h": "c",
-        "tilemap.h": "c"
+        "tilemap.h": "c",
+        "ng_gfx.h": "c",
+        "stdlib.h": "c"
     }
 }

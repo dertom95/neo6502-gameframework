@@ -26,5 +26,4 @@ add_subdirectory(source)
 add_subdirectory(3rd/PicoDVI/software/libdvi)
 add_subdirectory(3rd/PicoDVI/software/libsprite)
 
-
-add_subdirectory(3rd/PicoDVI/software/apps)
+#add_subdirectory(3rd/PicoDVI/software/apps)

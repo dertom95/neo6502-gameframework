@@ -31,8 +31,9 @@ typedef struct {
 } game_state_t;
 
 
-void gfx_init();
-void gfx_draw();
-void gfx_update();
+void 	 gfx_init();
+void 	 gfx_draw();
+void 	 gfx_update();
+uint8_t* gfx_get_pixelbuffer();
 
 #endif

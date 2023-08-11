@@ -4,13 +4,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Install firmware",
+            "label": "Pico: Firmware install",
             "type": "shell",
             "command": "make pico-install",
             "group": {
               "kind": "build",
               "isDefault": true
             },
-          }
+        },
+        {
+          "label": "Pico: reboot",
+          "type": "shell",
+          "command": "make pico-reboot",
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
+        }        
     ]
 }

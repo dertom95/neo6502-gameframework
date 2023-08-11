@@ -20,6 +20,9 @@
 
 #include "tilemap.h"
 #include "zelda_mini_plus_walk_rgab5515.h"
+#include <string.h>
+
+uint8_t* pixelbuffer;
 
 
 // Pick one:
@@ -81,6 +84,10 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 .pins_clk = 12,
 .invert_diffpairs = true
 };
+
+uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
+	return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
+}
 
 
 static inline int clip(int x, int min, int max) {
@@ -177,6 +184,17 @@ void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 			sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
 		}
 	}
+
+	for (int i=0;i<320;i++){
+		if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
+			continue;
+		}
+		uint8_t data = pixelbuffer[y*320+i];
+		if (data == 0){
+			continue;
+		}
+		pixbuf[i]=gfx_color565(255,0,0);
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -217,6 +235,13 @@ void core1_main() {
 }
 
 void gfx_init() {
+	// canvas pixelbuffer
+	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
+	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
+	for (int i=0;i<800;i++){
+		pixelbuffer[i%320+(i%240)*320]=0xff;
+	}
+
 	vreg_set_voltage(VREG_VSEL);
 	sleep_ms(10);
 	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
@@ -251,8 +276,15 @@ void gfx_draw()
 	}
 }
 
+
+
 void gfx_update()
 {
 	update(&state);
+}
+
+uint8_t* gfx_get_pixelbuffer()
+{
+	return pixelbuffer;
 }
 	
