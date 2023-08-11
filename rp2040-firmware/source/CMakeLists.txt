@@ -5,6 +5,7 @@ add_executable(neo6502firmware
 	main.c
 	ng_gfx.c
 	ng_sound.c
+	ng_utils.c
 )
 
 target_compile_options(neo6502firmware PRIVATE -Wall)

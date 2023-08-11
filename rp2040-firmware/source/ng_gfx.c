@@ -360,6 +360,8 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 		for (int j=0;j<8;j++){
 			if (current_font_line & mask){
 				*buffer_tip = color_idx;
+			} else {
+				*buffer_tip = COL_TRANSPARENT;
 			}
 			mask = mask << 1;
 			buffer_tip++;
@@ -404,23 +406,21 @@ void gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx)
 	}
 }
 
-void gfx_draw_printf(const char *format, ...) {
+void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...) {
 	va_list arg;
     va_start(arg, format);
     char temp[64];
-    char* buffer = temp;
     size_t len = vsnprintf(temp, sizeof(temp), format, arg);
     va_end(arg);
 
     if (len > sizeof(temp) - 1) {
 		// start over
-        char temp[len+1];
-		buffer = temp;
+        char newtemp[len+1];
         va_start(arg, format);
-        vsnprintf(temp, sizeof(temp), format, arg);
+        vsnprintf(newtemp, sizeof(temp), format, arg);
         va_end(arg);
-	    gfx_draw_text(0,0,temp, COL_BLACK);
+	    gfx_draw_text(x,y,newtemp, color_idx);
     } else {
-		gfx_draw_text(0,0,buffer, COL_BLACK);
+		gfx_draw_text(x,y,temp, color_idx);
 	}
 }

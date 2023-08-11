@@ -11,6 +11,7 @@
         "the_softliner.h": "c",
         "mod_data.h": "c",
         "stdint.h": "c",
-        "thats_cool.h": "c"
+        "thats_cool.h": "c",
+        "ng_utils.h": "c"
     }
 }
