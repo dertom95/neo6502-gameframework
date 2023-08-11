@@ -4,6 +4,8 @@
         "tusb.h": "c",
         "tilemap.h": "c",
         "ng_gfx.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "font_8x8.h": "c",
+        "stddef.h": "c"
     }
 }

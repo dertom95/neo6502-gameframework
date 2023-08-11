@@ -13,6 +13,15 @@
             },
         },
         {
+          "label": "Pico: Firmware install and reboot",
+          "type": "shell",
+          "command": "make pico-install && make pico-reboot",
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
+      },
+      {
           "label": "Pico: reboot",
           "type": "shell",
           "command": "make pico-reboot",
@@ -20,6 +29,16 @@
             "kind": "build",
             "isDefault": true
           },
+        },
+        {
+          "label": "Convert Assets",
+          "type": "shell",
+          "command": "make assets-create",
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
         }        
+
     ]
 }

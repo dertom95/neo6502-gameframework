@@ -3,6 +3,14 @@ import argparse
 
 def convert_to_rgb565(rgb):
     r, g, b = rgb
+
+    # if (r>0):
+    #     r=r-1
+    # if (g>0):
+    #     g=g-1
+    # if (b>0):
+    #     b=b-1
+
     r = (r >> 3) & 0x1F
     g = (g >> 2) & 0x3F
     b = (b >> 3) & 0x1F
@@ -18,7 +26,7 @@ def generate_header_file(image_path, header_file_path, array_name):
         header_file.write('#ifndef {0}_H\n'.format(array_name.upper()))
         header_file.write('#define {0}_H\n\n'.format(array_name.upper()))
         header_file.write('#include <stdint.h>\n\n')
-        header_file.write('const static uint16_t {0}[] = {{\n'.format(array_name))
+        header_file.write('static uint16_t {0}[] = {{\n'.format(array_name))
 
         for y in range(height):
             for x in range(width):

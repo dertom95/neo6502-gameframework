@@ -19,11 +19,13 @@
 #include "tile.h"
 
 #include "tilemap.h"
+#include "gen/font_8.h"
+#include "gen/color_palette.h"
 #include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
 
-uint8_t* pixelbuffer;
-
+uint8_t* pixelbuffer=NULL; // indexed 8bit
+uint8_t* font=NULL; 		  // 1bpp
 
 // Pick one:
 #define MODE_640x480_60Hz
@@ -193,7 +195,8 @@ void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 		if (data == 0){
 			continue;
 		}
-		pixbuf[i]=gfx_color565(255,0,0);
+		pixbuf[i]=color_palette[data];
+		//pixbuf[i]=gfx_color565(254,254,254);
 	}
 }
 
@@ -238,9 +241,21 @@ void gfx_init() {
 	// canvas pixelbuffer
 	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
 	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
+
+	font = (uint8_t*)bin2c_font8_bin;
+
 	for (int i=0;i<800;i++){
-		pixelbuffer[i%320+(i%240)*320]=0xff;
+		gfx_draw_pixel(i%320,i%240,(uint8_t)(i & 0xff));
 	}
+
+	for (int i=0;i<30;i++){
+		gfx_draw_char(i*9,10,'!'+i,COL_ORANGE);
+		gfx_draw_char(i*9,20,'@'+i,COL_RED);
+	}
+	// gfx_draw_char(18,10,'M',0);
+	// gfx_draw_char(24,10,'O',0);
+
+	gfx_draw_text(80,100,"-------------\n##009FORTUNA\n##008DUESSELDORF\n----##R---------",COL_BLACK);
 
 	vreg_set_voltage(VREG_VSEL);
 	sleep_ms(10);
@@ -276,8 +291,6 @@ void gfx_draw()
 	}
 }
 
-
-
 void gfx_update()
 {
 	update(&state);
@@ -288,3 +301,104 @@ uint8_t* gfx_get_pixelbuffer()
 	return pixelbuffer;
 }
 	
+void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
+{
+	color_palette[color_idx]=color565;
+}
+
+uint16_t gfx_get_palettecolor(uint8_t color_idx)
+{
+	return color_palette[color_idx];
+}
+
+void     gfx_set_font(uint8_t* font_bpp1)
+{
+	font = font_bpp1;
+}
+
+// canvas functions
+uint8_t  gfx_get_pixel(uint16_t x, uint16_t y)
+{
+	return pixelbuffer[y*FRAME_WIDTH + x];
+}
+
+void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
+{
+	pixelbuffer[y*FRAME_WIDTH + x] = color_idx;
+}
+
+// get pointer to character in fontbuffer
+uint8_t* _char2fontbuffer(uint8_t ch)
+{
+	uint16_t pos = 0;
+
+	if (ch<94){
+		pos = ch-32; 
+	}
+
+	return font+pos*8;
+}
+
+uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
+{
+//	return pixelbuffer+y*FRAME_WIDTH+x;
+	return &pixelbuffer[y*FRAME_WIDTH+x-1];
+}
+
+void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
+{
+	uint8_t* character_ptr = _char2fontbuffer(ch);
+
+	for (int i=0;i<8;i++){
+		// set tip on draw-position
+		uint8_t* buffer_tip = _pixelbuffer_location_ptr(x,y++);
+		uint8_t current_font_line = *(character_ptr++);
+		uint8_t mask = 1;
+
+		// unfold? let's not wait with crazy stuff
+		for (int j=0;j<8;j++){
+			if (current_font_line & mask){
+				*buffer_tip = color_idx;
+			}
+			mask = mask << 1;
+			buffer_tip++;
+		}
+	}
+}
+
+void gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx)
+{
+	uint16_t initial_x = x;
+	uint8_t initial_color = color_idx;
+
+	static char number[4]={0,0,0,0};
+
+	for	(int i=0,iEnd=strlen(txt);i<iEnd;i++){
+		char ch = txt[i];
+		switch (ch){
+			case '\n': 
+				x = initial_x;
+				y += 8; 
+				break; 
+			case '#':
+				if (i+1 < iEnd && txt[i+1]=='#'){
+					int pos = i+2;
+
+					if (txt[pos]=='R'){
+						color_idx = initial_color;
+						i=pos;
+						continue;
+					} else {
+						strncpy(number,txt + pos,3);
+						color_idx = atoi(number);
+						i=pos+1+1;
+						continue;
+					}
+				}
+			default:
+				gfx_draw_char(x,y,ch,color_idx);
+				x+=8;
+				break;
+		}
+	}
+}
