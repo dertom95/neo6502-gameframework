@@ -1,3 +1,6 @@
 [submodule "rp2040-firmware/3rd/PicoDVI"]
 	path = rp2040-firmware/3rd/PicoDVI
 	url = https://github.com/Wren6991/PicoDVI.git
+[submodule "rp2040-firmware/3rd/pico-mod-player"]
+	path = rp2040-firmware/3rd/pico-mod-player
+	url = https://github.com/moefh/pico-mod-player.git

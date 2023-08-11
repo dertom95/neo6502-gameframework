@@ -251,6 +251,7 @@ void gfx_init() {
 	for (int i=0;i<30;i++){
 		gfx_draw_char(i*9,10,'!'+i,COL_ORANGE);
 		gfx_draw_char(i*9,20,'@'+i,COL_RED);
+		gfx_draw_char(i*9,30,'a'+i,COL_BLUE_LIGHT);
 	}
 	// gfx_draw_char(18,10,'M',0);
 	// gfx_draw_char(24,10,'O',0);
@@ -332,7 +333,7 @@ uint8_t* _char2fontbuffer(uint8_t ch)
 {
 	uint16_t pos = 0;
 
-	if (ch<94){
+	if (ch<127){
 		pos = ch-32; 
 	}
 
@@ -400,5 +401,26 @@ void gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx)
 				x+=8;
 				break;
 		}
+	}
+}
+
+void gfx_draw_printf(const char *format, ...) {
+	va_list arg;
+    va_start(arg, format);
+    char temp[64];
+    char* buffer = temp;
+    size_t len = vsnprintf(temp, sizeof(temp), format, arg);
+    va_end(arg);
+
+    if (len > sizeof(temp) - 1) {
+		// start over
+        char temp[len+1];
+		buffer = temp;
+        va_start(arg, format);
+        vsnprintf(temp, sizeof(temp), format, arg);
+        va_end(arg);
+	    gfx_draw_text(0,0,temp, COL_BLACK);
+    } else {
+		gfx_draw_text(0,0,buffer, COL_BLACK);
 	}
 }

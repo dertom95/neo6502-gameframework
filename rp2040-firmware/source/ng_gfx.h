@@ -4,6 +4,7 @@
 #define __GFX_H__
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
@@ -66,6 +67,6 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)
 void     gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx);
-
+void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 #endif

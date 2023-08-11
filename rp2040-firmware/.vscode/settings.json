@@ -6,6 +6,11 @@
         "ng_gfx.h": "c",
         "stdlib.h": "c",
         "font_8x8.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "ng_sound.h": "c",
+        "the_softliner.h": "c",
+        "mod_data.h": "c",
+        "stdint.h": "c",
+        "thats_cool.h": "c"
     }
 }

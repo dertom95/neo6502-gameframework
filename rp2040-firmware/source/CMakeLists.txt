@@ -1,6 +1,10 @@
 add_executable(neo6502firmware
+	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/audio.c
+	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
+
 	main.c
 	ng_gfx.c
+	ng_sound.c
 )
 
 target_compile_options(neo6502firmware PRIVATE -Wall)

@@ -18,7 +18,9 @@ include_directories(
 	3rd/PicoDVI/software/include
     3rd/PicoDVI/software/libdvi
     3rd/PicoDVI/software/libsprite
-	)
+	3rd/pico-mod-player/lib
+	3rd/pico-mod-player/data
+)
 
 
 add_subdirectory(source)
