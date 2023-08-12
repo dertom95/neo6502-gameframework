@@ -4,3 +4,6 @@
 [submodule "rp2040-firmware/3rd/pico-mod-player"]
 	path = rp2040-firmware/3rd/pico-mod-player
 	url = https://github.com/moefh/pico-mod-player.git
+[submodule "rp2040-firmware/3rd/Pico-PIO-USB"]
+	path = rp2040-firmware/3rd/Pico-PIO-USB
+	url = https://github.com/sekigon-gonnoc/Pico-PIO-USB.git

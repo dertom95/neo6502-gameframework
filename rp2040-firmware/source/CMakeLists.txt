@@ -6,6 +6,7 @@ add_executable(neo6502firmware
 	ng_gfx.c
 	ng_sound.c
 	ng_utils.c
+	ng_io.c
 )
 
 target_compile_options(neo6502firmware PRIVATE -Wall)
@@ -21,13 +22,17 @@ target_link_libraries(neo6502firmware
 	pico_util
 	libdvi
 	libsprite
+	tinyusb_host tinyusb_board
+#	pico_pio_usb
 )
+
+target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core )
 
 #delay programstart
 #target_compile_definitions(neo6502firmware PRIVATE PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=3000)
 
-pico_enable_stdio_usb(neo6502firmware 1)
-pico_enable_stdio_uart(neo6502firmware 0)
+pico_enable_stdio_uart(neo6502firmware 1)
+pico_enable_stdio_usb(neo6502firmware 0)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(neo6502firmware)

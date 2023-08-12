@@ -1,6 +1,7 @@
 #include "ng_gfx.h"
 #include "ng_sound.h"
 #include "ng_utils.h"
+#include "ng_io.h"
 
 #include "pico/stdlib.h"
 #include "the_softliner.h"
@@ -8,9 +9,12 @@
 #include<stdio.h>
 
 int main(){
-	stdio_init_all();
+	//stdio_init_all();
     
     gfx_init();
+
+    usb_init();
+    
     sound_init(SOUND_OUTPUT_FREQUENCY_22K);
 //    sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_22K, true );
 
@@ -18,6 +22,9 @@ int main(){
     while(1){
         gfx_draw();
         gfx_update();
+        
+        usb_update();
+
         sound_update();
         
         int current_millis = utils_millis();

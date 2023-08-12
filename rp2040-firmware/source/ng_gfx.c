@@ -24,6 +24,8 @@
 #include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
 
+#include "ng_io.h"
+
 uint8_t* pixelbuffer=NULL; // indexed 8bit
 uint8_t* font=NULL; 		  // 1bpp
 
@@ -155,7 +157,6 @@ void update(game_state_t *state) {
 	}
 }
 
-
 void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 	tilebg_t bg = {
 		.xscroll = gstate->cam_x,
@@ -175,28 +176,31 @@ void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 
 	tile16(pixbuf, &bg, y, FRAME_WIDTH);
 
-	for (int i = 0; i < N_CHARACTERS; ++i) {
-		const character_t *ch = &gstate->chars[i];
-		sp.x = ch->pos_x - gstate->cam_x;
-		const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
-			16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
-		for (int tile = 0; tile < ch->ntiles; ++tile) {
-			sp.y = ch->pos_y - gstate->cam_y + tile * 16;
-			sp.img = basetile + tile * ch->tilestride * 16 * 16;
-			sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
-		}
-	}
+	// for (int i = 0; i < N_CHARACTERS; ++i) {
+	// 	const character_t *ch = &gstate->chars[i];
+	// 	sp.x = ch->pos_x - gstate->cam_x;
+	// 	const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
+	// 		16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
+	// 	for (int tile = 0; tile < ch->ntiles; ++tile) {
+	// 		sp.y = ch->pos_y - gstate->cam_y + tile * 16;
+	// 		sp.img = basetile + tile * ch->tilestride * 16 * 16;
+	// 		sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
+	// 	}
+	// }
 
-	for (int i=0;i<320;i++){
-		if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
-			continue;
+	
+	if (y<50){
+		for (int i=0;i<320;i++){
+			if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
+				continue;
+			}
+			uint8_t data = pixelbuffer[y*320+i];
+			if (data == 0){
+				continue;
+			}
+			pixbuf[i]=color_palette[data];
+			//pixbuf[i]=gfx_color565(254,254,254);
 		}
-		uint8_t data = pixelbuffer[y*320+i];
-		if (data == 0){
-			continue;
-		}
-		pixbuf[i]=color_palette[data];
-		//pixbuf[i]=gfx_color565(254,254,254);
 	}
 }
 

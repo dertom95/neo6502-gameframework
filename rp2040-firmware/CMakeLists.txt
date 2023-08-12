@@ -20,6 +20,7 @@ include_directories(
     3rd/PicoDVI/software/libsprite
 	3rd/pico-mod-player/lib
 	3rd/pico-mod-player/data
+#	3rd/Pico-PIO-USB/src
 )
 
 
@@ -27,5 +28,6 @@ add_subdirectory(source)
 
 add_subdirectory(3rd/PicoDVI/software/libdvi)
 add_subdirectory(3rd/PicoDVI/software/libsprite)
+#add_subdirectory(3rd/Pico-PIO-USB)
 
 #add_subdirectory(3rd/PicoDVI/software/apps)
