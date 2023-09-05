@@ -28,7 +28,7 @@
 #define COL_PINK 15
 #define COL_PEACH 16
 
-#define N_CHARACTERS 2
+#define N_CHARACTERS 20
 
 
 typedef struct {

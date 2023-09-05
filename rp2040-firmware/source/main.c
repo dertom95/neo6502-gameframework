@@ -16,20 +16,28 @@ int main(){
     usb_init();
     
     sound_init(SOUND_OUTPUT_FREQUENCY_22K);
-//    sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_22K, true );
+    sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_22K, true );
 
     int last_millis = utils_millis();
+    int last_sound_ms = 0;
     while(1){
         gfx_draw();
         gfx_update();
         
         usb_update();
 
-        sound_update();
         
         int current_millis = utils_millis();
+
+        if (current_millis - last_sound_ms > 15){
+            sound_update();
+            last_sound_ms = current_millis;
+        }
+
+
         int fps = 1000 / (current_millis - last_millis);
-        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
+//        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
+        gfx_draw_printf(0,0,COL_BLACK,"fps:%d",fps);
         last_millis = current_millis;
     }
 

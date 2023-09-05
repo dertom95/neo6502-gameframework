@@ -26,7 +26,7 @@
 #include "ng_io.h"
 #include "ng_gfx.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 #include "hardware/gpio.h"
 #include "bsp/board.h"

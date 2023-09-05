@@ -176,20 +176,21 @@ void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 
 	tile16(pixbuf, &bg, y, FRAME_WIDTH);
 
-	// for (int i = 0; i < N_CHARACTERS; ++i) {
-	// 	const character_t *ch = &gstate->chars[i];
-	// 	sp.x = ch->pos_x - gstate->cam_x;
-	// 	const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
-	// 		16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
-	// 	for (int tile = 0; tile < ch->ntiles; ++tile) {
-	// 		sp.y = ch->pos_y - gstate->cam_y + tile * 16;
-	// 		sp.img = basetile + tile * ch->tilestride * 16 * 16;
-	// 		sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
-	// 	}
-	// }
+	for (int i = 0; i < N_CHARACTERS; ++i) {
+		const character_t *ch = &gstate->chars[i];
+		sp.x = ch->pos_x - gstate->cam_x;
+		const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
+			16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
+		for (int tile = 0; tile < ch->ntiles; ++tile) {
+			sp.y = ch->pos_y - gstate->cam_y + tile * 16;
+			sp.img = basetile + tile * ch->tilestride * 16 * 16;
+			sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
+		}
+	}
 
 	
-	if (y<50){
+	//if (y<50)
+	{
 		for (int i=0;i<320;i++){
 			if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
 				continue;
@@ -248,19 +249,19 @@ void gfx_init() {
 
 	font = (uint8_t*)bin2c_font8_bin;
 
-	for (int i=0;i<800;i++){
-		gfx_draw_pixel(i%320,i%240,(uint8_t)(i & 0xff));
-	}
+	// for (int i=0;i<800;i++){
+	// 	gfx_draw_pixel(i%320,i%240,(uint8_t)(i & 0xff));
+	// }
 
-	for (int i=0;i<30;i++){
-		gfx_draw_char(i*9,10,'!'+i,COL_ORANGE);
-		gfx_draw_char(i*9,20,'@'+i,COL_RED);
-		gfx_draw_char(i*9,30,'a'+i,COL_BLUE_LIGHT);
-	}
-	// gfx_draw_char(18,10,'M',0);
-	// gfx_draw_char(24,10,'O',0);
+	// for (int i=0;i<30;i++){
+	// 	gfx_draw_char(i*9,10,'!'+i,COL_ORANGE);
+	// 	gfx_draw_char(i*9,20,'@'+i,COL_RED);
+	// 	gfx_draw_char(i*9,30,'a'+i,COL_BLUE_LIGHT);
+	// }
+	// // gfx_draw_char(18,10,'M',0);
+	// // gfx_draw_char(24,10,'O',0);
 
-	gfx_draw_text(80,100,"-------------\n##009FORTUNA\n##008DUESSELDORF\n----##R---------",COL_BLACK);
+	// gfx_draw_text(80,100,"-------------\n##009FORTUNA\n##008DUESSELDORF\n----##R---------",COL_BLACK);
 
 	vreg_set_voltage(VREG_VSEL);
 	sleep_ms(10);
@@ -273,11 +274,12 @@ void gfx_init() {
 	dvi0.timing = &DVI_TIMING;
 	dvi0.ser_cfg = _pico_neo6502_cfg;
 	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
+	sleep_ms(10);
 
-	printf("Core 1 start\n");
+	//printf("Core 1 start\n");
 	multicore_launch_core1(core1_main);
 
-	printf("Start rendering\n");
+	//printf("Start rendering\n");
 	game_init(&state);
 }
 
