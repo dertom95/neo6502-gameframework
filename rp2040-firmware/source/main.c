@@ -3,14 +3,16 @@
 #include "ng_utils.h"
 #include "ng_io.h"
 
-#include "pico/stdlib.h"
 #include "the_softliner.h"
+#include <pico/stdlib.h>
+#include <signal.h>
 
 #include<stdio.h>
 
+// #define __BREAKPOINT__ raise(SIGINT);
+
 int main(){
 	//stdio_init_all();
-    
     gfx_init();
 
     usb_init();

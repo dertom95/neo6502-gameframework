@@ -9,7 +9,8 @@ add_executable(neo6502firmware
 	ng_io.c
 )
 
-target_compile_options(neo6502firmware PRIVATE -Wall)
+#target_compile_options(neo6502firmware PRIVATE -Wall -g -O0)
+target_compile_options(neo6502firmware PRIVATE -Wall )
 
 target_compile_definitions(neo6502firmware PRIVATE
 	DVI_DEFAULT_SERIAL_CONFIG=${DVI_DEFAULT_SERIAL_CONFIG}

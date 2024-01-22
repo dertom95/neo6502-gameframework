@@ -12,6 +12,12 @@
         "mod_data.h": "c",
         "stdint.h": "c",
         "thats_cool.h": "c",
-        "ng_utils.h": "c"
+        "ng_utils.h": "c",
+        "pico.h": "c",
+        "config.h": "c",
+        "error.h": "c",
+        "signal.h": "c",
+        "sprite.h": "c",
+        "dvi.h": "c"
     }
 }
