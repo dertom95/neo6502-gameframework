@@ -3,11 +3,19 @@ add_executable(neo6502firmware
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
 
 	main.c
+
+	core/memory.cpp
+	core/mos65C02.cpp
+	core/roms.cpp
+	../test/gen_prg1.c
+
 	ng_gfx.c
 	ng_sound.c
 	ng_utils.c
 	ng_io.c
 )
+
+add_definitions(-DPICO_NEO6502=1 -DCHIPS_IMPL)
 
 #target_compile_options(neo6502firmware PRIVATE -Wall -g -O0)
 target_compile_options(neo6502firmware PRIVATE -Wall )

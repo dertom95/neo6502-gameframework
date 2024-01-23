@@ -18,6 +18,11 @@
         "error.h": "c",
         "signal.h": "c",
         "sprite.h": "c",
-        "dvi.h": "c"
-    }
+        "dvi.h": "c",
+        "memory.h": "c",
+        "mod_play.h": "c",
+        "audio.h": "c",
+        "stdbool.h": "c"
+    },
+    "cmake.configureArgs": ["-DPICO_=1"]    
 }

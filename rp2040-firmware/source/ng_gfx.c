@@ -26,6 +26,8 @@
 
 #include "ng_io.h"
 
+#include "core/wdc65C02cpu.h"
+
 uint8_t* pixelbuffer=NULL; // indexed 8bit
 uint8_t* font=NULL; 		  // 1bpp
 
@@ -227,13 +229,36 @@ void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
 	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 2 * words_per_channel, pixwidth / 2, DVI_16BPP_RED_MSB,   DVI_16BPP_RED_LSB  );
 }
 
+uint16_t iCount;
+// uint16_t addr;
+// uint8_t data;
+bool rw;
+
+#include "memory.h"
+
+void tick6502(void){
+	//if (!iCount++) DSPSync();                                               // 1 time in 64k. About 25-30Hz.
+	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
+	if (rw) {                                                               // Read put data on data lines.
+		wdc65C02cpu_set_data(mem[address]);
+	} else {                                                                // Write get it and store in memory.
+		data = mem[address] = wdc65C02cpu_get_data();
+		// if (address == CONTROLPORT && data != 0) {                             // Message passed
+		// 	DSPHandler(cpuMemory+controlPort,cpuMemory);                    // Go do it. Synchronous, could be Async
+		// }
+	}  	
+}
+
 void core1_main() {
 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
 	while (queue_is_empty(&dvi0.q_tmds_valid))
 		__wfe();
 	dvi_start(&dvi0);
+    wdc65C02cpu_init();                                                         // Set up the 65C02
+    wdc65C02cpu_reset();
 	while (1) {
 		for (uint y = 1; y < FRAME_HEIGHT; y += 2) {
+			tick6502();
 			render_scanline(core1_scanbuf, y, &state);
 			uint32_t *tmdsbuf = (uint32_t*)multicore_fifo_pop_blocking();
 			encode_scanline(core1_scanbuf, tmdsbuf);
