@@ -15,7 +15,14 @@
                 "/home/ttrocha/_dev/terra1/retro/neo/neo6502-gameframework/rp2040-firmware/3rd/PicoDVI/software/libdvi",
                 "/home/ttrocha/_dev/terra1/retro/neo/neo6502-gameframework/rp2040-firmware/3rd/PicoDVI/software/libsprite",
                 "/opt/pico-sdk/src/rp2_common/hardware_gpio/include",
+                "/opt/pico-sdk/src/rp2_common/pico_multicore/include",
                 "/opt/pico-sdk/src/rp2040/hardware_structs/include",
+                "/opt/pico-sdk/src/rp2_common/hardware_sync/include",
+                "/opt/pico-sdk/src/common/pico_sync/include",
+                "/opt/pico-sdk/src/rp2_common/hardware_irq/include",
+                "/opt/pico-sdk/lib/tinyusb/src",
+                "3rd/PicoDVI/software/libdvi",
+                "3rd/PicoDVI/software/libsprite"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

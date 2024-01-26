@@ -22,7 +22,13 @@
         "memory.h": "c",
         "mod_play.h": "c",
         "audio.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "multicore.h": "c",
+        "gpio.h": "c",
+        "tile.h": "c",
+        "hid.h": "c",
+        "ng_io.h": "c",
+        "roms.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

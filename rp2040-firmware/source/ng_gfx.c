@@ -274,27 +274,9 @@ void gfx_init() {
 
 	font = (uint8_t*)bin2c_font8_bin;
 
-	// for (int i=0;i<800;i++){
-	// 	gfx_draw_pixel(i%320,i%240,(uint8_t)(i & 0xff));
-	// }
-
-	// for (int i=0;i<30;i++){
-	// 	gfx_draw_char(i*9,10,'!'+i,COL_ORANGE);
-	// 	gfx_draw_char(i*9,20,'@'+i,COL_RED);
-	// 	gfx_draw_char(i*9,30,'a'+i,COL_BLUE_LIGHT);
-	// }
-	// // gfx_draw_char(18,10,'M',0);
-	// // gfx_draw_char(24,10,'O',0);
-
-	// gfx_draw_text(80,100,"-------------\n##009FORTUNA\n##008DUESSELDORF\n----##R---------",COL_BLACK);
-
 	vreg_set_voltage(VREG_VSEL);
 	sleep_ms(10);
 	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
-
-	//setup_default_uart();
-
-	printf("Configuring DVI\n");
 
 	dvi0.timing = &DVI_TIMING;
 	dvi0.ser_cfg = _pico_neo6502_cfg;
