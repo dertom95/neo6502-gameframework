@@ -29,6 +29,8 @@
 
 #include "ng_io.h"
 #include "ng_gfx.h"
+#include "core/memory.h"
+
 #include "class/hid/hid.h"
 
 #define DEBUG 1
@@ -46,17 +48,12 @@
 #define UART_TX_PIN 28
 #endif
 
-#define HID_A 0x04
-#define HID_Z 0x1D
-
 int16_t mouse_x=0;
 int16_t mouse_y=0;
-
-typedef struct {
-    uint8_t buttons;
-    int8_t x;
-    int8_t y;
-} __attribute__((packed)) mouse_report_t;
+uint8_t mouse_btn_state=0;
+int8_t  mouse_wheel=0;
+uint8_t keyboard_last_pressed_keycode = 0;
+char    keyboard_last_pressed_key = 0;
 
 uint8_t kbd_addr = 0;
 uint8_t kbd_inst = 0;
@@ -325,14 +322,9 @@ bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
 
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_report, uint16_t desc_len) {
-  gfx_draw_printf(0,40,COL_BLACK,"HID device address = %d, instance = %d is mounted\n", dev_addr, instance);
-
   #ifndef HOLLOW
   switch(tuh_hid_interface_protocol(dev_addr, instance)) {
     case HID_ITF_PROTOCOL_KEYBOARD:
-      #if DEBUG
-      gfx_draw_printf(0,40,COL_BLACK,"HID Interface Protocol = Keyboard\n");
-      #endif
       kbd_addr = dev_addr;
       kbd_inst = instance;
       tuh_hid_receive_report(dev_addr, instance);
@@ -340,9 +332,6 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_re
     break;
     
     case HID_ITF_PROTOCOL_MOUSE:
-      #if DEBUG
-      gfx_draw_printf(0,40,COL_BLACK,"HID Interface Protocol = Mouse\n");
-      #endif
       tuh_hid_receive_report(dev_addr, instance);
       _mouse_connected = true;
     break;
@@ -351,9 +340,6 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_re
 }
 
 void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
-  #if DEBUG
-  gfx_draw_printf(0,0,COL_BLACK,"HID device address = %d, instance = %d is unmounted\r\n", dev_addr, instance);
-  #endif
 }
 
 
@@ -361,49 +347,36 @@ void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
 bool keyboard_receive = false;
 
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* report, uint16_t len) {
-  gfx_draw_printf(0,0,COL_BLACK,"tuh_hid_report_received_cb");
-
   #ifndef HOLLOW
 
-  uint8_t ch=0;
-
   switch(tuh_hid_interface_protocol(dev_addr, instance)) {
-    case HID_ITF_PROTOCOL_KEYBOARD: 
-
+    case HID_ITF_PROTOCOL_KEYBOARD: {
       tuh_hid_receive_report(dev_addr, instance);
-
       current_report = *(hid_keyboard_report_t*)report;
+      uint8_t keycode = keyboard_last_pressed_keycode = current_report.keycode[0];
 
-      if ((report[2]<=0x64) && (report[2]>=4)) {	//if valid HID code
-          if (report[0] & 0x22) {			//if Shift
-            ch = hid2asciiShift[report[2]];
-          } else if (report[0] & 0x11) {		//if Ctrl
-              if (report[2] <= 0x1A)
-                ch = hid2asciiCtrl[report[2]];
-              else
-                ch = hid2ascii[report[2]];
-            } else 
-                ch = hid2ascii[report[2]];		//no Ctrl no Shift 
-        };
-
-      #if DEBUG
-      if (ch) {
-        gfx_draw_printf(0,20,COL_BLACK,"%c : %02x",ch,report[2]);
-      }
-      //printf("keyboard %02x %02x %02x  \n", report[0], report[1], report[2]);
-      #endif
-      //tuh_hid_receive_report(dev_addr, instance);
-    break;
-    
-    case HID_ITF_PROTOCOL_MOUSE:
+      if ((keycode<=0x64) && (keycode>=4)) {	//if valid HID code
+        if (current_report.modifier & 0x22) {			//if Shift
+          keyboard_last_pressed_key = hid2asciiShift[keycode];
+        } else if (current_report.modifier & 0x11) {		//if Ctrl
+            if (keycode <= 0x1A)
+              keyboard_last_pressed_key = hid2asciiCtrl[keycode];
+            else
+              keyboard_last_pressed_key = hid2ascii[keycode];
+          } else {
+              keyboard_last_pressed_key = hid2ascii[keycode];		//no Ctrl no Shift 
+          }
+      };
+      break;
+    }
+    case HID_ITF_PROTOCOL_MOUSE:{
       tuh_hid_receive_report(dev_addr, instance);
-      
-      #if DEBUG
-      gfx_draw_printf(0,10,COL_BLACK,"mouse %02x %02x %02x \n", report[0], report[1], report[2]);
-      #endif
-      mouse_report_t* mouse = (mouse_report_t*)report;
+
+      hid_mouse_report_t* mouse = (hid_mouse_report_t*)report;
       mouse_x += mouse->x;
       mouse_y += mouse->y;
+      mouse_btn_state = mouse->buttons;
+      mouse_wheel = mouse->wheel;
 
       if (mouse_x < 0) mouse_x=0;
       if (mouse_x > 320) mouse_x=320;
@@ -411,18 +384,19 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
       if (mouse_y > 240) mouse_y=240;
       
       //tuh_hid_receive_report(dev_addr, instance);
-    break;
+      break;
+    }
   }
 
   #endif
 }
 
-bool keyboard_connected(void)
+bool io_keyboard_connected(void)
 {
   return _keyboard_connected;
 }
 
-bool mouse_connected(void)
+bool io_mouse_connected(void)
 {
   return _mouse_connected;
 }
@@ -439,14 +413,14 @@ void usb_update(void){
   tuh_task();  
 }
 
-bool keyboard_is_pressed(uint8_t keycode){
+bool io_keyboard_is_pressed(uint8_t keycode){
   return find_key_in_report(&current_report,keycode) && !find_key_in_report(&previous_report,keycode);
 }
 
-bool keyboard_is_down(uint8_t keycode){
+bool io_keyboard_is_down(uint8_t keycode){
   return find_key_in_report(&current_report,keycode) && find_key_in_report(&previous_report,keycode);
 }
 
-bool keyboard_is_released(uint8_t keycode){
+bool io_keyboard_is_released(uint8_t keycode){
   return !find_key_in_report(&current_report,keycode) && find_key_in_report(&previous_report,keycode);
 }

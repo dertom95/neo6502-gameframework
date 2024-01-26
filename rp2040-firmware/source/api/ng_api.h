@@ -5,10 +5,8 @@
 
 #define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
 #define MM_KEYSET       (MM_SB + 0x01)      // uint8
-#define MM_MOUSE_X_LSB  (MM_SB + 0x02)      // uint16 
-#define MM_MOUSE_X_MSB  (MM_SB + 0x03)  
-#define MM_MOUSE_Y_LSB  (MM_SB + 0x04)      // uint16
-#define MM_MOUSE_Y_MSB  (MM_SB + 0x05)  
+#define MM_MOUSE_X      (MM_SB + 0x02)      // uint16 
+#define MM_MOUSE_Y      (MM_SB + 0x04)      // uint16
 #define MM_MOUSE_BTN    (MM_SB + 0x06)      // uint8
 #define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
 #define MM_SCREEN_WIDTH (MM_SB + 0x08)      // uint16

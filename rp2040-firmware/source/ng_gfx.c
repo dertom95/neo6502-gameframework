@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "ng_io.h"
+#include "api/ng_api.h"
 
 #include "core/wdc65C02cpu.h"
 
@@ -160,35 +161,35 @@ void update(game_state_t *state) {
 }
 
 void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
-	tilebg_t bg = {
-		.xscroll = gstate->cam_x,
-		.yscroll = gstate->cam_y,
-		.tileset = zelda_mini_plus_walk,
-		.tilemap = tilemap,
-		.log_size_x = 9,
-		.log_size_y = 8,
-		.tilesize = TILESIZE_16,
-		.fill_loop = (tile_loop_t)tile16_16px_loop
-	};
+	// tilebg_t bg = {
+	// 	.xscroll = gstate->cam_x,
+	// 	.yscroll = gstate->cam_y,
+	// 	.tileset = zelda_mini_plus_walk,
+	// 	.tilemap = tilemap,
+	// 	.log_size_x = 9,
+	// 	.log_size_y = 8,
+	// 	.tilesize = TILESIZE_16,
+	// 	.fill_loop = (tile_loop_t)tile16_16px_loop
+	// };
 
-	sprite_t sp = {
-		.log_size = 4,
-		.has_opacity_metadata = false,
-	};
+	// sprite_t sp = {
+	// 	.log_size = 4,
+	// 	.has_opacity_metadata = false,
+	// };
 
-	tile16(pixbuf, &bg, y, FRAME_WIDTH);
+	// tile16(pixbuf, &bg, y, FRAME_WIDTH);
 
-	for (int i = 0; i < N_CHARACTERS; ++i) {
-		const character_t *ch = &gstate->chars[i];
-		sp.x = ch->pos_x - gstate->cam_x;
-		const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
-			16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
-		for (int tile = 0; tile < ch->ntiles; ++tile) {
-			sp.y = ch->pos_y - gstate->cam_y + tile * 16;
-			sp.img = basetile + tile * ch->tilestride * 16 * 16;
-			sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
-		}
-	}
+	// for (int i = 0; i < N_CHARACTERS; ++i) {
+	// 	const character_t *ch = &gstate->chars[i];
+	// 	sp.x = ch->pos_x - gstate->cam_x;
+	// 	const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
+	// 		16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
+	// 	for (int tile = 0; tile < ch->ntiles; ++tile) {
+	// 		sp.y = ch->pos_y - gstate->cam_y + tile * 16;
+	// 		sp.img = basetile + tile * ch->tilestride * 16 * 16;
+	// 		sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
+	// 	}
+	// }
 
 	
 	//if (y<50)
@@ -198,9 +199,9 @@ void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 				continue;
 			}
 			uint8_t data = pixelbuffer[y*320+i];
-			if (data == 0){
-				continue;
-			}
+			// if (data == 0){
+			// 	continue;
+			// }
 			pixbuf[i]=color_palette[data];
 			//pixbuf[i]=gfx_color565(254,254,254);
 		}
@@ -232,22 +233,9 @@ void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
 uint16_t iCount;
 // uint16_t addr;
 // uint8_t data;
-bool rw;
 
-#include "memory.h"
 
-void tick6502(void){
-	//if (!iCount++) DSPSync();                                               // 1 time in 64k. About 25-30Hz.
-	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
-	if (rw) {                                                               // Read put data on data lines.
-		wdc65C02cpu_set_data(mem[address]);
-	} else {                                                                // Write get it and store in memory.
-		data = mem[address] = wdc65C02cpu_get_data();
-		// if (address == CONTROLPORT && data != 0) {                             // Message passed
-		// 	DSPHandler(cpuMemory+controlPort,cpuMemory);                    // Go do it. Synchronous, could be Async
-		// }
-	}  	
-}
+
 
 void core1_main() {
 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);

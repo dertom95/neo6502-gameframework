@@ -6,15 +6,13 @@
 #define _MEMORY_h
 
 #include <stdint.h>
+#include "../api/ng_config.h"
 
-#define MEMORY_SIZE  0x10000 // 64k
-
-#define KBD   0xd010
-#define DSP   0xd012
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 extern uint8_t  mem[];
 extern uint16_t address;
@@ -22,12 +20,15 @@ extern uint8_t  data;
 extern uint16_t write_address;
 extern uint8_t write_data;
 
+void memory_write_data(uint8_t data);
+uint8_t memory_read_data();
+
 //externally supplied functions
-void initMemory();
+// void initMemory();
 
-void readmemory();
+// void readmemory();
 
-void writememory();
+// void writememory();
 
 #ifdef __cplusplus
 }

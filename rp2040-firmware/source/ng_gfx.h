@@ -9,24 +9,7 @@
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
 
-#define PALETTE_SIZE 255
-#define COL_TRANSPARENT 0
-#define COL_BLACK    1
-#define COL_BLUE_DARK   2
-#define COL_VIOLETTE 3
-#define COL_GREEN_DARK    4
-#define COL_ORANGE_DARK   5
-#define COL_BROWNGREY 6
-#define COL_LIGHTGREY 7
-#define COL_WHITE     8
-#define COL_RED       9  
-#define COL_ORANGE   10
-#define COL_YELLOW   11
-#define COL_GREEN    12
-#define COL_BLUE_LIGHT 13
-#define COL_GREY 14
-#define COL_PINK 15
-#define COL_PEACH 16
+
 
 #define N_CHARACTERS 20
 

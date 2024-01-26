@@ -5,6 +5,7 @@
 
 #include <pico/stdlib.h>
 #include <signal.h>
+#include "api/ng_api.h"
 #include "core/memory.h"
 #include "core/roms.h"
 
@@ -18,6 +19,10 @@
 #endif
 
 // #define __BREAKPOINT__ raise(SIGINT);
+
+#ifdef __cplusplus
+    extern "C" {
+#endif
 
 void fill_tile(uint8_t tX,uint8_t tY,uint8_t col)
 {
@@ -51,31 +56,26 @@ int main(){
         gfx_draw();
         gfx_update();
         
-        gfx_draw_printf(0,0,COL_BLACK,"tuh_hid_report_received_cb %d:%d",address,data);
-
-
-        gfx_draw_printf(0,20,COL_BLACK,"mouse %d:%d",mouse_x,mouse_y);
-
         bool paint = false;
-        if (keyboard_is_pressed(HID_KEY_A)){
+        if (io_keyboard_is_pressed(HID_KEY_A)){
             if (posx>0){
                 posx--;
             }
             paint = true;
         }
-        else if (keyboard_is_pressed(HID_KEY_D)){
+        else if (io_keyboard_is_pressed(HID_KEY_D)){
             if (posx<40){
                 posx++;
             }
             paint = true;
         }
-        else if (keyboard_is_pressed(HID_KEY_W)){
+        else if (io_keyboard_is_pressed(HID_KEY_W)){
             if (posy>0){
                 posy--;
             }
             paint = true;
         }
-        else if (keyboard_is_released(HID_KEY_S)){
+        else if (io_keyboard_is_released(HID_KEY_S)){
             if (posy<30){
                 posy++;
             }
@@ -102,9 +102,13 @@ int main(){
 
         int fps = 1000 / (current_millis - last_millis);
 //        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-        gfx_draw_printf(0,0,COL_BLACK,"fps:%d",fps);
+        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d",fps);
         last_millis = current_millis;
     }
 
 	__builtin_unreachable();
 }
+
+#ifdef __cplusplus
+    }
+#endif

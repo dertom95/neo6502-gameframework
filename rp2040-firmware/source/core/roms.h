@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 bool loadROMS();
 
 #ifdef __cplusplus

@@ -2,17 +2,19 @@ add_executable(neo6502firmware
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/audio.c
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
 
-	main.c
 
-	core/memory.cpp
-	core/mos65C02.cpp
-	core/roms.cpp
+
+	core/memory.c
+	core/wdc65C02cpu.c
+	core/roms.c
 	../test/gen_prg1.c
 
 	ng_gfx.c
 	ng_sound.c
 	ng_utils.c
 	ng_io.c
+
+	main.c	
 )
 
 add_definitions(-DPICO_NEO6502=1 -DCHIPS_IMPL)

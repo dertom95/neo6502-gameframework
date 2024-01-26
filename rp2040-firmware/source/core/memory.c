@@ -38,12 +38,27 @@ void initMemory() {
 void memory_write_data(uint8_t data) {
 
 }
+
+#define CASE_16BIT(NAME,variable) \
+        case NAME: return data = (variable & 0x00ff); \
+        case NAME+1: return data = (variable & 0xff00)>>8; \
+
+#define CASE_8BIT(NAME,variable) \
+        case NAME: return data = (variable);
+
 uint8_t memory_read_data() {
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     switch (address) {
-        case MM_KEYSET : {
-          return data = last_pressed_keycode;
-        }
+        CASE_8BIT(MM_KEYSET,last_pressed_key)
+        CASE_16BIT(MM_MOUSE_X,mouse_x)
+        CASE_16BIT(MM_MOUSE_Y,mouse_y)
+        CASE_8BIT(MM_MOUSE_BTN, mouse_btn_state)
+        CASE_8BIT(MM_MOUSE_WHEEL,mouse_wheel);
+        CASE_16BIT(MM_SCREEN_WIDTH,SCREEN_WIDTH)
+        CASE_16BIT(MM_SCREEN_HEIGHT,SCREEN_HEIGHT)
+        default:
+          //unknown
+          return data = 0x95;  
     }
   } else {
     return data = mem[address];
