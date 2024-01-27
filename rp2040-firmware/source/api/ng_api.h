@@ -9,8 +9,7 @@
 #define MM_MOUSE_Y      (MM_SB + 0x04)      // uint16
 #define MM_MOUSE_BTN    (MM_SB + 0x06)      // uint8
 #define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
-#define MM_SCREEN_WIDTH (MM_SB + 0x08)      // uint16
-#define MM_SCREEN_HEIGHT (MM_SB + 0x0a)     // uint16
+
 
 #define MOUSE_BUTTON_LEFT     = (1 << 0), ///< Left button
 #define MOUSE_BUTTON_RIGHT    = (1 << 1), ///< Right button

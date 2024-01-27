@@ -120,6 +120,15 @@ void game_init(game_state_t *state) {
 	}
 }
 
+void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
+{
+    for (int y=tY*8,yEnd=(tY*8+8);y<yEnd;y++){
+        for (int x=tX*8,xEnd=(tX*8+8);x<xEnd;x++){
+            gfx_draw_pixel(x,y,col);
+        }
+    }
+}
+
 void update(game_state_t *state) {
 	static bool cointoss = false;
 	if ((cointoss = !cointoss))

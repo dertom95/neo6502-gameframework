@@ -28,7 +28,9 @@
         "tile.h": "c",
         "hid.h": "c",
         "ng_io.h": "c",
-        "roms.h": "c"
+        "roms.h": "c",
+        "ng_config.h": "c",
+        "stdio.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

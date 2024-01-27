@@ -197,10 +197,24 @@ bool rw;
 
 void tick6502(void){
 	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
-	if (rw) {                                                               // Read put data on data lines.
-		wdc65C02cpu_set_data(mem[address]);
+	if (rw) {                
+        //uint8_t data = mem[address];                                               // Read put data on data lines.
+        uint8_t data = memory_read_data();
+		wdc65C02cpu_set_data(data);
 	} else {                                                                // Write get it and store in memory.
-		data = mem[address] = wdc65C02cpu_get_data();
+		data = wdc65C02cpu_get_data();
+        memory_write_data(data);
+	}  	
+}
+
+void tick65022(void){
+	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
+	if (rw) {      
+        uint8_t set_data = memory_read_data();                                                         // Read put data on data lines.
+		wdc65C02cpu_set_data(set_data);
+	} else {      
+		data = wdc65C02cpu_get_data();
+        memory_write_data(data);                                                          // Write get it and store in memory.
 	}  	
 }
 

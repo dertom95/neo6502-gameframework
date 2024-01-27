@@ -9,6 +9,7 @@ extern "C" {
 #include "roms.h"
 #include "../api/ng_api.h"
 #include "../ng_io.h"
+#include "../ng_gfx.h"
 
 /// <summary>
 /// 64k RAM
@@ -18,9 +19,6 @@ uint8_t mem[MEMORY_SIZE];
 // address and data registers
 uint16_t address;
 uint8_t  data;
-
-uint16_t write_address;
-uint8_t write_data;
 
 /// <summary>
 /// initialise memory
@@ -36,7 +34,17 @@ void initMemory() {
 }
 
 void memory_write_data(uint8_t data) {
-
+  if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
+    // memory map
+  }
+  if (address >= MEMORY_TILEAREA_START && address <= MEMORY_TILEAREA_END){
+      // simple blocky tilemap
+      uint16_t addressTilemapSpace = address - MEMORY_TILEAREA_START;
+      gfx_tile_set_color(addressTilemapSpace % MEMORY_TILES_WIDTH, addressTilemapSpace / MEMORY_TILES_WIDTH, data);
+  } 
+  else {
+    mem[address]=data;
+  } 
 }
 
 #define CASE_16BIT(NAME,variable) \
@@ -47,20 +55,28 @@ void memory_write_data(uint8_t data) {
         case NAME: return data = (variable);
 
 uint8_t memory_read_data() {
+  // memory map
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     switch (address) {
-        CASE_8BIT(MM_KEYSET,last_pressed_key)
+        //CASE_8BIT(MM_KEYSET,last_pressed_key)
+        case (MM_KEYSET): {
+          return data = (keyboard_last_pressed_key);
+        }
         CASE_16BIT(MM_MOUSE_X,mouse_x)
         CASE_16BIT(MM_MOUSE_Y,mouse_y)
         CASE_8BIT(MM_MOUSE_BTN, mouse_btn_state)
         CASE_8BIT(MM_MOUSE_WHEEL,mouse_wheel);
-        CASE_16BIT(MM_SCREEN_WIDTH,SCREEN_WIDTH)
-        CASE_16BIT(MM_SCREEN_HEIGHT,SCREEN_HEIGHT)
         default:
           //unknown
           return data = 0x95;  
     }
-  } else {
+  } 
+  else if (address >= MEMORY_TILEAREA_START && address <= MEMORY_TILEAREA_END){
+    // TILEMAP-Reader
+    return 0x95;
+  }
+  
+  else {
     return data = mem[address];
   }
 }

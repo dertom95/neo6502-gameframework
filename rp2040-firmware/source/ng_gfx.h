@@ -52,5 +52,5 @@ void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
 void     gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
-
+void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 #endif
