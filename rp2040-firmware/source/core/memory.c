@@ -10,6 +10,7 @@ extern "C" {
 #include "../api/ng_api.h"
 #include "../ng_io.h"
 #include "../ng_gfx.h"
+#include "pico/platform.h"
 
 /// <summary>
 /// 64k RAM
@@ -33,7 +34,7 @@ void initMemory() {
   // }
 }
 
-void memory_write_data(uint8_t data) {
+void __not_in_flash_func(memory_write_data)(uint8_t data) {
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     // memory map
   }
@@ -54,7 +55,7 @@ void memory_write_data(uint8_t data) {
 #define CASE_8BIT(NAME,variable) \
         case NAME: return data = (variable);
 
-uint8_t memory_read_data() {
+uint8_t __not_in_flash_func(memory_read_data)() {
   // memory map
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     switch (address) {

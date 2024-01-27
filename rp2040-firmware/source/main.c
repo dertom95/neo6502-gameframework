@@ -12,7 +12,7 @@
 
 #include<stdio.h>
 
-#define SOUND
+//#define SOUND
 
 #ifdef SOUND
 #include "../src/the_softliner.h"
@@ -25,7 +25,7 @@
 #endif
 
 
-
+extern uint ticks6502;
 
 int main(){
 	loadROMS();
@@ -41,7 +41,8 @@ int main(){
 
     int last_millis = utils_millis();
     int last_sound_ms = 0;
-
+    int msCount = 0;
+    int tps = 0;
     int16_t posx=20;
     int16_t posy=20;
     uint8_t current_col=COL_BLACK;
@@ -92,10 +93,19 @@ int main(){
             last_sound_ms = current_millis;
         }
 #endif
+        int msDelta = current_millis - last_millis;
 
-        int fps = 1000 / (current_millis - last_millis);
+
+        int fps = 1000 / (msDelta);
+        msCount += msDelta;
+        if (msCount > 1000){
+            tps = (ticks6502 / msCount);
+            ticks6502 = 0;
+            msCount=0;
+        }
 //        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d addr:%04x data:%02x",fps,address,data);
+        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%04d addr:%04x data:%02x",fps,tps,address,data);
+        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",ticks6502);
         last_millis = current_millis;
     }
 

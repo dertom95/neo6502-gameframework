@@ -120,7 +120,7 @@ void game_init(game_state_t *state) {
 	}
 }
 
-void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
+void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 {
     for (int y=tY*8,yEnd=(tY*8+8);y<yEnd;y++){
         for (int x=tX*8,xEnd=(tX*8+8);x<xEnd;x++){
@@ -169,7 +169,7 @@ void update(game_state_t *state) {
 	}
 }
 
-void render_scanline(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
+static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 	// tilebg_t bg = {
 	// 	.xscroll = gstate->cam_x,
 	// 	.yscroll = gstate->cam_y,
@@ -256,10 +256,31 @@ void core1_main() {
 	while (1) {
 		for (uint y = 1; y < FRAME_HEIGHT; y += 2) {
 			tick6502();
+			tick6502();
 			render_scanline(core1_scanbuf, y, &state);
-			uint32_t *tmdsbuf = (uint32_t*)multicore_fifo_pop_blocking();
-			encode_scanline(core1_scanbuf, tmdsbuf);
-			multicore_fifo_push_blocking((uintptr_t)tmdsbuf);
+			uint32_t *tmdsbuf;
+			while(1){
+				tick6502();
+				tick6502();
+			  	if (multicore_fifo_pop_timeout_us(0,&tmdsbuf)){
+					encode_scanline(core1_scanbuf, tmdsbuf);
+
+					while (1){
+						tick6502();
+						tick6502();
+						if (multicore_fifo_push_timeout_us((uintptr_t)tmdsbuf,0)){
+							break;
+						}
+						tick6502();
+						tick6502();
+					}
+					break;
+				}
+				tick6502();
+			}
+				
+
+//			uint32_t *tmdsbuf = (uint32_t*)multicore_fifo_pop_blocking();
 		}
 	}
 }

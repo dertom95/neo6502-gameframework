@@ -101,7 +101,7 @@ void wdc65C02cpu_nmi() {
 #endif  // PICO_NEO6502
 }
 
-void wdc65C02cpu_tick(uint16_t* addr, bool* rw) {
+void __not_in_flash_func(wdc65C02cpu_tick)(uint16_t* addr, bool* rw) {
     gpio_put(_CLOCK_PIN, 0);
 
     *addr = wdc65C02cpu_get_address();
@@ -151,7 +151,7 @@ uint16_t wdc65C02cpu_get_address() {
     return addr;
 }
 
-uint8_t wdc65C02cpu_get_data() {
+uint8_t __not_in_flash_func(wdc65C02cpu_get_data)() {
     gpio_set_dir_masked(_GPIO_MASK, 0);
 
     gpio_put(_OE3_PIN, 0);
@@ -194,8 +194,12 @@ void wdc65C02cpu_set_irq(bool state) {
 }
 
 bool rw;
+uint ticks6502;
 
-void tick6502(void){
+#define TICK_CALLS 40
+
+void __not_in_flash_func(_tick6502)(void){
+    ticks6502++;
 	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
 	if (rw) {                
         //uint8_t data = mem[address];                                               // Read put data on data lines.
@@ -207,15 +211,14 @@ void tick6502(void){
 	}  	
 }
 
-void tick65022(void){
-	wdc65C02cpu_tick(&address, &rw);                                           // Tick the processor
-	if (rw) {      
-        uint8_t set_data = memory_read_data();                                                         // Read put data on data lines.
-		wdc65C02cpu_set_data(set_data);
-	} else {      
-		data = wdc65C02cpu_get_data();
-        memory_write_data(data);                                                          // Write get it and store in memory.
-	}  	
+void __not_in_flash_func(tick6502)(void){
+    for (int i=0;i<TICK_CALLS;i++){
+        _tick6502();
+        __asm volatile("nop\n");
+        __asm volatile("nop\n");        
+    }
 }
+
+
 
 #endif /* CHIPS_IMPL */
