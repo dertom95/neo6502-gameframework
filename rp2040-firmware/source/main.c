@@ -8,6 +8,7 @@
 #include "api/ng_api.h"
 #include "core/memory.h"
 #include "core/roms.h"
+#include "core/wdc65C02cpu.h"
 
 
 #include<stdio.h>
@@ -27,6 +28,8 @@
 
 extern uint ticks6502;
 extern uint frame;
+
+const uint frame_len = 1000;
 
 int main(){
 	loadROMS();
@@ -49,8 +52,40 @@ int main(){
     int16_t posx=20;
     int16_t posy=20;
     uint8_t current_col=COL_BLACK;
+    
+    wdc65C02cpu_init();                                                         // Set up the 65C02
+    wdc65C02cpu_reset();
+    
+    uint tick_counter = 0;
+
     while(1){
-       // gfx_draw();
+        int current_millis = utils_millis();        
+        int msDelta = current_millis - last_millis;
+        msCount += msDelta;
+        tick_counter += msDelta;
+        last_millis = current_millis;
+
+        
+        if (msCount > 1000){
+            tps = (ticks6502);
+            ticks6502 = 0;
+            msCount=0;
+            fps = frame;
+            frame = 0;
+
+        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%7d addr:%04x data:%02x",fps,tps,address,data);
+        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",ticks6502);
+        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
+        }     
+
+        if (tick_counter < frame_len){
+            tick6502();
+            continue;
+        }
+        tick_counter = 0;
+   
+
+    // gfx_draw();
         gfx_update();
         
         bool paint = false;
@@ -78,8 +113,9 @@ int main(){
             }
             paint = true;
         }
+
         usb_update();
-             
+            
         if (paint){
             gfx_tile_set_color(posx,posy,current_col);
             current_col++;
@@ -88,7 +124,7 @@ int main(){
         // gfx_draw_pixel(mouse_x,mouse_y,current_col);
 
         
-        int current_millis = utils_millis();
+
 
 #ifdef SOUND
         if (current_millis - last_sound_ms > 15){
@@ -96,25 +132,14 @@ int main(){
             last_sound_ms = current_millis;
         }
 #endif
-        int msDelta = current_millis - last_millis;
 
 
-        
-
-        msCount += msDelta;
-        if (msCount > 1000){
-            tps = (ticks6502 / msCount);
-            ticks6502 = 0;
-            msCount=0;
-            fps = frame;
-            frame = 0;
-        }
 //        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-        gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
-        //gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%04d addr:%04x data:%02x",fps,tps,address,data);
-        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",ticks6502);
-        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");
-        last_millis = current_millis;
+        //gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
+
+    
+
+
     }
 
 	__builtin_unreachable();
