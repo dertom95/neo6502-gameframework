@@ -196,7 +196,7 @@ void wdc65C02cpu_set_irq(bool state) {
 bool rw;
 uint ticks6502;
 
-#define TICK_CALLS 40
+#define TICK_CALLS 20
 
 void __not_in_flash_func(_tick6502)(void){
     ticks6502++;

@@ -26,6 +26,7 @@
 
 
 extern uint ticks6502;
+extern uint frame;
 
 int main(){
 	loadROMS();
@@ -35,6 +36,7 @@ int main(){
     usb_init();
     
 #ifdef SOUND
+
     sound_init(SOUND_OUTPUT_FREQUENCY_11K);
     sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_11K, true );
 #endif    
@@ -43,44 +45,45 @@ int main(){
     int last_sound_ms = 0;
     int msCount = 0;
     int tps = 0;
+    int fps=0;
     int16_t posx=20;
     int16_t posy=20;
     uint8_t current_col=COL_BLACK;
     while(1){
-        gfx_draw();
+       // gfx_draw();
         gfx_update();
         
-        // bool paint = false;
-        // if (io_keyboard_is_pressed(HID_KEY_A)){
-        //     if (posx>0){
-        //         posx--;
-        //     }
-        //     paint = true;
-        // }
-        // else if (io_keyboard_is_pressed(HID_KEY_D)){
-        //     if (posx<40){
-        //         posx++;
-        //     }
-        //     paint = true;
-        // }
-        // else if (io_keyboard_is_pressed(HID_KEY_W)){
-        //     if (posy>0){
-        //         posy--;
-        //     }
-        //     paint = true;
-        // }
-        // else if (io_keyboard_is_released(HID_KEY_S)){
-        //     if (posy<30){
-        //         posy++;
-        //     }
-        //     paint = true;
-        // }
+        bool paint = false;
+        if (io_keyboard_is_pressed(HID_KEY_A)){
+            if (posx>0){
+                posx--;
+            }
+            paint = true;
+        }
+        else if (io_keyboard_is_pressed(HID_KEY_D)){
+            if (posx<40){
+                posx++;
+            }
+            paint = true;
+        }
+        else if (io_keyboard_is_pressed(HID_KEY_W)){
+            if (posy>0){
+                posy--;
+            }
+            paint = true;
+        }
+        else if (io_keyboard_is_released(HID_KEY_S)){
+            if (posy<30){
+                posy++;
+            }
+            paint = true;
+        }
         usb_update();
              
-        // if (paint){
-        //     fill_tile(posx,posy,current_col);
-        //     current_col++;
-        // }
+        if (paint){
+            gfx_tile_set_color(posx,posy,current_col);
+            current_col++;
+        }
 
         // gfx_draw_pixel(mouse_x,mouse_y,current_col);
 
@@ -96,16 +99,21 @@ int main(){
         int msDelta = current_millis - last_millis;
 
 
-        int fps = 1000 / (msDelta);
+        
+
         msCount += msDelta;
         if (msCount > 1000){
             tps = (ticks6502 / msCount);
             ticks6502 = 0;
             msCount=0;
+            fps = frame;
+            frame = 0;
         }
 //        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%04d addr:%04x data:%02x",fps,tps,address,data);
+        gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
+        //gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%04d addr:%04x data:%02x",fps,tps,address,data);
         gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",ticks6502);
+        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");
         last_millis = current_millis;
     }
 
@@ -115,3 +123,122 @@ int main(){
 #ifdef __cplusplus
     }
 #endif
+
+
+
+
+
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include "pico/stdlib.h"
+// #include "pico/multicore.h"
+// #include "hardware/clocks.h"
+// #include "hardware/gpio.h"
+// #include "hardware/irq.h"
+// #include "hardware/sync.h"
+// #include "hardware/vreg.h"
+// #include "pico/sem.h"
+
+// #include "dvi.h"
+// #include "dvi_serialiser.h"
+// #include "common_dvi_pin_configs.h"
+// #include "sprite.h"
+
+// // TMDS bit clock 252 MHz
+// // DVDD 1.2V (1.1V seems ok too)
+// #define FRAME_WIDTH 320
+// #define FRAME_HEIGHT 240
+// #define VREG_VSEL VREG_VOLTAGE_1_20
+// #define DVI_TIMING dvi_timing_640x480p_60hz
+
+// #define LED_PIN 16
+
+// struct dvi_inst dvi0;
+// uint16_t framebuf[FRAME_WIDTH * FRAME_HEIGHT];
+
+// void core1_main() {
+// 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
+// 	dvi_start(&dvi0);
+// 	dvi_scanbuf_main_16bpp(&dvi0);
+// 	__builtin_unreachable();
+// }
+
+// void core1_scanline_callback() {
+// 	// Discard any scanline pointers passed back
+// 	uint16_t *bufptr;
+// 	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
+// 		;
+// 	// // Note first two scanlines are pushed before DVI start
+// 	static uint scanline = 2;
+// 	bufptr = &framebuf[FRAME_WIDTH * scanline];
+// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+// 	scanline = (scanline + 1) % FRAME_HEIGHT;
+// }
+
+// static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
+// .pio = DVI_DEFAULT_PIO_INST,
+// .sm_tmds = {0, 1, 2},
+// .pins_tmds = {14, 18, 16},
+// .pins_clk = 12,
+// .invert_diffpairs = true
+// };
+
+// int main() {
+// 	vreg_set_voltage(VREG_VSEL);
+// 	sleep_ms(10);
+// #ifdef RUN_FROM_CRYSTAL
+// 	set_sys_clock_khz(12000, true);
+// #else
+// 	// Run system at TMDS bit clock
+// 	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
+// #endif
+
+// 	setup_default_uart();
+
+// 	gpio_init(LED_PIN);
+// 	gpio_set_dir(LED_PIN, GPIO_OUT);
+
+// 	printf("Configuring DVI\n");
+
+// 	dvi0.timing = &DVI_TIMING;
+// 	dvi0.ser_cfg = _pico_neo6502_cfg;
+// 	dvi0.scanline_callback = core1_scanline_callback;
+// 	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
+
+// 	// Once we've given core 1 the framebuffer, it will just keep on displaying
+// 	// it without any intervention from core 0
+// 	sprite_fill16(framebuf, 0xffff, FRAME_WIDTH * FRAME_HEIGHT);
+// 	uint16_t *bufptr = framebuf;
+// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+// 	bufptr += FRAME_WIDTH;
+// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+
+// 	printf("Core 1 start\n");
+// 	multicore_launch_core1(core1_main);
+
+// 	printf("Start rendering\n");
+
+// 	for (int y = 0; y < FRAME_HEIGHT; ++y) {
+// 		for (int x = 0; x < FRAME_WIDTH; ++x) {
+// 			const float scale = FRAME_HEIGHT / 2;
+// 			float cr = ((float)x - FRAME_WIDTH / 2) / scale - 0.5f;
+// 			float ci = ((float)y - FRAME_HEIGHT / 2) / scale;
+// 			float zr = cr;
+// 			float zi = ci;
+// 			int iters;
+// 			const int max_iters = 255;
+// 			for (iters = 0; iters < max_iters; ++iters) {
+// 				if (zr * zr + zi * zi > 4.f)
+// 					break;
+// 				float zrtemp = zr * zr - zi * zi + cr;
+// 				zi = 2.f * zr * zi + ci;
+// 				zr = zrtemp;
+// 			}
+// 			framebuf[y * FRAME_WIDTH + x] = ((max_iters - iters) >> 2) * 0x41 >> 1;
+// 		}
+// 	}
+// 	while (1)
+// 		__wfe();
+// 	__builtin_unreachable();
+// }
+
