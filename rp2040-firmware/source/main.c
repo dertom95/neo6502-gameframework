@@ -29,15 +29,15 @@
 extern uint ticks6502;
 extern uint frame;
 
-const uint frame_len = 1000;
+const uint frame_len = 1000 / 60;
 
 int main(){
 	loadROMS();
-    //stdio_init_all();
-    gfx_init();
+
+
 
     usb_init();
-    
+
 #ifdef SOUND
 
     sound_init(SOUND_OUTPUT_FREQUENCY_11K);
@@ -52,10 +52,22 @@ int main(){
     int16_t posx=20;
     int16_t posy=20;
     uint8_t current_col=COL_BLACK;
-    
+
+    while (utils_millis()<1000){
+        sleep_ms(1);
+        usb_update();
+    }
+
+    gfx_init();  
+
     wdc65C02cpu_init();                                                         // Set up the 65C02
     wdc65C02cpu_reset();
-    
+
+    //stdio_init_all();
+  
+
+
+   
     uint tick_counter = 0;
 
     while(1){

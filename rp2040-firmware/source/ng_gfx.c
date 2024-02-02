@@ -21,13 +21,17 @@
 #include "tilemap.h"
 #include "gen/font_8.h"
 #include "gen/color_palette.h"
-#include "zelda_mini_plus_walk_rgab5515.h"
+//#include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
 
 #include "ng_io.h"
 #include "api/ng_api.h"
+#include <math.h>
 
 #include "core/wdc65C02cpu.h"
+
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 uint8_t* pixelbuffer=NULL; // indexed 8bit
 uint8_t* font=NULL; 		  // 1bpp
@@ -103,10 +107,138 @@ static inline int clip(int x, int min, int max) {
 	return x < min ? min : x > max ? max : x;
 }
 
+uint8_t sprite1_data[] = {
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,	
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,	
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,
+
+	8,10,10,10,8,
+	10,8,8,8,10,
+	10,8,10,8,10,
+	10,8,8,8,10,
+	8,10,10,10,8,							
+};
+
+uint16_t* sp16 = NULL;
+
+#define SPRITE_CONVERTED (1 << 0)
+
+gfx_sprite_t test_sprite = {
+	.width=20,
+	.height=20,
+	.flags=0,
+	.tiles=1,
+	.data=sprite1_data
+};
+
+void gfx_load_sprite8bpp(gfx_sprite_t* sprite){
+	if ((sprite->flags & SPRITE_CONVERTED)==0){
+		int count = sprite->width*sprite->height;
+		uint16_t* data = malloc(count * sizeof(uint16_t));
+		uint16_t* buffer = data;
+		uint8_t* source = sprite->data;
+		while(count--){
+			*(data++)=color_palette[*(source++)];
+		}
+		sprite->data = buffer;
+		sprite->flags |= SPRITE_CONVERTED;
+	}
+}
+
 void game_init(game_state_t *state) {
 	state->cam_x = 0;
 	state->cam_y = 0;
 	state->frame_ctr = 0;
+
+
+	//gfx_load_sprite8bpp(&test_sprite);
+
 	for (int i = 0; i < N_CHARACTERS; ++i) {
 		state->chars[i].dir = (rand() >> 16) & 0x3;
 		state->chars[i].anim_frame = 0;
@@ -114,8 +246,8 @@ void game_init(game_state_t *state) {
 		state->chars[i].ymin = -6;
 		state->chars[i].xmax = MAP_WIDTH - 24;
 		state->chars[i].ymax = 128+87;
-		state->chars[i].pos_x = rand() & 450;
-		state->chars[i].pos_y = rand() & 200;
+		state->chars[i].pos_x = rand() % 320;
+		state->chars[i].pos_y = rand() % 220;
 		state->chars[i].tile = 102;
 		state->chars[i].tilestride = 17;
 		state->chars[i].ntiles = 2;
@@ -153,16 +285,11 @@ void update(game_state_t *state) {
 	const int CHAR_SPEED = 2;
 	for (int i = 0; i < N_CHARACTERS; ++i) {
 		character_t *ch = &state->chars[i];
-		if ((state->frame_ctr & 0x3u) == 0)
-			ch->anim_frame = (ch->anim_frame + 1) & 0x3;
-		if (!(rand() & 0xf00)) {
-			ch->anim_frame = 0;
-			ch->dir = (rand() >> 16) & 0x3;
-		}
-		ch->pos_x += ch->dir == 1 ? CHAR_SPEED : ch->dir == 3 ? -CHAR_SPEED : 0;
-		ch->pos_y += ch->dir == 0 ? CHAR_SPEED : ch->dir == 2 ? -CHAR_SPEED : 0;
-		ch->pos_x = clip(ch->pos_x, ch->xmin, ch->xmax);
-		ch->pos_y = clip(ch->pos_y, ch->ymin, ch->ymax);
+		ch->pos_x++;
+
+		if (ch->pos_x>310){
+			ch->pos_x=0;
+		}		
 	}
 
 	static uint heartbeat = 0;
@@ -170,6 +297,7 @@ void update(game_state_t *state) {
 		heartbeat = 0;
 	}
 }
+
 
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 	// tilebg_t bg = {
@@ -183,41 +311,61 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 	// 	.fill_loop = (tile_loop_t)tile16_16px_loop
 	// };
 
-	// sprite_t sp = {
-	// 	.log_size = 4,
-	// 	.has_opacity_metadata = false,
-	// };
+	sprite_t sp = {
+		.log_size = 4,
+		.has_opacity_metadata = false,
+	};
 
-	// tile16(pixbuf, &bg, y, FRAME_WIDTH);
+	//tile16(pixbuf, &bg, y, FRAME_WIDTH);
 
-	// for (int i = 0; i < N_CHARACTERS; ++i) {
-	// 	const character_t *ch = &gstate->chars[i];
-	// 	sp.x = ch->pos_x - gstate->cam_x;
-	// 	const uint16_t *basetile = (const uint16_t*)zelda_mini_plus_walk +
-	// 		16 * 16 * (102 + (ch->dir << 2) + ch->anim_frame);
-	// 	for (int tile = 0; tile < ch->ntiles; ++tile) {
-	// 		sp.y = ch->pos_y - gstate->cam_y + tile * 16;
-	// 		sp.img = basetile + tile * ch->tilestride * 16 * 16;
-	// 		sprite_sprite16(pixbuf, &sp, y, FRAME_WIDTH);
-	// 	}
-	// }
-
-	
-	//if (y<50)
+	uint16_t* write_buf = pixbuf;
 	{
 		uint8_t* buffer = &pixelbuffer[y*320];
-
 		for (int i=0;i<320;i++){
 			// if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
 			// 	continue;
 			// }
 			uint8_t data = *(buffer++);
-			// if (data == 0){			// 	continue;
+			// if (data==0){
+			// 	write_buf++;
+			// 	continue;
 			// }
-			*(pixbuf++)=color_palette[data];
+			*(write_buf++)=color_palette[data];
 			//pixbuf[i]=gfx_color565(254,254,254);
 		}
 	}
+
+	for (int i = 0; i < N_CHARACTERS; ++i) {
+		const character_t *ch = &gstate->chars[i];
+		gfx_sprite_t* sprite = &test_sprite;
+
+		if (ch->pos_y > y || (ch->pos_y+sprite->height)<y){
+			continue;
+		}
+		uint8_t count = min(sprite->width,FRAME_WIDTH-ch->pos_x);
+		#if 1
+			//8bpp
+			uint8_t* data = sprite->data + (y - ch->pos_y)*sprite->width;
+			write_buf = pixbuf+ch->pos_x;
+			while (count--){
+				*(write_buf++)=color_palette[*(data++)];
+			}
+		#else
+			// data converted to 16bpp
+			uint16_t* data = sprite->data;
+			data +=(y - ch->pos_y)*sprite->width;
+			write_buf = pixbuf+ch->pos_x;
+			while (count--){
+				*(write_buf++)=*(data++);
+			}
+		#endif
+	}
+
+
+
+	
+	//if (y<50)
+
 }
 
 // ----------------------------------------------------------------------------
@@ -262,6 +410,7 @@ uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_W
 // uint8_t data;
 
 
+
 void core1_main() {
 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
 	dvi_start(&dvi0);
@@ -289,7 +438,6 @@ void __not_in_flash_func(core1_scanline_callback)() {
 		scanline = 0;
 	}
 	
-	bufptr = &core1_scanbuf[FRAME_WIDTH]; 
 	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
  	render_scanline(bufptr, scanline, &state);
 }
@@ -375,6 +523,9 @@ void __not_in_flash_func(core1_scanline_callback)() {
 
 void gfx_init()
 {
+	game_init(&state);    
+
+	
 	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
  	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
 
@@ -409,7 +560,6 @@ void gfx_init()
 	uint16_t *bufptr = &core1_scanbuf[0];
 	render_scanline(bufptr,0,&state);
 	
-
 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
 	bufptr += FRAME_WIDTH;
 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
@@ -418,6 +568,7 @@ void gfx_init()
 	multicore_launch_core1(core1_main);
 
 	printf("Start rendering\n");
+
 
 }
 

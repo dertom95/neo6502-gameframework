@@ -11,7 +11,7 @@
 
 
 
-#define N_CHARACTERS 20
+#define N_CHARACTERS 12
 
 
 typedef struct {
@@ -34,6 +34,13 @@ typedef struct {
 	character_t chars[N_CHARACTERS];
 } game_state_t;
 
+typedef struct gfx_sprite_t {
+	uint8_t width;
+	uint8_t height;
+	uint8_t tiles;
+	uint8_t flags;
+	void* data;
+} gfx_sprite_t;
 
 void 	 gfx_init();
 void 	 gfx_draw();
