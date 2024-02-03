@@ -20,6 +20,7 @@ assets-create:
 
 	python3 tools/create_palette.py resources/palette_pico-8_duel-1x.png source/gen/color_palette.h color_palette
 
+	python3 tools/ng_tool.py --convert-palette --input 
 clean:
 	rm -Rf build-cmake
 	rm -Rf temp

@@ -1,0 +1,54 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File Convert-Sprite",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["convert-sprite"]
+        },
+        {
+            "name": "Python: Convert Palette",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "console": "integratedTerminal",
+            "justMyCode": true, 
+            "args": [
+                "convert-palette",
+                "--input",
+                "res/palette.png",
+                "--output",
+                "test/palette.h",
+                "--array-name",
+                "color_pal"
+            ]
+        },
+        {
+            "name": "Convert Tilesheet",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "args": [
+                "convert-tilesheet",
+                "--tile-size",
+                "16x16",
+                "--tilesheet-file",
+                "res/sprites_misc.png",
+                "--palette-file",
+                "res/palette.png",
+                "--output",
+                "test/sprite_misc.h",
+                "--array-name",
+                "sprite_misc"
+            ]
+        }        
+
+    ]
+}

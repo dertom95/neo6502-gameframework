@@ -14,13 +14,15 @@ add_executable(neo6502firmware
 	ng_utils.c
 	ng_io.c
 
+	game/game.c
+
 	main.c	
 )
 
 add_definitions(-DPICO_NEO6502=1 -DCHIPS_IMPL)
 
-target_compile_options(neo6502firmware PRIVATE -Wall -g)
-#target_compile_options(neo6502firmware PRIVATE -Wall -O3 )
+#target_compile_options(neo6502firmware PRIVATE -Wall -g)
+target_compile_options(neo6502firmware PRIVATE -Wall -O3)
 
 target_compile_definitions(neo6502firmware PRIVATE
 #	DVI_DEFAULT_SERIAL_CONFIG=${DVI_DEFAULT_SERIAL_CONFIG}

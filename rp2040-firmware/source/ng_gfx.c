@@ -29,6 +29,7 @@
 #include <math.h>
 
 #include "core/wdc65C02cpu.h"
+#include "ng_utils.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -231,28 +232,28 @@ void gfx_load_sprite8bpp(gfx_sprite_t* sprite){
 	}
 }
 
-void game_init(game_state_t *state) {
-	state->cam_x = 0;
-	state->cam_y = 0;
-	state->frame_ctr = 0;
+// void game_init(game_state_t *state) {
+// 	state->cam_x = 0;
+// 	state->cam_y = 0;
+// 	state->frame_ctr = 0;
 
 
-	gfx_load_sprite8bpp(&test_sprite);
+// 	//gfx_load_sprite8bpp(&test_sprite);
 
-	for (int i = 0; i < N_CHARACTERS; ++i) {
-		state->chars[i].dir = (rand() >> 16) & 0x3;
-		state->chars[i].anim_frame = 0;
-		state->chars[i].xmin = 8;
-		state->chars[i].ymin = -6;
-		state->chars[i].xmax = MAP_WIDTH - 24;
-		state->chars[i].ymax = 128+87;
-		state->chars[i].pos_x = rand() % 320;
-		state->chars[i].pos_y = rand() % 220;
-		state->chars[i].tile = 102;
-		state->chars[i].tilestride = 17;
-		state->chars[i].ntiles = 2;
-	}
-}
+// 	for (int i = 0; i < N_CHARACTERS; ++i) {
+// 		state->chars[i].dir = (rand() >> 16) & 0x3;
+// 		state->chars[i].anim_frame = 0;
+// 		state->chars[i].xmin = 8;
+// 		state->chars[i].ymin = -6;
+// 		state->chars[i].xmax = MAP_WIDTH - 24;
+// 		state->chars[i].ymax = 128+87;
+// 		state->chars[i].pos_x = rand() % 320;
+// 		state->chars[i].pos_y = rand() % 220;
+// 		state->chars[i].tile = 102;
+// 		state->chars[i].tilestride = 17;
+// 		state->chars[i].ntiles = 2;
+// 	}
+// }
 
 void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 {
@@ -263,75 +264,50 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
     }
 }
 
-void update(game_state_t *state) {
-	static bool cointoss = false;
-	if ((cointoss = !cointoss))
-		return;
+// void update(game_state_t *state) {
+// 	static bool cointoss = false;
+// 	if ((cointoss = !cointoss))
+// 		return;
 
-	state->frame_ctr++;
+// 	state->frame_ctr++;
 
-	const int CAMERA_SPEED = 3;
-	if (state->frame_ctr % 200 < 50)
-		state->cam_x += CAMERA_SPEED;
-	else if (state->frame_ctr % 200 < 100)
-		state->cam_y += CAMERA_SPEED;
-	else if (state->frame_ctr % 200 < 150)
-		state->cam_x -= CAMERA_SPEED;
-	else
-		state->cam_y -= CAMERA_SPEED;
-	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - FRAME_WIDTH);
-	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - FRAME_HEIGHT);
+// 	const int CAMERA_SPEED = 3;
+// 	if (state->frame_ctr % 200 < 50)
+// 		state->cam_x += CAMERA_SPEED;
+// 	else if (state->frame_ctr % 200 < 100)
+// 		state->cam_y += CAMERA_SPEED;
+// 	else if (state->frame_ctr % 200 < 150)
+// 		state->cam_x -= CAMERA_SPEED;
+// 	else
+// 		state->cam_y -= CAMERA_SPEED;
+// 	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - FRAME_WIDTH);
+// 	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - FRAME_HEIGHT);
 
-	const int CHAR_SPEED = 2;
-	for (int i = 0; i < N_CHARACTERS; ++i) {
-		character_t *ch = &state->chars[i];
-		ch->pos_x++;
+// 	const int CHAR_SPEED = 2;
+// 	for (int i = 0; i < N_CHARACTERS; ++i) {
+// 		character_t *ch = &state->chars[i];
+// 		ch->pos_x++;
 
-		if (ch->pos_x>310){
-			ch->pos_x=0;
-		}		
-	}
+// 		if (ch->pos_x>310){
+// 			ch->pos_x=0;
+// 		}		
+// 	}
 
-	static uint heartbeat = 0;
-	if (++heartbeat >= 30) {
-		heartbeat = 0;
-	}
-}
+// 	static uint heartbeat = 0;
+// 	if (++heartbeat >= 30) {
+// 		heartbeat = 0;
+// 	}
+// }
 
 
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
-	// tilebg_t bg = {
-	// 	.xscroll = gstate->cam_x,
-	// 	.yscroll = gstate->cam_y,
-	// 	.tileset = zelda_mini_plus_walk,
-	// 	.tilemap = tilemap,
-	// 	.log_size_x = 9,
-	// 	.log_size_y = 8,
-	// 	.tilesize = TILESIZE_16,
-	// 	.fill_loop = (tile_loop_t)tile16_16px_loop
-	// };
-
-	sprite_t sp = {
-		.log_size = 4,
-		.has_opacity_metadata = false,
-	};
-
-	//tile16(pixbuf, &bg, y, FRAME_WIDTH);
-
 	uint16_t* write_buf = pixbuf;
 	{
 		uint8_t* buffer = &pixelbuffer[y*320];
-		for (int i=0;i<320;i++){
-			// if ((y*320+i)>(FRAME_WIDTH*FRAME_HEIGHT)){
-			// 	continue;
-			// }
+		uint16_t count = 320;
+		while (count--){
 			uint8_t data = *(buffer++);
-			// if (data==0){
-			// 	write_buf++;
-			// 	continue;
-			// }
 			*(write_buf++)=color_palette[data];
-			//pixbuf[i]=gfx_color565(254,254,254);
 		}
 	}
 
@@ -343,7 +319,7 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 			continue;
 		}
 		uint8_t count = min(sprite->width,FRAME_WIDTH-ch->pos_x);
-		#if 0
+		#if 1
 			//8bpp
 			uint8_t* data = sprite->data + (y - ch->pos_y)*sprite->width;
 			write_buf = pixbuf+ch->pos_x;
@@ -360,12 +336,6 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 			}
 		#endif
 	}
-
-
-
-	
-	//if (y<50)
-
 }
 
 // ----------------------------------------------------------------------------
@@ -523,9 +493,6 @@ void __not_in_flash_func(core1_scanline_callback)() {
 
 void gfx_init()
 {
-	game_init(&state);    
-
-	
 	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
  	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
 
@@ -608,7 +575,7 @@ void gfx_draw()
 
 void gfx_update()
 {
-	update(&state);
+	//update(&state);
 }
 
 uint8_t* gfx_get_pixelbuffer()
@@ -621,6 +588,19 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
 	color_palette[color_idx]=color565;
 }
 
+void gfx_set_palette_from_assset(uint8_t asset_id, uint16_t fill_unused_with)
+{
+	gfx_palette_t* palette = asset_get_pointer(asset_id);
+	memcpy(color_palette, palette+1, palette->color_amount * sizeof(uint16_t));
+	if (palette->color_amount<256){
+		uint8_t dif = 256 - palette->color_amount;
+		uint16_t* tip = color_palette + palette->color_amount;
+		while (dif-->0){
+			*(tip++) = fill_unused_with;
+		}
+	}
+}
+
 uint16_t gfx_get_palettecolor(uint8_t color_idx)
 {
 	return color_palette[color_idx];
@@ -629,6 +609,12 @@ uint16_t gfx_get_palettecolor(uint8_t color_idx)
 void     gfx_set_font(uint8_t* font_bpp1)
 {
 	font = font_bpp1;
+}
+
+void     gfx_set_font_from_asset(uint8_t asset_id) 
+{
+	uint8_t* font = asset_get_pointer(asset_id);
+	gfx_set_font(font);
 }
 
 // canvas functions

@@ -2,6 +2,7 @@
 #include "ng_sound.h"
 #include "ng_utils.h"
 #include "ng_io.h"
+#include "game/game.h"
 
 #include <pico/stdlib.h>
 #include <signal.h>
@@ -34,8 +35,6 @@ const uint frame_len = 1000 / 60;
 int main(){
 	loadROMS();
 
-
-
     usb_init();
 
 #ifdef SOUND
@@ -49,9 +48,7 @@ int main(){
     int msCount = 0;
     int tps = 0;
     int fps=0;
-    int16_t posx=20;
-    int16_t posy=20;
-    uint8_t current_col=COL_BLACK;
+
 
     while (utils_millis()<1000){
         sleep_ms(1);
@@ -59,6 +56,8 @@ int main(){
     }
 
     gfx_init();  
+    game_init();
+
 
     wdc65C02cpu_init();                                                         // Set up the 65C02
     wdc65C02cpu_reset();
@@ -94,44 +93,16 @@ int main(){
             tick6502();
             continue;
         }
-        tick_counter = 0;
    
 
     // gfx_draw();
         gfx_update();
-        
-        bool paint = false;
-        if (io_keyboard_is_pressed(HID_KEY_A)){
-            if (posx>0){
-                posx--;
-            }
-            paint = true;
-        }
-        else if (io_keyboard_is_pressed(HID_KEY_D)){
-            if (posx<40){
-                posx++;
-            }
-            paint = true;
-        }
-        else if (io_keyboard_is_pressed(HID_KEY_W)){
-            if (posy>0){
-                posy--;
-            }
-            paint = true;
-        }
-        else if (io_keyboard_is_released(HID_KEY_S)){
-            if (posy<30){
-                posy++;
-            }
-            paint = true;
-        }
+        game_tick(tick_counter);
+ 
 
         usb_update();
             
-        if (paint){
-            gfx_tile_set_color(posx,posy,current_col);
-            current_col++;
-        }
+
 
         // gfx_draw_pixel(mouse_x,mouse_y,current_col);
 
@@ -151,6 +122,7 @@ int main(){
 
     
 
+        tick_counter = 0;
 
     }
 
