@@ -11,7 +11,7 @@
 
 
 
-#define N_CHARACTERS 12
+#define N_CHARACTERS 16
 
 
 typedef struct {

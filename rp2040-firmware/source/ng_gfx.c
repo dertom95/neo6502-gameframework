@@ -237,7 +237,7 @@ void game_init(game_state_t *state) {
 	state->frame_ctr = 0;
 
 
-	//gfx_load_sprite8bpp(&test_sprite);
+	gfx_load_sprite8bpp(&test_sprite);
 
 	for (int i = 0; i < N_CHARACTERS; ++i) {
 		state->chars[i].dir = (rand() >> 16) & 0x3;
@@ -343,7 +343,7 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 			continue;
 		}
 		uint8_t count = min(sprite->width,FRAME_WIDTH-ch->pos_x);
-		#if 1
+		#if 0
 			//8bpp
 			uint8_t* data = sprite->data + (y - ch->pos_y)*sprite->width;
 			write_buf = pixbuf+ch->pos_x;
