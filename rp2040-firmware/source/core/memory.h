@@ -7,12 +7,15 @@
 
 #include <stdint.h>
 #include "../api/ng_config.h"
+#include "../ng_mem.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define SEGMENT_GFX_DATA 0
+#define SEGMENT_6502_MEM 1
 
 extern uint8_t  mem[];
 extern uint16_t address;
@@ -24,7 +27,7 @@ void memory_write_data(uint8_t data);
 uint8_t memory_read_data();
 
 //externally supplied functions
-// void initMemory();
+void memory_init();
 
 // void readmemory();
 

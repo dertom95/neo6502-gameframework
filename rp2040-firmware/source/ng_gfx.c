@@ -18,7 +18,7 @@
 #include "sprite.h"
 #include "tile.h"
 
-#include "ng_mem.h"
+
 
 #include "tilemap.h"
 #include "gen/font_8.h"
@@ -34,11 +34,9 @@
 #include "ng_utils.h"
 #include <assert.h>
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
 
-uint8_t* pixelbuffer=NULL; // indexed 8bit
 uint8_t* font=NULL; 		  // 1bpp
+gfx_pixelbuffer_t* pixelbuffer = NULL;
 
 // Pick one:
 #define MODE_640x480_60Hz
@@ -359,8 +357,9 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 	uint16_t* write_buf = pixbuf;
 	{
-		uint8_t* buffer = &pixelbuffer[y*320];
-		uint16_t count = 320;
+		uint8_t* buffer = pixelbuffer->mem.data + y*pixelbuffer->width; 
+		//uint8_t* buffer = &pixelbuffer[y*320];
+		uint16_t count = FRAME_WIDTH;
 		while (count--){
 			uint8_t data = *(buffer++);
 			*(write_buf++)=color_palette[data];
@@ -569,10 +568,29 @@ void __not_in_flash_func(core1_scanline_callback)() {
 // }
 
 
+uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
+{
+	assert(pixelbuffer!=NULL);
+	assert(x>0 || x < pixelbuffer->width);
+	assert(y>0 || y < pixelbuffer->height);
+
+	uint8_t* result = pixelbuffer->mem.data;
+	result += x + y * pixelbuffer->width;
+	return result;
+}
+
+// TODO: this must be done somewhere else in userspace
+gfx_pixelbuffer_t initial_pixelbuffer={
+	.x=0,
+	.y=0,
+	.width=320,
+	.height=240,
+};
+
 void gfx_init()
 {
-	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
- 	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
+	gfx_pixelbuffer_create(SEGMENT_GFX_DATA,&initial_pixelbuffer);
+	gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
  	font = (uint8_t*)bin2c_font8_bin;
 
@@ -619,48 +637,13 @@ void gfx_init()
 
 void gfx_draw()
 {
-	// for (uint y = 0; y < FRAME_HEIGHT; y += 2) {
-	// 	uint32_t *tmds0, *tmds1;
-	// 	queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmds0);
-	// 	queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmds1);
-	// 	multicore_fifo_push_blocking((uintptr_t)tmds1);
-	// 	render_scanline(core0_scanbuf, y, &state);
-	// 	encode_scanline(core0_scanbuf, tmds0);
-	// 	queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);
-	// 	tmds1 = (uint32_t*)multicore_fifo_pop_blocking();
-	// 	queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds1);
-	// }
-	for (int y = 0; y < FRAME_HEIGHT; ++y) {
-		for (int x = 0; x < FRAME_WIDTH; ++x) {
-			const float scale = FRAME_HEIGHT / 2;
-			float cr = ((float)x - FRAME_WIDTH / 2) / scale - 0.5f;
-			float ci = ((float)y - FRAME_HEIGHT / 2) / scale;
-			float zr = cr;
-			float zi = ci;
-			int iters;
-			const int max_iters = 255;
-			for (iters = 0; iters < max_iters; ++iters) {
-				if (zr * zr + zi * zi > 4.f)
-					break;
-				float zrtemp = zr * zr - zi * zi + cr;
-				zi = 2.f * zr * zi + ci;
-				zr = zrtemp;
-			}
-			pixelbuffer[y * FRAME_WIDTH + x] = ((max_iters - iters) >> 2) * 0x41 >> 1;
-		}
-	}	
 }
 
 void gfx_update()
 {
-	//update(&state);
 }
 
-uint8_t* gfx_get_pixelbuffer()
-{
-	return pixelbuffer;
-}
-	
+
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
 {
 	color_palette[color_idx]=color565;
@@ -698,12 +681,14 @@ void     gfx_set_font_from_asset(uint8_t asset_id)
 // canvas functions
 uint8_t  gfx_get_pixel(uint16_t x, uint16_t y)
 {
-	return pixelbuffer[y*FRAME_WIDTH + x];
+	uint8_t* pixelbuffer_data = _pixelbuffer_location_ptr(x,y);
+	return *pixelbuffer_data;
 }
 
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 {
-	pixelbuffer[y*FRAME_WIDTH + x] = color_idx;
+	uint8_t* pixel = _pixelbuffer_location_ptr(x,y);
+	*pixel = color_idx;
 }
 
 // get pointer to character in fontbuffer
@@ -718,11 +703,7 @@ uint8_t* _char2fontbuffer(uint8_t ch)
 	return font+pos*8;
 }
 
-uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
-{
-//	return pixelbuffer+y*FRAME_WIDTH+x;
-	return &pixelbuffer[y*FRAME_WIDTH+x-1];
-}
+
 
 void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 {
@@ -801,4 +782,25 @@ void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format,
     } else {
 		gfx_draw_text(x,y,temp, color_idx);
 	}
+}
+
+bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data)
+{
+	assert(initial_data->mem.data==NULL && "gfx_create_pixelbuffer: pixelbuffer already initialized!");
+
+	uint32_t size = initial_data->width * initial_data->height;
+	assert(ng_mem_segment_space_left(size) && "gfx_create_pixelbuffer: create size");
+	
+	bool success = ng_mem_allocate(segment_id, size, MEM_USAGE_PIXELBUFFER, &initial_data->mem );
+	return success;
+}
+
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)
+{
+	pixelbuffer = pxbuffer;
+}
+
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void)
+{
+	return pixelbuffer;
 }

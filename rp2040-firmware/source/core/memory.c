@@ -15,7 +15,10 @@ extern "C" {
 /// <summary>
 /// 64k RAM
 /// </summary>
-uint8_t mem[MEMORY_SIZE];
+
+
+uint8_t gfx_ram[GFX_MEMORY_SIZE] __attribute__((aligned(16)));
+uint8_t mem[CPU6502_MEMORY_SIZE] __attribute__((aligned(16)));
 
 // address and data registers
 uint16_t address;
@@ -24,9 +27,14 @@ uint8_t  data;
 /// <summary>
 /// initialise memory
 /// </summary>
-void initMemory() {
+void memory_init() {
   address = 0UL;
   data = 0;
+
+  uint8_t seg_id = ng_mem_segment_create(gfx_ram,GFX_MEMORY_SIZE);
+  assert(seg_id==SEGMENT_GFX_DATA && "segment id mismatch! GFX_MEMORY needs to be the first segment to be created! otherwise alter #defines");
+  seg_id = ng_mem_segment_create(mem,CPU6502_MEMORY_SIZE);
+  assert(seg_id==SEGMENT_6502_MEM && "segment id mismatch! CPU6502_MEMORY_SIZE needs to be the 2nd segment to be created! otherwise alter #defines");
 
   // lets install some ROMS
   // if (loadROMS()) {

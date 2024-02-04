@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#include "ng_mem.h"
+
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
 
@@ -69,6 +71,20 @@ typedef struct gfx_sprite_t {
 	void* tile_ptr; // direct link to the current tiledata
 } gfx_sprite_t;
 
+
+typedef struct gfx_pixelbuffer_t {
+	ng_mem_block_t mem;
+	int16_t x;
+	int16_t y;
+
+	uint16_t width;
+	uint16_t height;
+	
+	uint8_t flags;
+	uint8_t upscale;
+	uint16_t user_value;
+} gfx_pixelbuffer_t;
+
 typedef struct gfx_palette_t {
     uint16_t color_amount;
     uint16_t colors[];
@@ -81,6 +97,11 @@ void 	 gfx_init();
 void 	 gfx_draw();
 void 	 gfx_update();
 uint8_t* gfx_get_pixelbuffer(void);
+
+
+bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data);
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(int16_t x,int16_t y, gfx_tilesheet_t* ts);
 void          gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id);

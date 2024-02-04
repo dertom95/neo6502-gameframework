@@ -33,6 +33,8 @@ extern uint frame;
 const uint frame_len = 1000 / 60;
 
 int main(){
+    memory_init();
+    
 	loadROMS();
 
     usb_init();

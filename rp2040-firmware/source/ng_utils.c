@@ -26,3 +26,11 @@ void* asset_get_pointer(uint8_t asset_id) {
    // TODO: some sort of check if at least this asset-id exists...
    return assets[asset_id];
 }
+
+void utils_print_binary(const char* prefix,int n) {
+    printf("%s", prefix);
+    for (int i = sizeof(n) * 8 - 1; i >= 0; i--) {
+        printf("%d", (n >> i) & 1);
+    }
+    printf("\n");
+}

@@ -17,14 +17,12 @@ uint32_t ng_memblock_get_startpos(ng_mem_block_t* mem_block)
 uint8_t ng_mem_segment_create(void* start, uint32_t size)
 {
     assert( (mem_segments_amount!= MEM_MAX_SEGMENTS) && "exceeded max amount of segments");
-    assert( (((size_t)start)%8==0) && "ng_mem_segment: start-pos must be 8byte-aligned");
+    assert( (((size_t)start)%16==0) && "ng_mem_segment: start-pos must be 8byte-aligned");
     ng_mem_segment_t* segment = &mem_segments[mem_segments_amount];
     segment->start = start;
     segment->tip = start;
     segment->used = 0;
-#ifdef TESTING
     segment->size = size;
-#endif    
     return mem_segments_amount++;
 }
 
@@ -35,7 +33,7 @@ uint32_t ng_mem_segment_space_left(uint8_t segment_id)
     return segment->size - segment->used;
 }
 
-uint32_t ng_mem_segment_wipe(uint8_t segment_id)
+void ng_mem_segment_wipe(uint8_t segment_id)
 {
     assert(segment_id < mem_segments_amount);
     ng_mem_segment_t* segment = &mem_segments[segment_id];
@@ -64,6 +62,7 @@ bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_me
     assert(space_left >= size && "exceeded segment-memory");
     block->data = segment->tip;
     block->start_pos = BUILD_STARTPOS(segment->used,segment_id);
+    assert(usage_type<7 && "exceeded usage-type");
     block->size = BUILD_SIZE(size, usage_type);
     
     segment->tip += size;
@@ -71,13 +70,7 @@ bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_me
     return true;
 }
 
-void printBinary(const char* prefix,int n) {
-    printf("%s", prefix);
-    for (int i = sizeof(n) * 8 - 1; i >= 0; i--) {
-        printf("%d", (n >> i) & 1);
-    }
-    printf("\n");
-}
+
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block)
 {
@@ -153,7 +146,7 @@ int main()
     assert(*(block2.data)==95);
 
     uint32_t spaceleft = ng_mem_segment_space_left(segment_id_1);
-    
+        
     ng_mem_block_t block3;
     ng_mem_allocate(segment_id_1,spaceleft,2,&block3);
 
