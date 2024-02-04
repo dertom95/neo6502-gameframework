@@ -15,8 +15,8 @@
 #include "../../mod/export/sprites_misc.h"
 #include "../../mod/export/old_guy.h"
 
-int16_t posx=20;
-int16_t posy=20;
+int16_t posx=0;
+int16_t posy=0;
 uint8_t current_col=COL_BLACK;
 
 bool pal_small = false;
@@ -38,6 +38,9 @@ int8_t dir=1;
 uint16_t counter = 0;
 gfx_sprite_t* sprite;
 gfx_sprite_t* sprite_oldguy;
+uint8_t old_guy_id=0;
+gfx_pixelbuffer_t* pb;
+
 
 void game_init()
 {
@@ -56,10 +59,11 @@ void game_init()
    
     sprite = gfx_sprite_create_from_tilesheet(100,100,&ts_sprites_misc);
     sprite_oldguy = gfx_sprite_create_from_tilesheet(150,150,&ts_old_guy);
+
+    pb = gfx_pixelbuffer_get_current();
 }
 
 
-uint8_t old_guy_id=0;
 
 void game_tick(int dt)
 {
@@ -94,35 +98,52 @@ void game_tick(int dt)
             gfx_sprite_set_tileid(sprite,0);
         }
     }
+    //#define NO_BOUNDCHECK
+
     bool paint = false;
-    if (io_keyboard_is_pressed(HID_KEY_A)){
-        if (posx>0){
+    if (io_keyboard_is_down(HID_KEY_A)){
+#ifdef BOUNDCHECK
+        if (posx>0)
+#endif        
+        {
             posx--;
         }
         paint = true;
     }
-    else if (io_keyboard_is_pressed(HID_KEY_D)){
-        if (posx<40){
+    else if (io_keyboard_is_down(HID_KEY_D)){
+#ifdef BOUNDCHECK
+        if (posx<40)
+#endif        
+        {
             posx++;
         }
         paint = true;
     }
-    else if (io_keyboard_is_pressed(HID_KEY_W)){
-        if (posy>0){
+    else if (io_keyboard_is_down(HID_KEY_W)){
+#ifdef BOUNDCHECK
+        if (posy>0)
+#endif        
+        {
             posy--;
         }
         paint = true;
     }
-    else if (io_keyboard_is_released(HID_KEY_S)){
-        if (posy<30){
+    else if (io_keyboard_is_down(HID_KEY_S)){
+#ifdef BOUNDCHECK
+        if (posy<30)
+#endif        
+        {
             posy++;
         }
         paint = true;
     }
     if (paint){
         //gfx_tile_set_color(posx,posy,current_col);
-        sprite->x = posx*8;
-        sprite->y = posy*8;
+        // sprite->x = posx*8;
+        // sprite->y = posy*8;
+        pb->x = posx;
+        pb->y = posy;
         current_col++;
+
     }    
 }

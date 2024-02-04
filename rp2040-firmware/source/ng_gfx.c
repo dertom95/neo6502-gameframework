@@ -35,8 +35,6 @@
 #include <assert.h>
 
 
-uint8_t* font=NULL; 		  // 1bpp
-gfx_pixelbuffer_t* pixelbuffer = NULL;
 
 // Pick one:
 #define MODE_640x480_60Hz
@@ -100,6 +98,17 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 .invert_diffpairs = true
 };
 
+ng_mem_block_t* render_queue[]={0};
+
+uint8_t* font=NULL; 		  // 1bpp
+gfx_pixelbuffer_t* pixelbuffer = NULL;
+
+struct dvi_inst dvi0;
+game_state_t state;
+
+uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
+
+
 uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
 	return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
@@ -108,104 +117,6 @@ uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
 static inline int clip(int x, int min, int max) {
 	return x < min ? min : x > max ? max : x;
 }
-
-uint8_t sprite1_data[] = {
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,	
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,	
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,
-
-	8,10,10,10,8,
-	10,8,8,8,10,
-	10,8,10,8,10,
-	10,8,8,8,10,
-	8,10,10,10,8,							
-};
 
 uint16_t* sp16 = NULL;
 
@@ -272,43 +183,6 @@ void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 	sprite->tile_id = tile_id;
 }
 
-// void gfx_load_sprite8bpp(gfx_sprite_t* sprite){
-// 	if ((sprite->flags & SPRITE_CONVERTED)==0){
-// 		int count = sprite->width*sprite->height;
-// 		uint16_t* data = malloc(count * sizeof(uint16_t));
-// 		uint16_t* buffer = data;
-// 		uint8_t* source = sprite->data;
-// 		while(count--){
-// 			*(data++)=color_palette[*(source++)];
-// 		}
-// 		sprite->data = buffer;
-// 		sprite->flags |= SPRITE_CONVERTED;
-// 	}
-// }
-
-// void game_init(game_state_t *state) {
-// 	state->cam_x = 0;
-// 	state->cam_y = 0;
-// 	state->frame_ctr = 0;
-
-
-// 	//gfx_load_sprite8bpp(&test_sprite);
-
-// 	for (int i = 0; i < N_CHARACTERS; ++i) {
-// 		state->chars[i].dir = (rand() >> 16) & 0x3;
-// 		state->chars[i].anim_frame = 0;
-// 		state->chars[i].xmin = 8;
-// 		state->chars[i].ymin = -6;
-// 		state->chars[i].xmax = MAP_WIDTH - 24;
-// 		state->chars[i].ymax = 128+87;
-// 		state->chars[i].pos_x = rand() % 320;
-// 		state->chars[i].pos_y = rand() % 220;
-// 		state->chars[i].tile = 102;
-// 		state->chars[i].tilestride = 17;
-// 		state->chars[i].ntiles = 2;
-// 	}
-// }
-
 void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 {
     for (int y=tY*8,yEnd=(tY*8+8);y<yEnd;y++){
@@ -318,51 +192,38 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
     }
 }
 
-// void update(game_state_t *state) {
-// 	static bool cointoss = false;
-// 	if ((cointoss = !cointoss))
-// 		return;
 
-// 	state->frame_ctr++;
-
-// 	const int CAMERA_SPEED = 3;
-// 	if (state->frame_ctr % 200 < 50)
-// 		state->cam_x += CAMERA_SPEED;
-// 	else if (state->frame_ctr % 200 < 100)
-// 		state->cam_y += CAMERA_SPEED;
-// 	else if (state->frame_ctr % 200 < 150)
-// 		state->cam_x -= CAMERA_SPEED;
-// 	else
-// 		state->cam_y -= CAMERA_SPEED;
-// 	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - FRAME_WIDTH);
-// 	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - FRAME_HEIGHT);
-
-// 	const int CHAR_SPEED = 2;
-// 	for (int i = 0; i < N_CHARACTERS; ++i) {
-// 		character_t *ch = &state->chars[i];
-// 		ch->pos_x++;
-
-// 		if (ch->pos_x>310){
-// 			ch->pos_x=0;
-// 		}		
-// 	}
-
-// 	static uint heartbeat = 0;
-// 	if (++heartbeat >= 30) {
-// 		heartbeat = 0;
-// 	}
-// }
-
-
+// SCANLINE-RENDERER
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
+	memset(pixbuf,0,320*sizeof(uint16_t));
 	uint16_t* write_buf = pixbuf;
 	{
-		uint8_t* buffer = pixelbuffer->mem.data + y*pixelbuffer->width; 
-		//uint8_t* buffer = &pixelbuffer[y*320];
-		uint16_t count = FRAME_WIDTH;
-		while (count--){
-			uint8_t data = *(buffer++);
-			*(write_buf++)=color_palette[data];
+		int16_t pixel_y = y - pixelbuffer->y;
+
+		bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
+
+		// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
+		// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
+
+		if (is_visible){
+			
+
+			//uint8_t* buffer = &pixelbuffer[y*320];
+			uint16_t count;
+			uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
+			
+			if (pixelbuffer->x>0){
+				write_buf+=pixelbuffer->x; 
+				count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
+			} else {
+				// pixelbuffer->x is negative!
+				buffer+=-pixelbuffer->x;
+				count = pixelbuffer->width + pixelbuffer->x; 
+			}
+			while (count--){
+				uint8_t data = *(buffer++);
+				*(write_buf++)=color_palette[data];
+			}
 		}
 	}
 
@@ -418,45 +279,6 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 // ----------------------------------------------------------------------------
 // DVI setup & launch
 
-struct dvi_inst dvi0;
-game_state_t state;
-//uint16_t framebuf[FRAME_WIDTH * FRAME_HEIGHT];
-
-uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
-
-// - Core 0 pops two TMDS buffers
-// - Passes one to core 1
-// - Renders own buffer and pushes to DVI queue  <- core 1 waits here before starting DVI
-// - Retrieves core 1's TMDS buffer and pushes that to DVI queue as well
-
-// void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
-// 	uint pixwidth = dvi0.timing->h_active_pixels;
-// 	uint words_per_channel = pixwidth / DVI_SYMBOLS_PER_WORD;
-// 	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 0 * words_per_channel, pixwidth / 2, DVI_16BPP_BLUE_MSB,  DVI_16BPP_BLUE_LSB );
-// 	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 1 * words_per_channel, pixwidth / 2, DVI_16BPP_GREEN_MSB, DVI_16BPP_GREEN_LSB);
-// 	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 2 * words_per_channel, pixwidth / 2, DVI_16BPP_RED_MSB,   DVI_16BPP_RED_LSB  );
-// }
-
-// void core1_scanline_callback() {
-// 	// Discard any scanline pointers passed back
-// 	uint16_t *bufptr;
-// 	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
-// 		;
-// 	// // Note first two scanlines are pushed before DVI start
-// 	static uint scanline = 2;
-// 	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
-// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-
-// 	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
-// 	render_scanline(bufptr, scanline, &state);
-// 	scanline = (scanline + 1) % FRAME_HEIGHT;
-// }
-
-// uint16_t iCount;
-// uint16_t addr;
-// uint8_t data;
-
-
 
 void core1_main() {
 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
@@ -488,85 +310,6 @@ void __not_in_flash_func(core1_scanline_callback)() {
 	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
  	render_scanline(bufptr, scanline, &state);
 }
-
-
-
-
-// void core1_main() {
-// 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
-// 	dvi_start(&dvi0);
-// 	dvi_scanbuf_main_16bpp(&dvi0);
-// 	__builtin_unreachable();
-
-// 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
-// 	while (queue_is_empty(&dvi0.q_tmds_valid))
-// 		__wfe();
-// 	dvi_start(&dvi0);
-//     wdc65C02cpu_init();                                                         // Set up the 65C02
-//     wdc65C02cpu_reset();
-// 	while (1) {
-// 		for (uint y = 1; y < FRAME_HEIGHT; y += 2) {
-// 			tick6502();
-// 			tick6502();
-// 			render_scanline(core1_scanbuf, y, &state);
-// 			uint32_t *tmdsbuf;
-// 			while(1){
-// 				tick6502();
-// 				tick6502();
-// 			  	if (multicore_fifo_pop_timeout_us(0,&tmdsbuf)){
-// 					encode_scanline(core1_scanbuf, tmdsbuf);
-
-// 					while (1){
-// 						tick6502();
-// 						tick6502();
-// 						if (multicore_fifo_push_timeout_us((uintptr_t)tmdsbuf,0)){
-// 							break;
-// 						}
-// 						tick6502();
-// 						tick6502();
-// 					}
-// 					break;
-// 				}
-// 				tick6502();
-// 			}
-				
-
-// //			uint32_t *tmdsbuf = (uint32_t*)multicore_fifo_pop_blocking();
-// 		}
-// 	}
-// }
-
-// void gfx_init() {
-// 	// canvas pixelbuffer
-// 	pixelbuffer = malloc(FRAME_WIDTH * FRAME_HEIGHT);
-// 	memset(pixelbuffer,0,FRAME_WIDTH * FRAME_HEIGHT);
-
-// 	font = (uint8_t*)bin2c_font8_bin;
-
-// 	vreg_set_voltage(VREG_VSEL);
-// 	sleep_ms(10);
-// 	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
-
-// 	dvi0.timing = &DVI_TIMING;
-// 	dvi0.ser_cfg = _pico_neo6502_cfg;
-// 	dvi0.scanline_callback = core1_scanline_callback;
-// 	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
-// 	sleep_ms(10);
-
-// 	uint16_t *bufptr = &core1_scanbuf[0];
-// 	render_scanline(bufptr,0,&state);
-// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-// 	bufptr = &core1_scanbuf[FRAME_HEIGHT];
-// 	render_scanline(bufptr,1,&state);
-// 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-
-// 	//printf("Core 1 start\n");
-// 	multicore_launch_core1(core1_main);
-
-// 	//printf("Start rendering\n");
-// 	game_init(&state);
-// }
-
 
 uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 {
