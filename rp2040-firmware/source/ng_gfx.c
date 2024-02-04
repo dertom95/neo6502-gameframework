@@ -98,6 +98,14 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 .invert_diffpairs = true
 };
 
+// TODO: this must be done somewhere else in userspace
+gfx_pixelbuffer_t initial_pixelbuffer={
+	.x=0,
+	.y=0,
+	.width=320,
+	.height=100,
+};
+
 ng_mem_block_t* render_queue[]={0};
 
 uint8_t* font=NULL; 		  // 1bpp
@@ -185,8 +193,15 @@ void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 
 void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 {
-    for (int y=tY*8,yEnd=(tY*8+8);y<yEnd;y++){
-        for (int x=tX*8,xEnd=(tX*8+8);x<xEnd;x++){
+    int16_t _x = tX * 8;
+	int16_t _y = tY * 8;
+	if (_x < 0 || _y < 0 || _x>pixelbuffer->width || _y>pixelbuffer->height){
+		return;
+	}
+	uint8_t width = min(8, pixelbuffer->width-tX);
+	uint8_t height = min(8, pixelbuffer->height-tY);
+	for (int y=_y,yEnd=(_y+width);y<yEnd;y++){
+        for (int x=_x,xEnd=(_x+height);x<xEnd;x++){
             gfx_draw_pixel(x,y,col);
         }
     }
@@ -322,13 +337,7 @@ uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 	return result;
 }
 
-// TODO: this must be done somewhere else in userspace
-gfx_pixelbuffer_t initial_pixelbuffer={
-	.x=0,
-	.y=0,
-	.width=320,
-	.height=240,
-};
+
 
 void gfx_init()
 {
@@ -450,7 +459,16 @@ uint8_t* _char2fontbuffer(uint8_t ch)
 
 void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 {
+	// for now let's require positive x and y
+	if (   x < 0 || x > pixelbuffer->width 
+		|| y < 0 || y > pixelbuffer->height
+	){
+		return;
+	}
+
 	uint8_t* character_ptr = _char2fontbuffer(ch);
+
+	uint8_t width = min(8, pixelbuffer->width-x);
 
 	for (int i=0;i<8;i++){
 		// set tip on draw-position
@@ -459,7 +477,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 		uint8_t mask = 1;
 
 		// unfold? let's not wait with crazy stuff
-		for (int j=0;j<8;j++){
+		for (int j=0;j<width;j++){
 			if (current_font_line & mask){
 				*buffer_tip = color_idx;
 			} else {
