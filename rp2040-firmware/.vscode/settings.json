@@ -35,7 +35,10 @@
         "color_palette.h": "c",
         "font.h": "c",
         "sprites_misc.h": "c",
-        "game.h": "c"
+        "game.h": "c",
+        "color_palette_small.h": "c",
+        "dvi_serialiser.h": "c",
+        "flash.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

@@ -1,0 +1,2 @@
+class DATA_TYPE:
+    DT_TILESHEET = 1

@@ -23,5 +23,6 @@ uint32_t utils_get_heap_free(void) {
 
 // get void pointer for an asset_id
 void* asset_get_pointer(uint8_t asset_id) {
+   // TODO: some sort of check if at least this asset-id exists...
    return assets[asset_id];
 }

@@ -1,7 +1,10 @@
 from PIL import Image
 import argparse,os
 
+from ng_config import DATA_TYPE
+
 from ng_tool_tilesheet import convert_tilesheet
+from utils import write_header
 
 def convert_to_rgb565(rgb):
     r, g, b = rgb
@@ -38,6 +41,7 @@ def generate_header_file(image_path, header_file_path, array_name):
         header_file.write('#define {0}_H\n\n'.format(array_name.upper()))
         header_file.write('#include <stdint.h>\n\n')
         header_file.write('const uint16_t {0}[] = {{\n'.format(array_name))
+        
         header_file.write(f'{width},')
         for y in range(height):
             for x in range(width):

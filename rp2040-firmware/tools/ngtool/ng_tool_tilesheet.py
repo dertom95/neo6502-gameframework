@@ -2,6 +2,8 @@ import os
 import numpy as np
 from math import sqrt
 from PIL import Image
+from utils import value_to_csv_le,write_header
+from ng_config import DATA_TYPE
 
 def convert_tilesheet(args):
     # Your conversion logic here
@@ -34,6 +36,8 @@ def closest_color(rgb, colors):
 
     return closest_index
 
+ 
+
 def convert_image_to_array(image_filename, tile_width, tile_height, array_name, colors, output_filename, transparaent_idx=255):
     # Load the image
     image = Image.open(image_filename)
@@ -58,6 +62,13 @@ def convert_image_to_array(image_filename, tile_width, tile_height, array_name, 
     output_file.write(f'#define {array_name.upper()}_H\n\n')
     output_file.write(f'#include <stdint.h>\n\n')
     output_file.write(f"const uint8_t {array_name}[] = {{\n")
+    
+    write_header(output_file,DATA_TYPE.DT_TILESHEET,num_tiles_x * num_tiles_y * tile_width * tile_height)
+
+    output_file.write(f'{tile_width},{tile_height},{num_tiles_x},{num_tiles_x*num_tiles_y},')
+    output_file.write('0,0,1,0, ') # 16bit flags, format and one pad
+    output_file.write('0,0,0,0, ') # tilesheet_data_ram pointer - data
+    output_file.write('0,0,0,0, ') # tilesheet_data_flah pointer - data
     array_size = 0
     # Iterate over each tile
     for y in range(num_tiles_y):

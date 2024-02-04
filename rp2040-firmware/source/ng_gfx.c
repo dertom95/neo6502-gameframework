@@ -30,6 +30,7 @@
 
 #include "core/wdc65C02cpu.h"
 #include "ng_utils.h"
+#include <assert.h>
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -210,27 +211,80 @@ uint16_t* sp16 = NULL;
 
 #define SPRITE_CONVERTED (1 << 0)
 
-gfx_sprite_t test_sprite = {
-	.width=20,
-	.height=20,
-	.flags=0,
-	.tiles=1,
-	.data=sprite1_data
-};
 
-void gfx_load_sprite8bpp(gfx_sprite_t* sprite){
-	if ((sprite->flags & SPRITE_CONVERTED)==0){
-		int count = sprite->width*sprite->height;
-		uint16_t* data = malloc(count * sizeof(uint16_t));
-		uint16_t* buffer = data;
-		uint8_t* source = sprite->data;
-		while(count--){
-			*(data++)=color_palette[*(source++)];
+
+gfx_sprite_t sprites[MAX_SPRITES]={0};
+
+uint8_t sprites_inuse_amount=0;
+gfx_sprite_t* sprites_inuse_list[10]={0}; 
+
+gfx_sprite_t* _gfx_sprite_find_free()
+{
+	for (int i=0;i<MAX_SPRITES;i++){
+		gfx_sprite_t* sprite = &sprites[i];
+		if (sprite->flags == 0){
+			flags_set(sprite->flags, SPRITE_FLAG_INUSE);
+			sprites_inuse_list[sprites_inuse_amount++]=sprite;
+			return sprite;
 		}
-		sprite->data = buffer;
-		sprite->flags |= SPRITE_CONVERTED;
 	}
+	return NULL;
 }
+
+void* _gfx_copy_from_flash_to_ram(void* data,uint size){
+	void* ram_data = malloc(size);
+	assert(ram_data!=NULL && "could not allocate any more RAM");
+	memcpy(ram_data,data,size);
+	return ram_data;
+}
+
+gfx_sprite_t* gfx_sprite_create_from_tilesheet(int16_t x,int16_t y, gfx_tilesheet_t* ts)
+{
+	gfx_sprite_t* sprite = _gfx_sprite_find_free();
+	if (sprite == NULL){
+		return NULL;
+	}
+	sprite->tilesheet = ts;
+	sprite->x=x;
+	sprite->y=y;
+
+	if (ts->tilesheet_data_ram == NULL){
+		// we need to copy sprites to RAM!
+		uint8_t* ts_ram_data = _gfx_copy_from_flash_to_ram(ts->tilesheet_data_flash,ts->header.size);
+		ts->tilesheet_data_ram = ts_ram_data;
+	}
+
+	gfx_sprite_set_tileid(sprite,0);
+
+	return sprite;
+}
+
+void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
+{
+	assert(tile_id < sprite->tilesheet->tile_amount && "exceeded tile-id");
+	assert(sprite->tilesheet!=NULL && "no tilesheet set for sprite");
+	assert(sprite->tilesheet->tilesheet_data_ram!=NULL && "tilesheet data not copied to RAM");
+	
+	gfx_tilesheet_t* ts = sprite->tilesheet;
+	uint size_per_tile = (ts->tile_width*ts->tile_height);
+	uint8_t* tile_ptr = ts->tilesheet_data_ram + tile_id * size_per_tile;
+	sprite->tile_ptr = tile_ptr;
+	sprite->tile_id = tile_id;
+}
+
+// void gfx_load_sprite8bpp(gfx_sprite_t* sprite){
+// 	if ((sprite->flags & SPRITE_CONVERTED)==0){
+// 		int count = sprite->width*sprite->height;
+// 		uint16_t* data = malloc(count * sizeof(uint16_t));
+// 		uint16_t* buffer = data;
+// 		uint8_t* source = sprite->data;
+// 		while(count--){
+// 			*(data++)=color_palette[*(source++)];
+// 		}
+// 		sprite->data = buffer;
+// 		sprite->flags |= SPRITE_CONVERTED;
+// 	}
+// }
 
 // void game_init(game_state_t *state) {
 // 	state->cam_x = 0;
@@ -311,31 +365,53 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 		}
 	}
 
-	for (int i = 0; i < N_CHARACTERS; ++i) {
-		const character_t *ch = &gstate->chars[i];
-		gfx_sprite_t* sprite = &test_sprite;
+	for (int i = 0; i < sprites_inuse_amount; i++){
+		gfx_sprite_t* sprite = sprites_inuse_list[i];
 
-		if (ch->pos_y > y || (ch->pos_y+sprite->height)<y){
+		gfx_tilesheet_t* ts = sprite->tilesheet;
+		if (sprite->y > y || (sprite->y+ts->tile_height)<y){
 			continue;
 		}
-		uint8_t count = min(sprite->width,FRAME_WIDTH-ch->pos_x);
-		#if 1
-			//8bpp
-			uint8_t* data = sprite->data + (y - ch->pos_y)*sprite->width;
-			write_buf = pixbuf+ch->pos_x;
-			while (count--){
-				*(write_buf++)=color_palette[*(data++)];
+
+		uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
+		uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
+		write_buf = pixbuf+sprite->x;
+		uint8_t idx;
+		while (count--){
+			idx = *(data++);
+			if (idx==255){
+				write_buf++;
+				continue;
 			}
-		#else
-			// data converted to 16bpp
-			uint16_t* data = sprite->data;
-			data +=(y - ch->pos_y)*sprite->width;
-			write_buf = pixbuf+ch->pos_x;
-			while (count--){
-				*(write_buf++)=*(data++);
-			}
-		#endif
+			*(write_buf++)=color_palette[idx];
+		}		
 	}
+
+	// for (int i = 0; i < N_CHARACTERS; ++i) {
+	// 	const character_t *ch = &gstate->chars[i];
+	// 	gfx_sprite_t* sprite = &test_sprite;
+
+	// 	if (ch->pos_y > y || (ch->pos_y+sprite->height)<y){
+	// 		continue;
+	// 	}
+	// 	uint8_t count = min(sprite->width,FRAME_WIDTH-ch->pos_x);
+	// 	#if 1
+	// 		//8bpp
+	// 		uint8_t* data = sprite->data + (y - ch->pos_y)*sprite->width;
+	// 		write_buf = pixbuf+ch->pos_x;
+	// 		while (count--){
+	// 			*(write_buf++)=color_palette[*(data++)];
+	// 		}
+	// 	#else
+	// 		// data converted to 16bpp
+	// 		uint16_t* data = sprite->data;
+	// 		data +=(y - ch->pos_y)*sprite->width;
+	// 		write_buf = pixbuf+ch->pos_x;
+	// 		while (count--){
+	// 			*(write_buf++)=*(data++);
+	// 		}
+	// 	#endif
+	// }
 }
 
 // ----------------------------------------------------------------------------
