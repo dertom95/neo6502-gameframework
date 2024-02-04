@@ -2,11 +2,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../core/memory.h"
 
 #include "../ng_gfx.h"
 #include "../ng_io.h"
 #include "../api/ng_api.h"
 #include "../ng_utils.h"
+#include <assert.h>
 
 // assets
 #include "../../mod/export/font.h"
@@ -41,13 +43,35 @@ gfx_sprite_t* sprite_oldguy;
 uint8_t old_guy_id=0;
 gfx_pixelbuffer_t* pb;
 
+extern gfx_pixelbuffer_t initial_pixelbuffer;
+
+gfx_pixelbuffer_t second_pixel_buffer={
+    .width=100,
+    .height=100,
+    .x=10,
+    .y=200
+};
 
 void game_init()
 {
     gfx_set_palette_from_assset(ASSETID_PALETTE,0);
     gfx_set_font_from_asset(ASSETID_FONT);
 
-    
+    bool success = gfx_pixelbuffer_create(SEGMENT_GFX_DATA, &second_pixel_buffer);
+    assert(success);
+
+    gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
+    gfx_renderqueue_add((ng_mem_block_t*)&second_pixel_buffer);
+    gfx_renderqueue_apply();
+
+    gfx_pixelbuffer_set_active(&second_pixel_buffer);
+    gfx_tile_set_color(0,0,COL_ORANGE);
+    gfx_tile_set_color(12,0,COL_ORANGE);
+    gfx_tile_set_color(12,12,COL_ORANGE);
+    gfx_tile_set_color(0,12,COL_ORANGE);
+
+    gfx_pixelbuffer_set_active(&initial_pixelbuffer);
+
     gfx_tilesheet_t* ts = asset_get_pointer(ASSETID_SPRITE_MISC);
     ts_sprites_misc = *ts;
     ts_sprites_misc.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
@@ -60,9 +84,7 @@ void game_init()
     sprite = gfx_sprite_create_from_tilesheet(100,100,&ts_sprites_misc);
     sprite_oldguy = gfx_sprite_create_from_tilesheet(150,150,&ts_old_guy);
 
-    pb = gfx_pixelbuffer_get_current();
 }
-
 
 
 void game_tick(int dt)
@@ -89,7 +111,9 @@ void game_tick(int dt)
 
     if (io_keyboard_is_pressed(HID_KEY_0)){
         pal_small = !pal_small;
-        gfx_set_palette_from_assset(pal_small ? ASSETID_PALETTE_SMALL : ASSETID_PALETTE,0);
+        gfx_pixelbuffer_set_active(pal_small ? &second_pixel_buffer : &initial_pixelbuffer);
+
+        //gfx_set_palette_from_assset(pal_small ? ASSETID_PALETTE_SMALL : ASSETID_PALETTE,0);
     }
     if (io_keyboard_is_pressed(HID_KEY_ENTER)){
         if (sprite->tile_id<7){
@@ -141,6 +165,7 @@ void game_tick(int dt)
         //gfx_tile_set_color(posx,posy,current_col);
         // sprite->x = posx*8;
         // sprite->y = posy*8;
+        pb = gfx_pixelbuffer_get_current();
         pb->x = posx;
         pb->y = posy;
         current_col++;

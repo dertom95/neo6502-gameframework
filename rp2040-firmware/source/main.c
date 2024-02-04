@@ -34,6 +34,8 @@ const uint frame_len = 1000 / 60;
 
 int main(){
     memory_init();
+    gfx_init();  
+    game_init();
     
 	loadROMS();
 
@@ -57,8 +59,7 @@ int main(){
         usb_update();
     }
 
-    gfx_init();  
-    game_init();
+
 
 
     wdc65C02cpu_init();                                                         // Set up the 65C02

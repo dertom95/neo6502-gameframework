@@ -55,7 +55,7 @@ bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_me
     assert( (((size_t)segment->tip)%16==0) && "ng_mem_segment: internal error: tip not 16byte-aligned");
     
     uint32_t space_left = segment->size-segment->used;
-    if (space_left-size >= 16){
+    if (size%16==0 || space_left-size >= 16){
         // only align size if there is space left afterwards
         size += 16-(size%16); // make the size dividable by 8    
     }

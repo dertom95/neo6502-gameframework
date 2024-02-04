@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 #define MEM_USAGE_PIXELBUFFER 0
 #define MEM_USAGE_TILESHEET 1
 #define MEM_USAGE_TILEMAP 2

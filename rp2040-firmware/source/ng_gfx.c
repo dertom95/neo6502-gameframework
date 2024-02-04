@@ -107,14 +107,19 @@ gfx_pixelbuffer_t initial_pixelbuffer={
 };
 
 
-bool __scratch_x("render") requested_renderqueue_apply = false;
-ng_mem_block_t* __scratch_x("render")renderqueue_core1[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
-ng_mem_block_t* __scratch_y("render")renderqueue_request[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+// bool __scratch_x("render") requested_renderqueue_apply = false;
+// ng_mem_block_t* __scratch_x("render")renderqueue_core1[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+// ng_mem_block_t* __scratch_y("render")renderqueue_request[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+bool requested_renderqueue_apply = false;
+ng_mem_block_t* renderqueue_1[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+ng_mem_block_t* renderqueue_2[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+
 uint8_t renderqueue_request_amount=0;
-uint8_t renderqueue_core1_amount=0;
+ng_mem_block_t** renderqueue_current = renderqueue_1;
+ng_mem_block_t** renderqueue_request = renderqueue_2;
 
 uint8_t* font=NULL; 		  // 1bpp
-gfx_pixelbuffer_t* pixelbuffer = NULL;
+gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
 struct dvi_inst dvi0;
 game_state_t state;
@@ -200,11 +205,11 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 {
     int16_t _x = tX * 8;
 	int16_t _y = tY * 8;
-	if (_x < 0 || _y < 0 || _x>pixelbuffer->width || _y>pixelbuffer->height){
+	if (_x < 0 || _y < 0 || _x>active_pixelbuffer->width || _y>active_pixelbuffer->height){
 		return;
 	}
-	uint8_t width = min(8, pixelbuffer->width-tX);
-	uint8_t height = min(8, pixelbuffer->height-tY);
+	uint8_t width = min(8, active_pixelbuffer->width-tX);
+	uint8_t height = min(8, active_pixelbuffer->height-tY);
 	for (int y=_y,yEnd=(_y+width);y<yEnd;y++){
         for (int x=_x,xEnd=(_x+height);x<xEnd;x++){
             gfx_draw_pixel(x,y,col);
@@ -217,10 +222,12 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
 	memset(pixbuf,0,320*sizeof(uint16_t)); // make this a renderqueue-command
 
-	uint8_t count = renderqueue_core1_amount;
-	ng_mem_block_t** current_render_block_tip = &renderqueue_core1[0];
-	while (count--){
-		ng_mem_block_t* current_render_block = *(current_render_block_tip++);
+	for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++){
+		ng_mem_block_t* current_render_block = renderqueue_current[idx];
+		if (current_render_block==NULL){
+			break;
+		}
+
 		uint8_t usage = ng_memblock_get_usage(current_render_block);
 
 
@@ -257,28 +264,28 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 		}
 	}
 
-	uint16_t* write_buf = pixbuf;
-	for (int i = 0; i < sprites_inuse_amount; i++){
-		gfx_sprite_t* sprite = sprites_inuse_list[i];
+	// uint16_t* write_buf = pixbuf;
+	// for (int i = 0; i < sprites_inuse_amount; i++){
+	// 	gfx_sprite_t* sprite = sprites_inuse_list[i];
 
-		gfx_tilesheet_t* ts = sprite->tilesheet;
-		if (sprite->y > y || (sprite->y+ts->tile_height)<y){
-			continue;
-		}
+	// 	gfx_tilesheet_t* ts = sprite->tilesheet;
+	// 	if (sprite->y > y || (sprite->y+ts->tile_height)<y){
+	// 		continue;
+	// 	}
 
-		uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
-		uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
-		write_buf = pixbuf+sprite->x;
-		uint8_t idx;
-		while (count--){
-			idx = *(data++);
-			if (idx==255){
-				write_buf++;
-				continue;
-			}
-			*(write_buf++)=color_palette[idx];
-		}		
-	}
+	// 	uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
+	// 	uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
+	// 	write_buf = pixbuf+sprite->x;
+	// 	uint8_t idx;
+	// 	while (count--){
+	// 		idx = *(data++);
+	// 		if (idx==255){
+	// 			write_buf++;
+	// 			continue;
+	// 		}
+	// 		*(write_buf++)=color_palette[idx];
+	// 	}		
+	// }
 
 	// for (int i = 0; i < N_CHARACTERS; ++i) {
 	// 	const character_t *ch = &gstate->chars[i];
@@ -321,25 +328,6 @@ void core1_main() {
 uint frame;
 
 void __not_in_flash_func(core1_scanline_callback)() {
-	if (requested_renderqueue_apply){
-		requested_renderqueue_apply = false;
-
-		for (int i=0;i<renderqueue_request_amount;i++){
-			renderqueue_core1[i]=renderqueue_request[i];
-			renderqueue_request[i]=NULL;
-		}
-		// ng_mem_block_t** tip_core1 = &renderqueue_core1[0];
-		// ng_mem_block_t** tip_request = &renderqueue_request[0];
-		// uint8_t count =  renderqueue_request_amount;
-		// while(count--){
-		// 	*tip_core1 = *tip_request;
-		// 	*tip_request = NULL;
-		// 	tip_core1++;
-		// 	tip_request++;
-		// }
-		renderqueue_core1_amount = renderqueue_request_amount;
-		renderqueue_request_amount = 0;
-	}
 	// Discard any scanline pointers passed back
 	uint16_t *bufptr;
 	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
@@ -350,6 +338,13 @@ void __not_in_flash_func(core1_scanline_callback)() {
  	
 	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; 
 	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+
+	if (requested_renderqueue_apply){
+		requested_renderqueue_apply = false;
+		ng_mem_block_t** save_current = renderqueue_current;
+		renderqueue_current = renderqueue_request;
+		renderqueue_request = save_current;
+	}
 
 	scanline++;
 	if (scanline >= FRAME_HEIGHT){
@@ -363,12 +358,12 @@ void __not_in_flash_func(core1_scanline_callback)() {
 
 uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 {
-	assert(pixelbuffer!=NULL);
-	assert(x>0 || x < pixelbuffer->width);
-	assert(y>0 || y < pixelbuffer->height);
+	assert(active_pixelbuffer!=NULL);
+	assert(x>0 || x < active_pixelbuffer->width);
+	assert(y>0 || y < active_pixelbuffer->height);
 
-	uint8_t* result = pixelbuffer->mem.data;
-	result += x + y * pixelbuffer->width;
+	uint8_t* result = active_pixelbuffer->mem.data;
+	result += x + y * active_pixelbuffer->width;
 	return result;
 }
 
@@ -379,8 +374,8 @@ void gfx_init()
 	gfx_pixelbuffer_create(SEGMENT_GFX_DATA,&initial_pixelbuffer);
 	gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
-	gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
-	gfx_renderqueue_apply();
+	// gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
+	// gfx_renderqueue_apply();
 
  	font = (uint8_t*)bin2c_font8_bin;
 
@@ -498,15 +493,15 @@ uint8_t* _char2fontbuffer(uint8_t ch)
 void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 {
 	// for now let's require positive x and y
-	if (   x < 0 || x > pixelbuffer->width 
-		|| y < 0 || y > pixelbuffer->height
+	if (   x < 0 || x > active_pixelbuffer->width 
+		|| y < 0 || y > active_pixelbuffer->height
 	){
 		return;
 	}
 
 	uint8_t* character_ptr = _char2fontbuffer(ch);
 
-	uint8_t width = min(8, pixelbuffer->width-x);
+	uint8_t width = min(8, active_pixelbuffer->width-x);
 
 	for (int i=0;i<8;i++){
 		// set tip on draw-position
@@ -588,7 +583,7 @@ bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data)
 	assert(initial_data->mem.data==NULL && "gfx_create_pixelbuffer: pixelbuffer already initialized!");
 
 	uint32_t size = initial_data->width * initial_data->height;
-	assert(ng_mem_segment_space_left(size) && "gfx_create_pixelbuffer: create size");
+	assert(ng_mem_segment_space_left(segment_id) > size && "gfx_create_pixelbuffer: create size");
 	
 	bool success = ng_mem_allocate(segment_id, size, MEM_USAGE_PIXELBUFFER, &initial_data->mem );
 	return success;
@@ -596,12 +591,12 @@ bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data)
 
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)
 {
-	pixelbuffer = pxbuffer;
+	active_pixelbuffer = pxbuffer;
 }
 
 gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void)
 {
-	return pixelbuffer;
+	return active_pixelbuffer;
 }
 
 void gfx_renderqueue_add(ng_mem_block_t* renderblock)
@@ -613,10 +608,14 @@ void gfx_renderqueue_add(ng_mem_block_t* renderblock)
 
 void gfx_renderqueue_wipe(void)
 {
+	for (int i=0;i<GFX_RENDERQUEUE_MAX_ELEMENTS;i++){
+		renderqueue_request[i]=NULL;
+	}
 	renderqueue_request_amount=0;
 }
 
 void gfx_renderqueue_apply(void)
 {
 	requested_renderqueue_apply=true;
+	renderqueue_request_amount=0;
 }
