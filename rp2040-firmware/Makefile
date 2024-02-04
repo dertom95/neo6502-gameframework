@@ -13,6 +13,9 @@ pico-reboot:
 monitor-install-deps:
 	sudo apt-get install minicom
 
+test-ng-mem:
+	mkdir -p temp && gcc -DTESTING -o temp/test-ng-mem source/ng_mem.c && temp/test-ng-mem
+
 assets-create:
 	mkdir -p temp
 	3rd/PicoDVI/software/scripts/packtiles --format r1 3rd/PicoDVI/software/assets/font_8x8.png temp/font8.bin 

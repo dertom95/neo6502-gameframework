@@ -13,6 +13,7 @@ add_executable(neo6502firmware
 	ng_sound.c
 	ng_utils.c
 	ng_io.c
+	ng_mem.c
 
 	game/game.c
 

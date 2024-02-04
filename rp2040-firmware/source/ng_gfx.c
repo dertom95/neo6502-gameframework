@@ -18,6 +18,8 @@
 #include "sprite.h"
 #include "tile.h"
 
+#include "ng_mem.h"
+
 #include "tilemap.h"
 #include "gen/font_8.h"
 #include "gen/color_palette.h"

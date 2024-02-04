@@ -13,6 +13,7 @@
 #include "../../mod/export/color_palette.h"
 #include "../../mod/export/color_palette_small.h"
 #include "../../mod/export/sprites_misc.h"
+#include "../../mod/export/old_guy.h"
 
 int16_t posx=20;
 int16_t posy=20;
@@ -21,12 +22,14 @@ uint8_t current_col=COL_BLACK;
 bool pal_small = false;
 
 gfx_tilesheet_t ts_sprites_misc;
+gfx_tilesheet_t ts_old_guy;
 
 const void* assets[]={
     bin2c_font8_bin,
     color_palette,
     sprites_misc,
-    color_palette_small
+    color_palette_small,
+    gold_guy
 };
 
 
@@ -34,6 +37,7 @@ uint8_t col;
 int8_t dir=1;
 uint16_t counter = 0;
 gfx_sprite_t* sprite;
+gfx_sprite_t* sprite_oldguy;
 
 void game_init()
 {
@@ -45,11 +49,17 @@ void game_init()
     ts_sprites_misc = *ts;
     ts_sprites_misc.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
 
+    ts = asset_get_pointer(ASSETID_SPRITE_OLD_GUY);
+    ts_old_guy = *ts;
+    ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
+
+   
     sprite = gfx_sprite_create_from_tilesheet(100,100,&ts_sprites_misc);
+    sprite_oldguy = gfx_sprite_create_from_tilesheet(150,150,&ts_old_guy);
 }
 
 
-
+uint8_t old_guy_id=0;
 
 void game_tick(int dt)
 {
@@ -64,7 +74,11 @@ void game_tick(int dt)
             col = 39;
         }
         gfx_tile_set_color(10,10,col);
-
+        old_guy_id++;
+        if (old_guy_id>=12){
+            old_guy_id=0;
+        }
+        gfx_sprite_set_tileid(sprite_oldguy,old_guy_id);
     } else {
         counter += dt;
     }

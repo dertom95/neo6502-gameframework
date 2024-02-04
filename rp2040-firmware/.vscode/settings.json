@@ -38,7 +38,8 @@
         "game.h": "c",
         "color_palette_small.h": "c",
         "dvi_serialiser.h": "c",
-        "flash.h": "c"
+        "flash.h": "c",
+        "old_guy.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

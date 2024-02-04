@@ -83,7 +83,7 @@ def convert_image_to_array(image_filename, tile_width, tile_height, array_name, 
                 if array_size % 16 == 0:
                     output_file.write(f"\n")
 
-                if (len(pixel)==4 and pixel[3]==0):
+                if (len(pixel)==4 and pixel[3]<128):
                     color_index = transparaent_idx
                 else:
                     # Convert the RGB value to the closest color index
@@ -91,6 +91,7 @@ def convert_image_to_array(image_filename, tile_width, tile_height, array_name, 
 
                 # Write the color index to the output file
                 output_file.write(f"{color_index}, ")
+            
 
     # Write the closing brace to the output file
     output_file.write("\n};")
