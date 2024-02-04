@@ -70,6 +70,11 @@ bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_me
     return true;
 }
 
+uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block)
+{
+    uint8_t result = (uint8_t)(mem_block->size >> 13);
+    return result;
+}
 
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block)
@@ -149,6 +154,8 @@ int main()
         
     ng_mem_block_t block3;
     ng_mem_allocate(segment_id_1,spaceleft,2,&block3);
+
+    assert(2==ng_memblock_get_usage(&block3));
 
     ng_mem_block_t block4;
     spaceleft = ng_mem_segment_space_left(segment_id_1);

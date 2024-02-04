@@ -25,7 +25,6 @@ def convert_tilesheet(args):
     
     palette_colors = read_palette_colors(args.palette_file)
     convert_image_to_array(args.tilesheet_file, args.tile_width, args.tile_height, args.array_name, palette_colors, args.output)
-    #convert_to_index_mode(args.palette_file,args.tilesheet_file,"out.png")
     
 def closest_color(rgb, colors):
     # Calculate the Euclidean distance between the RGB color and each color in the list
@@ -153,38 +152,5 @@ def convert_rgba_to_rgb(source_filename, alpha_pixel=(255,0,255),outfile=None):
     return rgb_image
 
 
-
-def convert_to_index_mode(source_image, palette_filename, out_file):
-    # If source_image is a filename, open it as an image
-    if isinstance(source_image, str):
-        source_image = Image.open(source_image).convert('RGB')
-    
-    # Load the palette image
-    palette_image = Image.open(palette_filename)
-    palette_image = palette_image.convert('P', palette=Image.ADAPTIVE)
-
-    # Create a new image with the same size as the source image
-    indexed_image = Image.new('P', source_image.size)
-
-    # Get the pixel data of the source image
-    source_pixels = source_image.load()
-
-    # Get the pixel data of the indexed image
-    indexed_pixels = indexed_image.load()
-
-    # Iterate through each pixel in the source image
-    for y in range(source_image.height):
-        for x in range(source_image.width):
-            r, g, b = source_pixels[x, y]
-
-            # Convert RGB color to palette index
-            indexed_pixels[x, y] = palette_image.getpixel((r, g, b))
-
-    # Set the palette of the indexed image
-    indexed_image.putpalette(palette_image.getpalette())
-
-    # Save the converted image with indexed mode
-    filename, _ = os.path.splitext(source_image.filename)
-    indexed_image.save(filename + "_indexed.png")
 
 

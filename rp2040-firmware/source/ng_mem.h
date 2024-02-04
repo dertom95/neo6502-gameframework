@@ -48,6 +48,7 @@ void ng_mem_segment_wipe(uint8_t segment_id);
 bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_mem_block_t* block); 
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block); 
+uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block); 
 // wipe the block with 0
 void ng_memblock_wipe(ng_mem_block_t* mem_block);
 

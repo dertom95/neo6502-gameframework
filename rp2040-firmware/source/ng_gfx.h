@@ -98,6 +98,15 @@ void 	 gfx_draw();
 void 	 gfx_update();
 uint8_t* gfx_get_pixelbuffer(void);
 
+/// @brief add renderblock to this renderqueue builder (the renderqueue must be applied when finished)
+/// @param renderblock 
+void gfx_renderqueue_add(ng_mem_block_t* renderblock);
+/// @brief start over with the renderqueue builder
+/// @param  
+void gfx_renderqueue_wipe(void);
+/// @brief tell's the renderer to render this queue from now on
+/// @param  
+void gfx_renderqueue_apply(void);
 
 bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data);
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);

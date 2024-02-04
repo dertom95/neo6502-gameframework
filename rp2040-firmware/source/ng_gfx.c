@@ -106,7 +106,12 @@ gfx_pixelbuffer_t initial_pixelbuffer={
 	.height=100,
 };
 
-ng_mem_block_t* render_queue[]={0};
+
+bool __scratch_x("render") requested_renderqueue_apply = false;
+ng_mem_block_t* __scratch_x("render")renderqueue_core1[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+ng_mem_block_t* __scratch_y("render")renderqueue_request[GFX_RENDERQUEUE_MAX_ELEMENTS]={0};
+uint8_t renderqueue_request_amount=0;
+uint8_t renderqueue_core1_amount=0;
 
 uint8_t* font=NULL; 		  // 1bpp
 gfx_pixelbuffer_t* pixelbuffer = NULL;
@@ -210,38 +215,49 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 
 // SCANLINE-RENDERER
 static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
-	memset(pixbuf,0,320*sizeof(uint16_t));
-	uint16_t* write_buf = pixbuf;
-	{
-		int16_t pixel_y = y - pixelbuffer->y;
+	memset(pixbuf,0,320*sizeof(uint16_t)); // make this a renderqueue-command
 
-		bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
+	uint8_t count = renderqueue_core1_amount;
+	ng_mem_block_t** current_render_block_tip = &renderqueue_core1[0];
+	while (count--){
+		ng_mem_block_t* current_render_block = *(current_render_block_tip++);
+		uint8_t usage = ng_memblock_get_usage(current_render_block);
 
-		// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
-		// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
 
-		if (is_visible){
-			
+		uint16_t* write_buf = pixbuf;
 
-			//uint8_t* buffer = &pixelbuffer[y*320];
-			uint16_t count;
-			uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
-			
-			if (pixelbuffer->x>0){
-				write_buf+=pixelbuffer->x; 
-				count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
-			} else {
-				// pixelbuffer->x is negative!
-				buffer+=-pixelbuffer->x;
-				count = pixelbuffer->width + pixelbuffer->x; 
-			}
-			while (count--){
-				uint8_t data = *(buffer++);
-				*(write_buf++)=color_palette[data];
+		if (usage == MEM_USAGE_PIXELBUFFER){
+			gfx_pixelbuffer_t* pixelbuffer = (gfx_pixelbuffer_t*)current_render_block;
+
+			int16_t pixel_y = y - pixelbuffer->y;
+
+			bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
+
+			// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
+			// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
+
+			if (is_visible){
+				//uint8_t* buffer = &pixelbuffer[y*320];
+				uint16_t count;
+				uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
+				
+				if (pixelbuffer->x>0){
+					write_buf+=pixelbuffer->x; 
+					count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
+				} else {
+					// pixelbuffer->x is negative!
+					buffer+=-pixelbuffer->x;
+					count = pixelbuffer->width + pixelbuffer->x; 
+				}
+				while (count--){
+					uint8_t data = *(buffer++);
+					*(write_buf++)=color_palette[data];
+				}
 			}
 		}
 	}
 
+	uint16_t* write_buf = pixbuf;
 	for (int i = 0; i < sprites_inuse_amount; i++){
 		gfx_sprite_t* sprite = sprites_inuse_list[i];
 
@@ -305,6 +321,25 @@ void core1_main() {
 uint frame;
 
 void __not_in_flash_func(core1_scanline_callback)() {
+	if (requested_renderqueue_apply){
+		requested_renderqueue_apply = false;
+
+		for (int i=0;i<renderqueue_request_amount;i++){
+			renderqueue_core1[i]=renderqueue_request[i];
+			renderqueue_request[i]=NULL;
+		}
+		// ng_mem_block_t** tip_core1 = &renderqueue_core1[0];
+		// ng_mem_block_t** tip_request = &renderqueue_request[0];
+		// uint8_t count =  renderqueue_request_amount;
+		// while(count--){
+		// 	*tip_core1 = *tip_request;
+		// 	*tip_request = NULL;
+		// 	tip_core1++;
+		// 	tip_request++;
+		// }
+		renderqueue_core1_amount = renderqueue_request_amount;
+		renderqueue_request_amount = 0;
+	}
 	// Discard any scanline pointers passed back
 	uint16_t *bufptr;
 	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
@@ -343,6 +378,9 @@ void gfx_init()
 {
 	gfx_pixelbuffer_create(SEGMENT_GFX_DATA,&initial_pixelbuffer);
 	gfx_pixelbuffer_set_active(&initial_pixelbuffer);
+
+	gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
+	gfx_renderqueue_apply();
 
  	font = (uint8_t*)bin2c_font8_bin;
 
@@ -564,4 +602,21 @@ void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)
 gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void)
 {
 	return pixelbuffer;
+}
+
+void gfx_renderqueue_add(ng_mem_block_t* renderblock)
+{
+	assert(renderqueue_request_amount+1 < GFX_RENDERQUEUE_MAX_ELEMENTS);
+	assert(!requested_renderqueue_apply);
+	renderqueue_request[renderqueue_request_amount++]=renderblock;
+}
+
+void gfx_renderqueue_wipe(void)
+{
+	renderqueue_request_amount=0;
+}
+
+void gfx_renderqueue_apply(void)
+{
+	requested_renderqueue_apply=true;
 }
