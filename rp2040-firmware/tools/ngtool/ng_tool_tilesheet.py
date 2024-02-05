@@ -62,9 +62,13 @@ def convert_image_to_array(image_filename, tile_width, tile_height, array_name, 
     output_file.write(f'#include <stdint.h>\n\n')
     output_file.write(f"const uint8_t {array_name}[] = {{\n")
     
-    write_header(output_file,DATA_TYPE.DT_TILESHEET,num_tiles_x * num_tiles_y * tile_width * tile_height)
-
-    output_file.write(f'{tile_width},{tile_height},{num_tiles_x},{num_tiles_x*num_tiles_y},')
+    #write_header(output_file,DATA_TYPE.DT_TILESHEET,num_tiles_x * num_tiles_y * tile_width * tile_height)
+    tilesheet_size = num_tiles_x * num_tiles_y * tile_width * tile_height
+    if tilesheet_size>65535:
+        raise ValueError(f"Tilesheet {array_name} too huge!({tilesheet_size} bytes) only 65535 allowed!")
+    
+    output_file.write("0,0, 0,0, 0,0,0,0, ") # ng_mem_block_t (u16[start], u16[size], u32[ptr])
+    output_file.write(f'{value_to_csv_le(tilesheet_size,"H")},{tile_width},{tile_height},{num_tiles_x},{num_tiles_x*num_tiles_y},')
     output_file.write('0,0,1,0, ') # 16bit flags, format and one pad
     output_file.write('0,0,0,0, ') # tilesheet_data_ram pointer - data
     output_file.write('0,0,0,0, ') # tilesheet_data_flah pointer - data

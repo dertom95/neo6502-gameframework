@@ -46,7 +46,8 @@ typedef struct data_header_t {
 } data_header_t;
 
 typedef struct gfx_tilesheet_t {
-	data_header_t header;
+	ng_mem_block_t mem;
+	uint16_t data_size;
 	uint8_t tile_width;
 	uint8_t tile_height;
 	uint8_t cols;
@@ -55,9 +56,7 @@ typedef struct gfx_tilesheet_t {
 	uint16_t flags;
 	uint8_t format;
 	uint8_t pad1;
-	uint8_t* tilesheet_data_ram;
 	uint8_t* tilesheet_data_flash;
-
 } gfx_tilesheet_t;
 
 #define SPRITE_FLAG_INUSE (1 << 0)

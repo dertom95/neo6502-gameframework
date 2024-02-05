@@ -8,11 +8,6 @@
 uint8_t          mem_segments_amount=0;
 ng_mem_segment_t mem_segments[MEM_MAX_SEGMENTS]={0};
 
-uint32_t ng_memblock_get_startpos(ng_mem_block_t* mem_block)
-{
-    return mem_block->start_pos << 3;
-}
-
 // create a segment (see MEM_MAX_SEEGMENTS for the max amount). return the segment-id. max-size: 131056
 uint8_t ng_mem_segment_create(void* start, uint32_t size)
 {
@@ -41,45 +36,74 @@ void ng_mem_segment_wipe(uint8_t segment_id)
 }
 
 
-#define BUILD_STARTPOS(SEG_POS,SEGMENT_ID) ((uint16_t)(SEG_POS >> 4)) | MEMBLOCK_FLAG_INUSE | (((uint16_t)SEGMENT_ID)<<13)
-#define BUILD_SIZE(SIZE,USAGE) ((uint16_t)(SIZE >> 4)) | (((uint16_t)USAGE)<<13)
+void* ng_mem_allocate(uint8_t segment_id,uint32_t size)
+{
+    return ng_mem_allocate_with_alignment(segment_id,size,4);
+}
 
-// allocates a block of memory in the specified segment. sizes needs to be multiple of 8. max-siz: 131056 and/or free space in segment
-bool ng_mem_allocate(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_mem_block_t* block)
+void* ng_mem_allocate_with_alignment(uint8_t segment_id,uint32_t size,uint8_t alignment)
 {
     assert(segment_id < mem_segments_amount && "unknown segment_id");
     assert(size < 131056 && "ng_allocte: exceeded size. size must not be >= 131056");
-    assert(block!=NULL && "ng_allocate: you need to provide an output-block");
 
     ng_mem_segment_t* segment = &mem_segments[segment_id];
-    assert( (((size_t)segment->tip)%16==0) && "ng_mem_segment: internal error: tip not 16byte-aligned");
     
-    uint32_t space_left = segment->size-segment->used;
-    if (size%16==0 || space_left-size >= 16){
-        // only align size if there is space left afterwards
-        size += 16-(size%16); // make the size dividable by 8    
+    uint8_t modulo = ((size_t)segment->tip)%alignment;
+    
+    if (modulo!=0){
+        // not aligned. Add bytes to start-pos to align
+        uint8_t add_bytes = alignment-modulo;
+        segment->tip  += add_bytes;
+        segment->used += add_bytes;
     }
+    
+    uint32_t space_left = segment->size - segment->used;
+
+    if (size & 1 == 1){
+        size+=1; // we are losing one byte storing our size in 16bit. Therefore we add one to the size to make it one bigger than we need
+    }
+
     assert(space_left >= size && "exceeded segment-memory");
-    block->data = segment->tip;
-    block->start_pos = BUILD_STARTPOS(segment->used,segment_id);
-    assert(usage_type<7 && "exceeded usage-type");
-    block->size = BUILD_SIZE(size, usage_type);
+    
+    void* result = segment->tip;
     
     segment->tip += size;
     segment->used += size;
+    return result;
+}
+
+
+// allocates a block of memory in the specified segment. sizes needs to be multiple of 8. max-siz: 131056 and/or free space in segment
+bool ng_mem_allocate_block(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_mem_block_t* block)
+{
+    assert(usage_type < 16 && "exceeded usage-type");
+    assert(block!=NULL && "ng_allocate: you need to provide an output-block");
+
+    void* data = ng_mem_allocate_with_alignment(segment_id,size,16);
+    block->data = data;
+    block->flags =  usage_type | (segment_id << 4);
+    block->size = size >> 1;
+
     return true;
 }
 
 uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block)
 {
-    uint8_t result = (uint8_t)(mem_block->size >> 13);
+    uint8_t result = (uint8_t)(mem_block->flags & MEMBLOCK_USAGE_MASK);
+    return result;
+}
+
+uint8_t ng_mem_block_get_segmentid(ng_mem_block_t* block)
+{
+    uint8_t result = (uint8_t)((block->flags & MEMBLOCK_SEGMENT_MASK) >> 4);
     return result;
 }
 
 
+
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block)
 {
-    uint32_t result = (mem_block->size & ~MEMBLOCK_FLAG_MASK)  << 4;
+    uint32_t result = (mem_block->size << 1);
     return result;
 }
 
@@ -119,12 +143,11 @@ int main()
 
     // allocate block1 in 1st seg
     ng_mem_block_t block1={0};
-    assert(block1.start_pos==0);
     assert(block1.size == 0);
     assert(block1.data == NULL);
-    bool success = ng_mem_allocate(segment_id_1,20,1,&block1);
+    bool success = ng_mem_allocate_block(segment_id_1,20,1,&block1);
     assert(success);
-    assert(ng_memblock_get_size(&block1) == 32); // 16 aligned.
+    assert(ng_memblock_get_size(&block1) == 20);
     assert(block1.data != NULL);
     *(block1.data)=95;
     assert(*(block1.data)==95);
@@ -133,12 +156,11 @@ int main()
 
     // allocate block2 in 1st seg
     ng_mem_block_t block2={0};
-    assert(block2.start_pos==0);
     assert(block2.size == 0);
     assert(block2.data == NULL);
-    success = ng_mem_allocate(segment_id_1,40,1,&block2);
+    success = ng_mem_allocate_block(segment_id_1,40,1,&block2);
     assert(success);
-    assert(ng_memblock_get_size(&block2) == 48); // 8 aligned
+    assert(ng_memblock_get_size(&block2) == 40); 
     assert(block2.data != NULL);
     *(block2.data)=95;
     assert(*(block2.data)==95);
@@ -153,7 +175,7 @@ int main()
     uint32_t spaceleft = ng_mem_segment_space_left(segment_id_1);
         
     ng_mem_block_t block3;
-    ng_mem_allocate(segment_id_1,spaceleft,2,&block3);
+    ng_mem_allocate_block(segment_id_1,spaceleft,2,&block3);
 
     assert(2==ng_memblock_get_usage(&block3));
 

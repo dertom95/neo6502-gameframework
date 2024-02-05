@@ -33,6 +33,7 @@
 #include "core/wdc65C02cpu.h"
 #include "ng_utils.h"
 #include <assert.h>
+#include "core/memory.h"
 
 
 
@@ -142,6 +143,18 @@ uint16_t* sp16 = NULL;
 
 
 
+typedef struct gfx_sprite_buffer_t {
+	ng_mem_block_t mem;
+	
+	uint8_t max_sprites;
+	uint8_t amount_sprites_free;
+	uint8_t amount_sprites_inuse;
+	uint8_t flags;
+
+	gfx_sprite_t** sprites_free;
+	gfx_sprite_t** sprites_inuse;
+} gfx_sprite_buffer_t;
+
 gfx_sprite_t sprites[MAX_SPRITES]={0};
 
 uint8_t sprites_inuse_amount=0;
@@ -160,11 +173,10 @@ gfx_sprite_t* _gfx_sprite_find_free()
 	return NULL;
 }
 
-void* _gfx_copy_from_flash_to_ram(void* data,uint size){
-	void* ram_data = malloc(size);
-	assert(ram_data!=NULL && "could not allocate any more RAM");
-	memcpy(ram_data,data,size);
-	return ram_data;
+void _gfx_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8_t usage_type,void* data,uint size){
+	bool success = ng_mem_allocate_block(segment_id,size,usage_type, block);
+	assert(success && "could not allocate any more RAM");
+	memcpy(block->data,data,size);
 }
 
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(int16_t x,int16_t y, gfx_tilesheet_t* ts)
@@ -177,10 +189,10 @@ gfx_sprite_t* gfx_sprite_create_from_tilesheet(int16_t x,int16_t y, gfx_tileshee
 	sprite->x=x;
 	sprite->y=y;
 
-	if (ts->tilesheet_data_ram == NULL){
+	if (ts->mem.data == NULL){
 		// we need to copy sprites to RAM!
-		uint8_t* ts_ram_data = _gfx_copy_from_flash_to_ram(ts->tilesheet_data_flash,ts->header.size);
-		ts->tilesheet_data_ram = ts_ram_data;
+		// TODO: do this on a per tile base (not the whole tilesheet)
+		_gfx_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILEMAP, ts->tilesheet_data_flash,ts->data_size);
 	}
 
 	gfx_sprite_set_tileid(sprite,0);
@@ -192,11 +204,11 @@ void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 {
 	assert(tile_id < sprite->tilesheet->tile_amount && "exceeded tile-id");
 	assert(sprite->tilesheet!=NULL && "no tilesheet set for sprite");
-	assert(sprite->tilesheet->tilesheet_data_ram!=NULL && "tilesheet data not copied to RAM");
+	assert(sprite->tilesheet->mem.data!=NULL && "tilesheet data not copied to RAM");
 	
 	gfx_tilesheet_t* ts = sprite->tilesheet;
 	uint size_per_tile = (ts->tile_width*ts->tile_height);
-	uint8_t* tile_ptr = ts->tilesheet_data_ram + tile_id * size_per_tile;
+	uint8_t* tile_ptr = ts->mem.data + tile_id * size_per_tile;
 	sprite->tile_ptr = tile_ptr;
 	sprite->tile_id = tile_id;
 }
@@ -264,28 +276,28 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 		}
 	}
 
-	// uint16_t* write_buf = pixbuf;
-	// for (int i = 0; i < sprites_inuse_amount; i++){
-	// 	gfx_sprite_t* sprite = sprites_inuse_list[i];
+	uint16_t* write_buf = pixbuf;
+	for (int i = 0; i < sprites_inuse_amount; i++){
+		gfx_sprite_t* sprite = sprites_inuse_list[i];
 
-	// 	gfx_tilesheet_t* ts = sprite->tilesheet;
-	// 	if (sprite->y > y || (sprite->y+ts->tile_height)<y){
-	// 		continue;
-	// 	}
+		gfx_tilesheet_t* ts = sprite->tilesheet;
+		if (sprite->y > y || (sprite->y+ts->tile_height)<y){
+			continue;
+		}
 
-	// 	uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
-	// 	uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
-	// 	write_buf = pixbuf+sprite->x;
-	// 	uint8_t idx;
-	// 	while (count--){
-	// 		idx = *(data++);
-	// 		if (idx==255){
-	// 			write_buf++;
-	// 			continue;
-	// 		}
-	// 		*(write_buf++)=color_palette[idx];
-	// 	}		
-	// }
+		uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
+		uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
+		write_buf = pixbuf+sprite->x;
+		uint8_t idx;
+		while (count--){
+			idx = *(data++);
+			if (idx==255){
+				write_buf++;
+				continue;
+			}
+			*(write_buf++)=color_palette[idx];
+		}		
+	}
 
 	// for (int i = 0; i < N_CHARACTERS; ++i) {
 	// 	const character_t *ch = &gstate->chars[i];
@@ -585,7 +597,7 @@ bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data)
 	uint32_t size = initial_data->width * initial_data->height;
 	assert(ng_mem_segment_space_left(segment_id) > size && "gfx_create_pixelbuffer: create size");
 	
-	bool success = ng_mem_allocate(segment_id, size, MEM_USAGE_PIXELBUFFER, &initial_data->mem );
+	bool success = ng_mem_allocate_block(segment_id, size, MEM_USAGE_PIXELBUFFER, &initial_data->mem );
 	return success;
 }
 
