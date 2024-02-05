@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define MEM_USAGE_UNKNOWN       0
+#define MEM_USAGE_PIXELBUFFER   1
+#define MEM_USAGE_SPRITEBUFFER  2
+#define MEM_USAGE_TILESHEET     3
 
-#define MEM_USAGE_PIXELBUFFER 0
-#define MEM_USAGE_TILESHEET 1
-#define MEM_USAGE_TILEMAP 2
 
 #define flags_set(FLAGS,MASK) FLAGS |= MASK;
 #define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;

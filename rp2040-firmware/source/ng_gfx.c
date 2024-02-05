@@ -142,33 +142,30 @@ uint16_t* sp16 = NULL;
 #define SPRITE_CONVERTED (1 << 0)
 
 
-
-typedef struct gfx_sprite_buffer_t {
-	ng_mem_block_t mem;
-	
-	uint8_t max_sprites;
-	uint8_t amount_sprites_free;
-	uint8_t amount_sprites_inuse;
-	uint8_t flags;
-
-	gfx_sprite_t** sprites_free;
-	gfx_sprite_t** sprites_inuse;
-} gfx_sprite_buffer_t;
-
-gfx_sprite_t sprites[MAX_SPRITES]={0};
-
-uint8_t sprites_inuse_amount=0;
-gfx_sprite_t* sprites_inuse_list[10]={0}; 
-
-gfx_sprite_t* _gfx_sprite_find_free()
+bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer)
 {
-	for (int i=0;i<MAX_SPRITES;i++){
-		gfx_sprite_t* sprite = &sprites[i];
-		if (sprite->flags == 0){
-			flags_set(sprite->flags, SPRITE_FLAG_INUSE);
-			sprites_inuse_list[sprites_inuse_amount++]=sprite;
+	assert(spritebuffer->mem.data == NULL);
+
+	uint8_t sprite_amount = spritebuffer -> max_sprites;
+
+	uint16_t size = sizeof(gfx_sprite_t) * sprite_amount;
+
+	bool success = ng_mem_allocate_block(segment_id, size, MEM_USAGE_SPRITEBUFFER, &spritebuffer->mem);
+	assert(success);
+	ng_memblock_wipe(&spritebuffer->mem);
+
+	return success;
+}
+
+gfx_sprite_t* _gfx_sprite_find_free(gfx_sprite_buffer_t* spritebuffer)
+{
+	uint8_t max_count = spritebuffer->max_sprites;
+	gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->mem.data;
+	while (max_count--){
+		if (sprite->flags==0){
 			return sprite;
 		}
+		sprite++;
 	}
 	return NULL;
 }
@@ -179,20 +176,21 @@ void _gfx_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8
 	memcpy(block->data,data,size);
 }
 
-gfx_sprite_t* gfx_sprite_create_from_tilesheet(int16_t x,int16_t y, gfx_tilesheet_t* ts)
+gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts)
 {
-	gfx_sprite_t* sprite = _gfx_sprite_find_free();
+	gfx_sprite_t* sprite = _gfx_sprite_find_free(spritebuffer);
 	if (sprite == NULL){
 		return NULL;
 	}
 	sprite->tilesheet = ts;
 	sprite->x=x;
 	sprite->y=y;
-
+	sprite->flags = 1; // TODO
+	
 	if (ts->mem.data == NULL){
 		// we need to copy sprites to RAM!
 		// TODO: do this on a per tile base (not the whole tilesheet)
-		_gfx_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILEMAP, ts->tilesheet_data_flash,ts->data_size);
+		_gfx_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILESHEET,ts->tilesheet_data_flash,ts->data_size);
 	}
 
 	gfx_sprite_set_tileid(sprite,0);
@@ -220,10 +218,10 @@ void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
 	if (_x < 0 || _y < 0 || _x>active_pixelbuffer->width || _y>active_pixelbuffer->height){
 		return;
 	}
-	uint8_t width = min(8, active_pixelbuffer->width-tX);
-	uint8_t height = min(8, active_pixelbuffer->height-tY);
-	for (int y=_y,yEnd=(_y+width);y<yEnd;y++){
-        for (int x=_x,xEnd=(_x+height);x<xEnd;x++){
+	uint8_t width = min(8, active_pixelbuffer->width-_x-1);
+	uint8_t height = min(8, active_pixelbuffer->height-_y-1);
+	for (int y=_y,yEnd=(_y+height);y<yEnd;y++){
+        for (int x=_x,xEnd=(_x+width);x<xEnd;x++){
             gfx_draw_pixel(x,y,col);
         }
     }
@@ -245,59 +243,78 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 
 		uint16_t* write_buf = pixbuf;
 
-		if (usage == MEM_USAGE_PIXELBUFFER){
-			gfx_pixelbuffer_t* pixelbuffer = (gfx_pixelbuffer_t*)current_render_block;
+		switch(usage){
+			case MEM_USAGE_PIXELBUFFER:{
+				// █▀█ █ ▀▄▀ █▀▀ █░░ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
+				// █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
 
-			int16_t pixel_y = y - pixelbuffer->y;
+				gfx_pixelbuffer_t* pixelbuffer = (gfx_pixelbuffer_t*)current_render_block;
 
-			bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
+				int16_t pixel_y = y - pixelbuffer->y;
 
-			// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
-			// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
+				bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
 
-			if (is_visible){
-				//uint8_t* buffer = &pixelbuffer[y*320];
-				uint16_t count;
-				uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
-				
-				if (pixelbuffer->x>0){
-					write_buf+=pixelbuffer->x; 
-					count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
-				} else {
-					// pixelbuffer->x is negative!
-					buffer+=-pixelbuffer->x;
-					count = pixelbuffer->width + pixelbuffer->x; 
+				// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
+				// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
+
+				if (is_visible){
+					//uint8_t* buffer = &pixelbuffer[y*320];
+					uint16_t count;
+					uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
+					
+					if (pixelbuffer->x>0){
+						write_buf+=pixelbuffer->x; 
+						count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
+					} else {
+						// pixelbuffer->x is negative!
+						buffer+=-pixelbuffer->x;
+						count = pixelbuffer->width + pixelbuffer->x; 
+					}
+					while (count--){
+						uint8_t data = *(buffer++);
+						*(write_buf++)=color_palette[data];
+					}
 				}
-				while (count--){
-					uint8_t data = *(buffer++);
-					*(write_buf++)=color_palette[data];
+				break;
+			}
+
+			case MEM_USAGE_SPRITEBUFFER: {
+				// █▀ █▀█ █▀█ █ ▀█▀ █▀▀ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
+				// ▄█ █▀▀ █▀▄ █ ░█░ ██▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
+
+				uint16_t* write_buf = pixbuf;
+				gfx_sprite_buffer_t* spritebuffer = (gfx_sprite_buffer_t*)current_render_block;
+				uint8_t max_sprites = spritebuffer->max_sprites;
+				gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->mem.data;
+				while(max_sprites--){
+					if (sprite->flags>0){
+						gfx_tilesheet_t* ts = sprite->tilesheet;
+						if (sprite->y > y || (sprite->y+ts->tile_height)<y){
+							sprite++;
+							continue;
+						}
+
+						uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
+						uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
+						write_buf = pixbuf+sprite->x;
+						uint8_t idx;
+						while (count--){
+							idx = *(data++);
+							if (idx==255){
+								write_buf++;
+								continue;
+							}
+							*(write_buf++)=color_palette[idx];
+						}		
+					}
+					sprite++;
 				}
+				break;
 			}
 		}
+
 	}
 
-	uint16_t* write_buf = pixbuf;
-	for (int i = 0; i < sprites_inuse_amount; i++){
-		gfx_sprite_t* sprite = sprites_inuse_list[i];
-
-		gfx_tilesheet_t* ts = sprite->tilesheet;
-		if (sprite->y > y || (sprite->y+ts->tile_height)<y){
-			continue;
-		}
-
-		uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
-		uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
-		write_buf = pixbuf+sprite->x;
-		uint8_t idx;
-		while (count--){
-			idx = *(data++);
-			if (idx==255){
-				write_buf++;
-				continue;
-			}
-			*(write_buf++)=color_palette[idx];
-		}		
-	}
 
 	// for (int i = 0; i < N_CHARACTERS; ++i) {
 	// 	const character_t *ch = &gstate->chars[i];
@@ -484,6 +501,8 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y)
 
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 {
+	assert(x < active_pixelbuffer->width);
+	assert(y < active_pixelbuffer->height);
 	uint8_t* pixel = _pixelbuffer_location_ptr(x,y);
 	*pixel = color_idx;
 }

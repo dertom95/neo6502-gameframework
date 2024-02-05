@@ -18,7 +18,9 @@ uint8_t ng_mem_segment_create(void* start, uint32_t size)
     segment->tip = start;
     segment->used = 0;
     segment->size = size;
-    return mem_segments_amount++;
+    uint8_t segment_id = mem_segments_amount++;
+    ng_mem_segment_wipe(segment_id);
+    return segment_id;
 }
 
 uint32_t ng_mem_segment_space_left(uint8_t segment_id)
@@ -59,7 +61,7 @@ void* ng_mem_allocate_with_alignment(uint8_t segment_id,uint32_t size,uint8_t al
     
     uint32_t space_left = segment->size - segment->used;
 
-    if (size & 1 == 1){
+    if ( (size & 1) == 1){
         size+=1; // we are losing one byte storing our size in 16bit. Therefore we add one to the size to make it one bigger than we need
     }
 

@@ -52,6 +52,10 @@ gfx_pixelbuffer_t second_pixel_buffer={
     .y=200
 };
 
+gfx_sprite_buffer_t sprite_buffer = {
+    .max_sprites = 16
+};
+
 void game_init()
 {
     gfx_set_palette_from_assset(ASSETID_PALETTE,0);
@@ -60,7 +64,10 @@ void game_init()
     bool success = gfx_pixelbuffer_create(SEGMENT_GFX_DATA, &second_pixel_buffer);
     assert(success);
 
+    success = gfx_spritebuffer_create(SEGMENT_GFX_DATA, &sprite_buffer);
+
     gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
+    gfx_renderqueue_add((ng_mem_block_t*)&sprite_buffer);
     gfx_renderqueue_add((ng_mem_block_t*)&second_pixel_buffer);
     gfx_renderqueue_apply();
 
@@ -80,9 +87,8 @@ void game_init()
     ts_old_guy = *ts;
     ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
 
-   
-    sprite = gfx_sprite_create_from_tilesheet(100,100,&ts_sprites_misc);
-    sprite_oldguy = gfx_sprite_create_from_tilesheet(150,150,&ts_old_guy);
+    sprite = gfx_sprite_create_from_tilesheet(&sprite_buffer, 100,100,&ts_sprites_misc);
+    sprite_oldguy = gfx_sprite_create_from_tilesheet(&sprite_buffer,150,150,&ts_old_guy);
 
 }
 
