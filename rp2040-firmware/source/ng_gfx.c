@@ -1,30 +1,12 @@
 #include "ng_gfx.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
-#include "hardware/clocks.h"
-#include "hardware/irq.h"
-#include "hardware/sync.h"
-#include "hardware/gpio.h"
-#include "hardware/vreg.h"
-#include "pico/sem.h"
-
-#include "dvi.h"
-#include "dvi_serialiser.h"
-#include "tmds_encode.h"
-#include "common_dvi_pin_configs.h"
-#include "sprite.h"
-#include "tile.h"
-
-
-
-#include "tilemap.h"
 #include "gen/font_8.h"
 #include "gen/color_palette.h"
 //#include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "ng_io.h"
 #include "api/ng_api.h"
@@ -37,67 +19,6 @@
 
 
 
-// Pick one:
-#define MODE_640x480_60Hz
-// #define MODE_800x480_60Hz
-// #define MODE_800x600_60Hz
-// #define MODE_960x540p_60Hz
-// #define MODE_1280x720_30Hz
-
-#if defined(MODE_640x480_60Hz)
-// DVDD 1.2V (1.1V seems ok too)
-#define FRAME_WIDTH 320
-#define FRAME_HEIGHT 240
-#define VREG_VSEL VREG_VOLTAGE_1_20
-#define DVI_TIMING dvi_timing_640x480p_60hz
-
-#elif defined(MODE_800x480_60Hz) 
-#define FRAME_WIDTH 400
-#define FRAME_HEIGHT 240
-#define VREG_VSEL VREG_VOLTAGE_1_20
-#define DVI_TIMING dvi_timing_800x480p_60hz
-
-#elif defined(MODE_800x600_60Hz)
-// DVDD 1.3V, going downhill with a tailwind
-#define FRAME_WIDTH 400
-#define FRAME_HEIGHT 300
-#define VREG_VSEL VREG_VOLTAGE_1_30
-#define DVI_TIMING dvi_timing_800x600p_60hz
-
-#elif defined(MODE_960x540p_60Hz)
-// DVDD 1.25V (slower silicon may need the full 1.3, or just not work)
-// Frame resolution is almost the same as a PSP :)
-#define FRAME_WIDTH 480
-#define FRAME_HEIGHT 270
-#define VREG_VSEL VREG_VOLTAGE_1_25
-#define DVI_TIMING dvi_timing_960x540p_60hz
-
-#elif defined(MODE_1280x720_30Hz)
-// 1280x720p 30 Hz (nonstandard)
-// DVDD 1.25V (slower silicon may need the full 1.3, or just not work)
-#define FRAME_WIDTH 640
-#define FRAME_HEIGHT 360
-#define VREG_VSEL VREG_VOLTAGE_1_25
-#define DVI_TIMING dvi_timing_1280x720p_30hz
-
-#else
-#error "Select a video mode!"
-#endif
-
-
-
-// ----------------------------------------------------------------------------
-// Rendering/animation stuff
-
-
-// Pico HDMI for Olimex Neo6502 
-static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
-.pio = DVI_DEFAULT_PIO_INST,
-.sm_tmds = {0, 1, 2},
-.pins_tmds = {14, 18, 16},
-.pins_clk = 12,
-.invert_diffpairs = true
-};
 
 // TODO: this must be done somewhere else in userspace
 gfx_pixelbuffer_t initial_pixelbuffer={
@@ -125,9 +46,6 @@ gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 struct dvi_inst dvi0;
 game_state_t state;
 
-uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
-
-
 uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
 	return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
@@ -139,7 +57,6 @@ static inline int clip(int x, int min, int max) {
 
 uint16_t* sp16 = NULL;
 
-#define SPRITE_CONVERTED (1 << 0)
 
 
 bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer)
@@ -170,11 +87,6 @@ gfx_sprite_t* _gfx_sprite_find_free(gfx_sprite_buffer_t* spritebuffer)
 	return NULL;
 }
 
-void _gfx_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8_t usage_type,void* data,uint size){
-	bool success = ng_mem_allocate_block(segment_id,size,usage_type, block);
-	assert(success && "could not allocate any more RAM");
-	memcpy(block->data,data,size);
-}
 
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts)
 {
@@ -211,7 +123,7 @@ void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 	sprite->tile_id = tile_id;
 }
 
-void __not_in_flash_func(gfx_tile_set_color)(uint8_t tX,uint8_t tY,uint8_t col)
+void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
 {
     int16_t _x = tX * 8;
 	int16_t _y = tY * 8;
