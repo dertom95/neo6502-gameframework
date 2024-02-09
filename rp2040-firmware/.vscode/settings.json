@@ -123,7 +123,9 @@
         "cstdbool": "c",
         "typeindex": "c",
         "typeinfo": "c",
-        "version": "c"
+        "version": "c",
+        "ng_api.h": "c",
+        "neo6502.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

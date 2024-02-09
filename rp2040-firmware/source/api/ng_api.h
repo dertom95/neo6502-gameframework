@@ -9,7 +9,7 @@
 #define MM_MOUSE_Y      (MM_SB + 0x04)      // uint16
 #define MM_MOUSE_BTN    (MM_SB + 0x06)      // uint8
 #define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
-
+#define MM_FUNC_CALL    (MM_SB + 0x08)      // uint8 
 
 #define MOUSE_BUTTON_LEFT     = (1 << 0), ///< Left button
 #define MOUSE_BUTTON_RIGHT    = (1 << 1), ///< Right button
@@ -35,6 +35,14 @@
 #define COL_GREY 14
 #define COL_PINK 15
 #define COL_PEACH 16
+
+typedef struct call_gfx_set_palette_from_assset_t {
+    uint8_t function_id;
+    uint8_t asset_id;
+    uint8_t fillempty_with;
+} call_gfx_set_palette_from_assset_t;
+
+
 
 //--------------------------------------------------------------------+
 // HID KEYCODE

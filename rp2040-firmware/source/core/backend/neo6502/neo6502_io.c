@@ -403,13 +403,13 @@ bool io_mouse_connected(void)
 }
 
 
-void usb_init(void) {
+void neo6502_usb_init(void) {
 
   board_init();
   tusb_init();
 }
 
-void usb_update(void){
+void neo6502_usb_update(void){
   previous_report = current_report;
   tuh_task();  
 }

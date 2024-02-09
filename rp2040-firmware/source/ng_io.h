@@ -12,8 +12,9 @@ extern int8_t mouse_wheel;
 extern uint8_t keyboard_last_pressed_keycode;
 extern char keyboard_last_pressed_key;
 
-void usb_init(void);
-void usb_update(void);
+void io_init(void);
+void io_update(void);
+
 
 bool io_keyboard_connected(void);
 bool io_mouse_connected(void);

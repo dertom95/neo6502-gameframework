@@ -105,7 +105,7 @@ void game_tick(int dt)
             dir = -1;
             col = 39;
         }
-        gfx_tile_set_color(10,10,col);
+   //     gfx_tile_set_color(10,10,col);
         old_guy_id++;
         if (old_guy_id>=12){
             old_guy_id=0;

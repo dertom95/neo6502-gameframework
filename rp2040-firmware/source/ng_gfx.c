@@ -1,5 +1,10 @@
 #include "ng_gfx.h"
 
+#ifdef PICO_NEO6502
+# include "core/backend/neo6502/neo6502.h"
+# include "pico/platform.h"
+#endif
+
 #include "gen/font_8.h"
 #include "gen/color_palette.h"
 //#include "zelda_mini_plus_walk_rgab5515.h"
@@ -7,12 +12,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "ng_io.h"
 #include "api/ng_api.h"
 #include <math.h>
 
-#include "core/wdc65C02cpu.h"
 #include "ng_utils.h"
 #include <assert.h>
 #include "core/memory.h"
@@ -43,7 +48,6 @@ ng_mem_block_t** renderqueue_request = renderqueue_2;
 uint8_t* font=NULL; 		  // 1bpp
 gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
-struct dvi_inst dvi0;
 game_state_t state;
 
 uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
@@ -99,12 +103,13 @@ gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer
 	sprite->y=y;
 	sprite->flags = 1; // TODO
 	
+#ifdef PICO_NEO6502
 	if (ts->mem.data == NULL){
 		// we need to copy sprites to RAM!
 		// TODO: do this on a per tile base (not the whole tilesheet)
-		_gfx_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILESHEET,ts->tilesheet_data_flash,ts->data_size);
+		neo6502_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILESHEET,ts->tilesheet_data_flash,ts->data_size);
 	}
-
+#endif
 	gfx_sprite_set_tileid(sprite,0);
 
 	return sprite;
@@ -117,7 +122,7 @@ void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 	assert(sprite->tilesheet->mem.data!=NULL && "tilesheet data not copied to RAM");
 	
 	gfx_tilesheet_t* ts = sprite->tilesheet;
-	uint size_per_tile = (ts->tile_width*ts->tile_height);
+	uint16_t size_per_tile = (ts->tile_width*ts->tile_height);
 	uint8_t* tile_ptr = ts->mem.data + tile_id * size_per_tile;
 	sprite->tile_ptr = tile_ptr;
 	sprite->tile_id = tile_id;
@@ -141,8 +146,13 @@ void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
 
 
 // SCANLINE-RENDERER
-static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const game_state_t *gstate) {
-	memset(pixbuf,0,320*sizeof(uint16_t)); // make this a renderqueue-command
+#ifdef PICO_NEO6502
+void __not_in_flash_func(gfx_render_scanline)(uint16_t *pixbuf, uint8_t y)
+#else
+void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
+#endif
+{
+	memset(pixbuf,0,SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
 
 	for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++){
 		ng_mem_block_t* current_render_block = renderqueue_current[idx];
@@ -176,7 +186,7 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 					
 					if (pixelbuffer->x>0){
 						write_buf+=pixelbuffer->x; 
-						count = min(FRAME_WIDTH-pixelbuffer->x, pixelbuffer->width);
+						count = min(SCREEN_WIDTH-pixelbuffer->x, pixelbuffer->width);
 					} else {
 						// pixelbuffer->x is negative!
 						buffer+=-pixelbuffer->x;
@@ -206,7 +216,7 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 							continue;
 						}
 
-						uint8_t count = min(sprite->tilesheet->tile_width,FRAME_WIDTH-sprite->x);
+						uint8_t count = min(sprite->tilesheet->tile_width,SCREEN_WIDTH-sprite->x);
 						uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
 						write_buf = pixbuf+sprite->x;
 						uint8_t idx;
@@ -259,43 +269,9 @@ static void __not_in_flash_func(render_scanline)(uint16_t *pixbuf, uint y, const
 // DVI setup & launch
 
 
-void core1_main() {
-	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
-	dvi_start(&dvi0);
-	dvi_scanbuf_main_16bpp(&dvi0);
-	__builtin_unreachable();
-}
 
-uint frame;
+uint32_t frame;
 
-void __not_in_flash_func(core1_scanline_callback)() {
-	// Discard any scanline pointers passed back
-	uint16_t *bufptr;
-	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
-		;
-	// // Note first two scanlines are pushed before DVI start
-	static uint scanline = 2;
-	//bufptr = &framebuf[FRAME_WIDTH * scanline];
- 	
-	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; 
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-
-	if (requested_renderqueue_apply){
-		requested_renderqueue_apply = false;
-		ng_mem_block_t** save_current = renderqueue_current;
-		renderqueue_current = renderqueue_request;
-		renderqueue_request = save_current;
-	}
-
-	scanline++;
-	if (scanline >= FRAME_HEIGHT){
-		frame++;
-		scanline = 0;
-	}
-	
-	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
- 	render_scanline(bufptr, scanline, &state);
-}
 
 uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 {
@@ -308,10 +284,10 @@ uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 	return result;
 }
 
-
-
 void gfx_init()
 {
+	gfx_backend_init();
+
 	gfx_pixelbuffer_create(SEGMENT_GFX_DATA,&initial_pixelbuffer);
 	gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
@@ -319,46 +295,6 @@ void gfx_init()
 	// gfx_renderqueue_apply();
 
  	font = (uint8_t*)bin2c_font8_bin;
-
-	
-	vreg_set_voltage(VREG_VSEL);
-	sleep_ms(10);
-#ifdef RUN_FROM_CRYSTAL
-	set_sys_clock_khz(12000, true);
-#else
-	// Run system at TMDS bit clock
-	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
-#endif
-
-	setup_default_uart();
-
-	// gpio_init(LED_PIN);
-	// gpio_set_dir(LED_PIN, GPIO_OUT);
-
-	printf("Configuring DVI\n");
-
-	dvi0.timing = &DVI_TIMING;
-	dvi0.ser_cfg = _pico_neo6502_cfg;
-	dvi0.scanline_callback = core1_scanline_callback;
-	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
-
-	// Once we've given core 1 the framebuffer, it will just keep on displaying
-	// it without any intervention from core 0
-	//sprite_fill16(framebuf, 0xffff, FRAME_WIDTH * FRAME_HEIGHT);
-	
-	uint16_t *bufptr = &core1_scanbuf[0];
-	render_scanline(bufptr,0,&state);
-	
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-	bufptr += FRAME_WIDTH;
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-
-	printf("Core 1 start\n");
-	multicore_launch_core1(core1_main);
-
-	printf("Start rendering\n");
-
-
 }
 
 void gfx_draw()
@@ -367,6 +303,7 @@ void gfx_draw()
 
 void gfx_update()
 {
+	gfx_backend_update();
 }
 
 
@@ -375,15 +312,16 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
 	color_palette[color_idx]=color565;
 }
 
-void gfx_set_palette_from_assset(uint8_t asset_id, uint16_t fill_unused_with)
+void gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx)
 {
 	gfx_palette_t* palette = asset_get_pointer(asset_id);
 	memcpy(color_palette, palette+1, palette->color_amount * sizeof(uint16_t));
 	if (palette->color_amount<256){
 		uint8_t dif = 256 - palette->color_amount;
+		uint16_t fillup_color = color_palette[fill_unused_with_idx];
 		uint16_t* tip = color_palette + palette->color_amount;
 		while (dif-->0){
-			*(tip++) = fill_unused_with;
+			*(tip++) = fillup_color;
 		}
 	}
 }
@@ -411,7 +349,7 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y)
 	return *pixelbuffer_data;
 }
 
-void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
+void  gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 {
 	assert(x < active_pixelbuffer->width);
 	assert(y < active_pixelbuffer->height);

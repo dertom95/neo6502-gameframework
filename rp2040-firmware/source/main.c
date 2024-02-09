@@ -9,7 +9,11 @@
 #include "api/ng_api.h"
 #include "core/memory.h"
 #include "core/roms.h"
-#include "core/wdc65C02cpu.h"
+#include "core/backend/cpu/wdc65C02cpu.h"
+
+#ifdef PICO_NEO6502
+# include "core/backend/neo6502/neo6502.h"
+#endif
 
 
 #include<stdio.h>
@@ -39,7 +43,7 @@ int main(){
     
 	loadROMS();
 
-    usb_init();
+    io_init();
 
 #ifdef SOUND
 
@@ -56,7 +60,7 @@ int main(){
 
     while (utils_millis()<1000){
         sleep_ms(1);
-        usb_update();
+        io_update();
     }
 
 
@@ -103,7 +107,7 @@ int main(){
         game_tick(tick_counter);
  
 
-        usb_update();
+        io_update();
             
 
 

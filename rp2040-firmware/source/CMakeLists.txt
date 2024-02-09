@@ -1,11 +1,22 @@
+set(BACKEND_SOURCE)
+set(BACKEND PICO_NEO6502)
+
+if(BACKEND STREQUAL "PICO_NEO6502")
+	add_definitions(-D${BACKEND} -DCHIPS_IMPL)
+	list(APPEND BACKEND_SOURCE
+			 core/backend/neo6502/neo6502_gfx.c
+			 core/backend/neo6502/neo6502_io.c
+	)
+endif()	
+
+message(BACKEND_SOURCE ${BACKEND_SOURCE})
+
 add_executable(neo6502firmware
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/audio.c
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
 
-
-
 	core/memory.c
-	core/wdc65C02cpu.c
+	core/backend/cpu/wdc65C02cpu.c
 	core/roms.c
 	../test/gen_prg1.c
 
@@ -17,10 +28,22 @@ add_executable(neo6502firmware
 
 	game/game.c
 
+	${BACKEND_SOURCE}
+
 	main.c	
 )
 
-add_definitions(-DPICO_NEO6502=1 -DCHIPS_IMPL)
+if(BACKEND STREQUAL "PICO_NEO6502")
+	add_definitions(-D${BACKEND} -DCHIPS_IMPL)
+	list(APPEND BACKEND_SOURCE
+			 core/backend/neo6502/neo6502_gfx.c
+	)
+
+	target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/backend/neo6502  )
+
+endif()	
+
+
 
 target_compile_options(neo6502firmware PRIVATE -Wall -g )
 #target_compile_options(neo6502firmware PRIVATE -Wall -O3)
@@ -40,7 +63,7 @@ target_link_libraries(neo6502firmware
 #	pico_pio_usb
 )
 
-target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core )
+target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core  )
 
 #delay programstart
 #target_compile_definitions(neo6502firmware PRIVATE PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=3000)

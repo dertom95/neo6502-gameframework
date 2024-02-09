@@ -1,0 +1,91 @@
+
+#include<stdint.h>
+#include "../source/api/ng_api.h"
+
+
+#define ASSETID_FONT    0
+#define ASSETID_PALETTE 1
+#define ASSETID_SPRITE_MISC 2
+#define ASSETID_PALETTE_SMALL 3
+#define ASSETID_SPRITE_OLD_GUY 4
+
+
+
+void change_palette(uint8_t asset){
+    volatile uint8_t* trigger_function;
+    call_gfx_set_palette_from_assset_t* func_data;
+    uint8_t func_call_ok;
+
+    trigger_function = (uint8_t*)MM_FUNC_CALL;
+    func_data = (call_gfx_set_palette_from_assset_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->function_id=1;
+    func_data->asset_id=asset;
+    func_data->fillempty_with=2;
+    
+    func_call_ok = *trigger_function;
+}
+
+int main(){
+    uint8_t timer;
+    uint8_t pos_x;
+    uint8_t rows;
+    uint8_t* tile_map = (uint8_t*)MEMORY_TILEAREA_BEGIN;
+    uint8_t palette;
+
+    palette = ASSETID_PALETTE;
+    timer = 0;
+    rows = 0;
+    pos_x = 0;
+
+    change_palette(ASSETID_PALETTE_SMALL);
+
+    while (1){
+        if(!(timer--)){
+            pos_x++;
+            *(tile_map+10*40+pos_x)=pos_x+rows;        
+
+            if (pos_x==0){
+                rows++;
+                palette = (palette == ASSETID_PALETTE_SMALL) ? ASSETID_PALETTE : ASSETID_PALETTE_SMALL;
+                change_palette(palette);                
+            }
+        }
+
+    }
+
+
+
+    return 0;
+}
+
+// int main(){
+//     uint8_t* tilegfx;
+//     volatile uint8_t* key_pressed;
+
+//     key_pressed = (uint8_t*)MEMORY_MAP_START;
+//     tilegfx = (uint8_t*)MM_KEYSET;
+    
+//     {
+//         int8_t posx,posy,col;
+//         posx=0;
+//         posy=0;
+//         col=5;
+//         while(1){
+//             switch(*key_pressed){
+//                 case 'a' : posx--; break;
+//                 case 'd' : posx++; break;
+//                 case 'w' : posy--; break;
+//                 case 's' : posx++; break;
+//             }
+
+//             if (posx<0) posx=0;
+//             if (posx>=MEMORY_TILES_WIDTH) posx=MEMORY_TILES_WIDTH-1;
+//             if (posy<0) posy=0;
+//             if (posy>=MEMORY_TILES_HEIGHT) posx=MEMORY_TILES_HEIGHT-1;
+
+//             *(tilegfx+posx+posy*MEMORY_TILES_WIDTH)=col;
+//         }
+//     }
+    
+//     return 0;
+// }

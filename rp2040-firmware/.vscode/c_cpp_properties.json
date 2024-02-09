@@ -31,7 +31,8 @@
                 "/opt/pico-sdk/src/rp2_common/hardware_irq/include",
                 "/opt/pico-sdk/lib/tinyusb/src",
                 "3rd/PicoDVI/software/libdvi",
-                "3rd/PicoDVI/software/libsprite"
+                "3rd/PicoDVI/software/libsprite",
+                "/opt/pico-sdk/src/host/pico_platform/include",
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
