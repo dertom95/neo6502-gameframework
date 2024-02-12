@@ -1,5 +1,5 @@
-#ifndef __NG_USB_H__
-#define __NG_USB_H__
+#ifndef __NG_IO_H__
+#define __NG_IO_H__
 
 #include<stdint.h>
 #include<stdbool.h>
@@ -11,10 +11,14 @@ extern uint8_t mouse_btn_state;
 extern int8_t mouse_wheel;
 extern uint8_t keyboard_last_pressed_keycode;
 extern char keyboard_last_pressed_key;
+extern bool _keyboard_connected;
+extern bool _mouse_connected;
 
 void io_init(void);
 void io_update(void);
 
+void io_backend_init(void);
+void io_backend_update(void);
 
 bool io_keyboard_connected(void);
 bool io_mouse_connected(void);

@@ -7,10 +7,14 @@ extern "C" {
 // 
 #include "memory.h"
 #include "roms.h"
+#include "../ng_defines.h"
 #include "../api/ng_api.h"
 #include "../ng_io.h"
 #include "../ng_gfx.h"
-#include "pico/platform.h"
+#include <assert.h>
+
+
+
 
 /// <summary>
 /// 64k RAM
@@ -56,17 +60,36 @@ void __not_in_flash_func(memory_write_data)(uint8_t data) {
   } 
 }
 
+uint16_t swap16(uint16_t val) {
+    return (val << 8) | (val >> 8);
+}
+
 uint8_t call_function()
 {
-  uint8_t function_id = mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-  switch (function_id) {
-    case 0x01:{
-      call_gfx_set_palette_from_assset_t* call = (call_gfx_set_palette_from_assset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-      gfx_set_palette_from_assset(call->asset_id,call->fillempty_with);
-      return FUNCTION_RETURN_OK;
+    uint8_t function_id = mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+    switch (function_id) {
+        case 0x01: {
+            call_gfx_set_palette_from_assset_t* call = (call_gfx_set_palette_from_assset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+            gfx_set_palette_from_assset(call->asset_id, call->fillempty_with);
+            return FUNCTION_RETURN_OK;
+        }
+        case 0x02: {
+            gfx_get_pixel_t* call = (gfx_get_pixel_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+            uint8_t result = gfx_get_pixel(swap16(call->x), swap16(call->y));
+            return result;
+        }
+        case 0x03: {
+            gfx_draw_pixel_t* call = (gfx_draw_pixel_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+            gfx_draw_pixel(swap16(call->x), swap16(call->y), call->color_idx);
+            return FUNCTION_RETURN_OK;
+        }
+        case 0x04: {
+            gfx_draw_char_t* call = (gfx_draw_char_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+            gfx_draw_char(swap16(call->x), swap16(call->y), call->ch, call->color_idx);
+            return FUNCTION_RETURN_OK;
+        }
     }
-  }
-  return FUNCTION_RETURN_ERROR;
+    return FUNCTION_RETURN_ERROR;
 }
 
 #define CASE_16BIT(NAME,variable) \

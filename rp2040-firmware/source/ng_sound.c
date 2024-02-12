@@ -1,3 +1,4 @@
+#if 0
 #include "ng_sound.h"
 
 #include <stdio.h>
@@ -44,3 +45,4 @@ void sound_update()
   update_mod_player();
   audio_mixer_step();
 }
+#endif

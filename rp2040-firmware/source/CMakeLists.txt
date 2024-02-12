@@ -6,6 +6,8 @@ if(BACKEND STREQUAL "PICO_NEO6502")
 	list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
 			 core/backend/neo6502/neo6502_io.c
+			 core/backend/neo6502/neo6502_utils.c
+			 core/backend/neo6502/neo6502_cpu.c
 	)
 endif()	
 
@@ -45,8 +47,8 @@ endif()
 
 
 
-target_compile_options(neo6502firmware PRIVATE -Wall -g )
-#target_compile_options(neo6502firmware PRIVATE -Wall -O3)
+#target_compile_options(neo6502firmware PRIVATE -Wall -g)
+target_compile_options(neo6502firmware PRIVATE -Wall -O3)
 
 target_compile_definitions(neo6502firmware PRIVATE
 #	DVI_DEFAULT_SERIAL_CONFIG=${DVI_DEFAULT_SERIAL_CONFIG}

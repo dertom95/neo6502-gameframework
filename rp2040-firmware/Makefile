@@ -16,6 +16,17 @@ monitor-install-deps:
 test-ng-mem:
 	mkdir -p temp && gcc -DTESTING -o temp/test-ng-mem source/ng_mem.c && temp/test-ng-mem
 
+
+kinc_get:
+	@if [ -d "build-scripts/kinc/tmp/Kinc" ]; then \
+		echo "Found-Kinc"; \
+    else \
+		mkdir -p build-scripts/kinc/tmp && cd build-scripts/kinc/tmp && git clone https://github.com/Kode/Kinc.git; \
+	fi
+
+kinc-build: kinc_get
+	cd build-scripts/kinc && tmp/Kinc/make  --to ../../build-kinc --target linux --graphics opengl --compile		
+
 assets-create:
 	mkdir -p temp
 	3rd/PicoDVI/software/scripts/packtiles --format r1 3rd/PicoDVI/software/assets/font_8x8.png temp/font8.bin 

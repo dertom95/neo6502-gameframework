@@ -2,17 +2,21 @@
 {
     "configurations": [
         {
-            "name": "Linux-Testing",
+            "name": "Kinc",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include"
+                "/usr/include",
+                "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Sources",
+                "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/System/Linux/Sources",
+                "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/System/POSIX/Sources",
+                "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/Graphics4/OpenGL/Sources",
+                "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/Graphics5/G5onG4/Sources"
             ],
-            "defines": ["TESTING"],
+            "defines": ["TESTING","__KINC__"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c99",
             "intelliSenseMode": "gcc-x64"
         },
-
         {
             "name": "PICO",
             "includePath": [
@@ -45,34 +49,7 @@
             },
             "defines": [
                 "PICO_NEO6502",
-                "CHIPS_IMPL",
-                "PLATFORMIO=60113",
-                "ARDUINO_RASPBERRY_PI_PICO",
-                "ARDUINO_ARCH_RP2040",
-                "USBD_MAX_POWER_MA=500",
-                "USE_TINYUSB",
-                "ARDUINO=10810",
-                "ARDUINO_ARCH_RP2040",
-                "F_CPU=133000000L",
-                "BOARD_NAME=\"pico\"",
-                "ARM_MATH_CM0_FAMILY",
-                "ARM_MATH_CM0_PLUS",
-                "TARGET_RP2040",
-                "PICO_FLASH_SIZE_BYTES=2097152",
-                "CFG_TUSB_MCU=OPT_MCU_RP2040",
-                "USB_VID=0x2e8a",
-                "USB_PID=0x000a",
-                "USB_MANUFACTURER=\"Raspberry Pi\"",
-                "USB_PRODUCT=\"Pico\"",
-                "SERIALUSB_PID=0x000a",
-                "PICO_CYW43_ARCH_THREADSAFE_BACKGROUND=1",
-                "CYW43_LWIP=1",
-                "LWIP_IPV4=1",
-                "LWIP_IGMP=1",
-                "LWIP_CHECKSUM_CTRL_PER_NETIF=1",
-                "LWIP_IPV6=0",
-                "ARDUINO_VARIANT=\"rpipico\"",
-                ""
+                "CHIPS_IMPL"
             ],
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",

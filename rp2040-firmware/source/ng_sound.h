@@ -1,3 +1,4 @@
+#if 0
 #ifndef __NG_SOUND_H__
 #define __NG_SOUND_H__
 
@@ -13,3 +14,4 @@ void sound_update();
 void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop);
 
 #endif 
+#endif

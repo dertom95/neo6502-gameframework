@@ -2,17 +2,24 @@
 #include "ng_sound.h"
 #include "ng_utils.h"
 #include "ng_io.h"
+#include "ng_cpu.h"
 #include "game/game.h"
 
-#include <pico/stdlib.h>
+
+//#include <pico/stdlib.h>
+#include <stdint.h>
 #include <signal.h>
 #include "api/ng_api.h"
 #include "core/memory.h"
 #include "core/roms.h"
 #include "core/backend/cpu/wdc65C02cpu.h"
 
-#ifdef PICO_NEO6502
+
+#ifdef __KINC__
+# include <kinc/system.h>
+#elif PICO_NEO6502
 # include "core/backend/neo6502/neo6502.h"
+# include "pico/time.h"
 #endif
 
 
@@ -31,110 +38,120 @@
 #endif
 
 
-extern uint ticks6502;
-extern uint frame;
+extern uint32_t tickscpu;
+extern uint32_t frame;
 
-const uint frame_len = 1000 / 60;
+const uint32_t frame_len = 1000 / 60;
 
-int main(){
+int32_t last_millis = 0;
+int32_t last_sound_ms = 0;
+int32_t msCount = 0;
+int32_t tps = 0;
+int32_t fps=0;
+uint32_t tick_counter = 0;
+
+int main_init(){
+    io_init();
+    
     memory_init();
     gfx_init();  
     game_init();
     
 	loadROMS();
 
-    io_init();
-
 #ifdef SOUND
 
     sound_init(SOUND_OUTPUT_FREQUENCY_11K);
     sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_11K, true );
 #endif    
+    ng_cpu_init();
 
-    int last_millis = utils_millis();
-    int last_sound_ms = 0;
-    int msCount = 0;
-    int tps = 0;
-    int fps=0;
+    last_millis = utils_millis();
+}
 
 
-    while (utils_millis()<1000){
-        sleep_ms(1);
-        io_update();
+//stdio_init_all();
+
+
+void main_loop(void* data)
+{
+    int current_millis = utils_millis();        
+    int msDelta = current_millis - last_millis;
+    msCount += msDelta;
+    tick_counter += msDelta;
+    last_millis = current_millis;
+
+    
+    if (msCount > 1000){
+        tps = (tickscpu);
+        tickscpu = 0;
+        msCount=0;
+        fps = frame;
+        frame = 0;
+
+        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%7d addr:%04x data:%02x",fps,tps,address,data);
+        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",tickscpu);
+        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
+    }     
+
+    if (tick_counter < frame_len){
+        ng_cpu_update();
+        return;
     }
 
 
+// gfx_draw();
+    gfx_update();
+    game_tick(tick_counter);
 
 
-    wdc65C02cpu_init();                                                         // Set up the 65C02
-    wdc65C02cpu_reset();
-
-    //stdio_init_all();
-  
-
-
-   
-    uint tick_counter = 0;
-
-    while(1){
-        int current_millis = utils_millis();        
-        int msDelta = current_millis - last_millis;
-        msCount += msDelta;
-        tick_counter += msDelta;
-        last_millis = current_millis;
-
+    io_update();
         
-        if (msCount > 1000){
-            tps = (ticks6502);
-            ticks6502 = 0;
-            msCount=0;
-            fps = frame;
-            frame = 0;
-
-        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%7d addr:%04x data:%02x",fps,tps,address,data);
-        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",ticks6502);
-        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
-        }     
-
-        if (tick_counter < frame_len){
-            tick6502();
-            continue;
-        }
-   
-
-    // gfx_draw();
-        gfx_update();
-        game_tick(tick_counter);
- 
-
-        io_update();
-            
 
 
-        // gfx_draw_pixel(mouse_x,mouse_y,current_col);
+    // gfx_draw_pixel(mouse_x,mouse_y,current_col);
 
-        
+    
 
 
 #ifdef SOUND
-        if (current_millis - last_sound_ms > 15){
-            sound_update();
-            last_sound_ms = current_millis;
-        }
+    if (current_millis - last_sound_ms > 15){
+        sound_update();
+        last_sound_ms = current_millis;
+    }
 #endif
 
 
 //        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-        //gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
+    //gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
 
-    
 
-        tick_counter = 0;
 
-    }
+    tick_counter = 0;
 
-	__builtin_unreachable();
+
+//	__builtin_unreachable();
 }
+
+
+#ifdef __KINC__
+int kickstart(int argc, char **argv){
+    main_init();
+
+    kinc_set_update_callback(main_loop,NULL);
+	kinc_start();
+}
+#else
+int main(){
+    main_init();
+    while(1){
+        main_loop(NULL);
+    }
+}
+#endif
+
+
+
 
 #ifdef __cplusplus
     }

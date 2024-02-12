@@ -42,6 +42,26 @@ typedef struct call_gfx_set_palette_from_assset_t {
     uint8_t fillempty_with;
 } call_gfx_set_palette_from_assset_t;
 
+typedef struct {
+    uint8_t func_id;
+    uint16_t x;
+    uint16_t y;
+} gfx_get_pixel_t;
+
+typedef struct {
+    uint8_t func_id;
+    uint16_t x;
+    uint16_t y;
+    uint8_t color_idx;
+} gfx_draw_pixel_t;
+
+typedef struct {
+    uint8_t func_id;
+    uint16_t x;
+    uint16_t y;
+    char ch;
+    uint8_t color_idx;
+} gfx_draw_char_t;
 
 
 //--------------------------------------------------------------------+

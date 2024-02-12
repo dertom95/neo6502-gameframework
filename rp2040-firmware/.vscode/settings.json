@@ -125,7 +125,12 @@
         "typeinfo": "c",
         "version": "c",
         "ng_api.h": "c",
-        "neo6502.h": "c"
+        "neo6502.h": "c",
+        "system.h": "c",
+        "log.h": "c",
+        "kinc_ng.h": "c",
+        "mouse.h": "c",
+        "ng_cpu.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

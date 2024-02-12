@@ -1,3 +1,5 @@
+#ifdef PICO_NEO6502
+
 /*
  * The MIT License (MIT)
  *
@@ -48,13 +50,6 @@
 #define BAUD_RATE 115200
 #define UART_TX_PIN 28
 #endif
-
-int16_t mouse_x=0;
-int16_t mouse_y=0;
-uint8_t mouse_btn_state=0;
-int8_t  mouse_wheel=0;
-uint8_t keyboard_last_pressed_keycode = 0;
-char    keyboard_last_pressed_key = 0;
 
 uint8_t kbd_addr = 0;
 uint8_t kbd_inst = 0;
@@ -304,8 +299,6 @@ uint8_t const hid2asciiShift[] = {
 static hid_keyboard_report_t previous_report = { 0, 0, {0} }; // previous report to check key released
 static hid_keyboard_report_t current_report = { 0, 0, {0} }; // current report
 
-bool _keyboard_connected = false;
-bool _mouse_connected = false;
 
 // look up new key in previous keys
 bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
@@ -313,7 +306,6 @@ bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
   for(uint8_t i=0; i<6; i++)
   {
     if (report->keycode[i] == keycode)  {
-      __BREAKPOINT__
       return true;
     }
   }
@@ -402,17 +394,31 @@ bool io_mouse_connected(void)
   return _mouse_connected;
 }
 
-
 void neo6502_usb_init(void) {
 
   board_init();
   tusb_init();
+
+  while (utils_millis()<1000){
+      sleep_ms(1);
+      neo6502_usb_update();
+  }
+
 }
 
 void neo6502_usb_update(void){
   previous_report = current_report;
   tuh_task();  
 }
+
+void io_backend_init(void){
+  neo6502_usb_init();
+}
+
+void io_backend_update(void){
+  neo6502_usb_update();
+}
+
 
 bool io_keyboard_is_pressed(uint8_t keycode){
   return find_key_in_report(&current_report,keycode) && !find_key_in_report(&previous_report,keycode);
@@ -425,3 +431,5 @@ bool io_keyboard_is_down(uint8_t keycode){
 bool io_keyboard_is_released(uint8_t keycode){
   return !find_key_in_report(&current_report,keycode) && find_key_in_report(&previous_report,keycode);
 }
+
+#endif

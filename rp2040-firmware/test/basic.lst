@@ -105,6 +105,9 @@ Current file: 6502_func_call.s
 000000r 2               
 000000r 1               	.forceimport	__STARTUP__
 000000r 1               	.export		_change_palette
+000000r 1               	.export		_get_pixel
+000000r 1               	.export		_draw_pixel
+000000r 1               	.export		_draw_char
 000000r 1               	.export		_main
 000000r 1               
 000000r 1               ; ---------------------------------------------------------------
@@ -167,91 +170,362 @@ Current file: 6502_func_call.s
 00005Ar 1               .endproc
 00005Ar 1               
 00005Ar 1               ; ---------------------------------------------------------------
-00005Ar 1               ; int __near__ main (void)
+00005Ar 1               ; unsigned char __near__ get_pixel (unsigned int, unsigned int)
 00005Ar 1               ; ---------------------------------------------------------------
 00005Ar 1               
 00005Ar 1               .segment	"CODE"
 00005Ar 1               
-00005Ar 1               .proc	_main: near
+00005Ar 1               .proc	_get_pixel: near
 00005Ar 1               
 00005Ar 1               .segment	"CODE"
 00005Ar 1               
-00005Ar 1  20 rr rr     	jsr     decsp3
-00005Dr 1  A2 F1        	ldx     #$F1
-00005Fr 1  A9 0B        	lda     #$0B
-000061r 1  20 rr rr     	jsr     pushax
-000064r 1  20 rr rr     	jsr     decsp1
-000067r 1  A9 01        	lda     #$01
-000069r 1  A0 00        	ldy     #$00
-00006Br 1  91 rr        	sta     (sp),y
-00006Dr 1  98           	tya
-00006Er 1  A0 05        	ldy     #$05
-000070r 1  91 rr        	sta     (sp),y
-000072r 1  A0 03        	ldy     #$03
-000074r 1  91 rr        	sta     (sp),y
-000076r 1  C8           	iny
-000077r 1  91 rr        	sta     (sp),y
-000079r 1  A9 03        	lda     #$03
-00007Br 1  20 rr rr     L0038:	jsr     _change_palette
-00007Er 1  A0 05        L001D:	ldy     #$05
-000080r 1  B1 rr        L003A:	lda     (sp),y
-000082r 1  48           	pha
-000083r 1  38           	sec
-000084r 1  E9 01        	sbc     #$01
-000086r 1  91 rr        	sta     (sp),y
-000088r 1  68           	pla
-000089r 1  D0 F5        	bne     L003A
-00008Br 1  A0 04        	ldy     #$04
-00008Dr 1  B1 rr        	lda     (sp),y
-00008Fr 1  18           	clc
-000090r 1  69 01        	adc     #$01
-000092r 1  91 rr        	sta     (sp),y
-000094r 1  A0 02        	ldy     #$02
-000096r 1  B1 rr        	lda     (sp),y
-000098r 1  AA           	tax
-000099r 1  88           	dey
-00009Ar 1  B1 rr        	lda     (sp),y
-00009Cr 1  18           	clc
-00009Dr 1  69 90        	adc     #$90
-00009Fr 1  90 01        	bcc     L0027
-0000A1r 1  E8           	inx
-0000A2r 1  E8           L0027:	inx
-0000A3r 1  85 rr        	sta     ptr1
-0000A5r 1  86 rr        	stx     ptr1+1
-0000A7r 1  A0 04        	ldy     #$04
-0000A9r 1  B1 rr        	lda     (sp),y
-0000ABr 1  18           	clc
-0000ACr 1  65 rr        	adc     ptr1
-0000AEr 1  A6 rr        	ldx     ptr1+1
-0000B0r 1  90 01        	bcc     L0036
-0000B2r 1  E8           	inx
-0000B3r 1  85 rr        L0036:	sta     ptr1
-0000B5r 1  86 rr        	stx     ptr1+1
-0000B7r 1  88           	dey
-0000B8r 1  B1 rr        	lda     (sp),y
-0000BAr 1  18           	clc
-0000BBr 1  C8           	iny
-0000BCr 1  71 rr        	adc     (sp),y
-0000BEr 1  A0 00        	ldy     #$00
-0000C0r 1  91 rr        	sta     (ptr1),y
-0000C2r 1  A0 04        	ldy     #$04
-0000C4r 1  B1 rr        	lda     (sp),y
-0000C6r 1  D0 B6        	bne     L001D
-0000C8r 1  88           	dey
-0000C9r 1  B1 rr        	lda     (sp),y
-0000CBr 1  18           	clc
-0000CCr 1  69 01        	adc     #$01
-0000CEr 1  91 rr        	sta     (sp),y
-0000D0r 1  A0 00        	ldy     #$00
-0000D2r 1  B1 rr        	lda     (sp),y
-0000D4r 1  C9 03        	cmp     #$03
-0000D6r 1  D0 05        	bne     L003B
-0000D8r 1  A9 01        	lda     #$01
-0000DAr 1  4C rr rr     	jmp     L003D
-0000DDr 1  A9 03        L003B:	lda     #$03
-0000DFr 1  91 rr        L003D:	sta     (sp),y
-0000E1r 1  4C rr rr     	jmp     L0038
-0000E4r 1               
-0000E4r 1               .endproc
-0000E4r 1               
-0000E4r 1               
+00005Ar 1  20 rr rr     	jsr     pushax
+00005Dr 1  20 rr rr     	jsr     decsp5
+000060r 1  A0 03        	ldy     #$03
+000062r 1  A9 08        	lda     #$08
+000064r 1  91 rr        	sta     (sp),y
+000066r 1  A9 F0        	lda     #$F0
+000068r 1  C8           	iny
+000069r 1  91 rr        	sta     (sp),y
+00006Br 1  A2 F1        	ldx     #$F1
+00006Dr 1  A9 00        	lda     #$00
+00006Fr 1  A0 01        	ldy     #$01
+000071r 1  20 rr rr     	jsr     staxysp
+000074r 1  85 rr        	sta     ptr1
+000076r 1  86 rr        	stx     ptr1+1
+000078r 1  A9 02        	lda     #$02
+00007Ar 1  A0 00        	ldy     #$00
+00007Cr 1  91 rr        	sta     (ptr1),y
+00007Er 1  A8           	tay
+00007Fr 1  B1 rr        	lda     (sp),y
+000081r 1  85 rr        	sta     ptr1+1
+000083r 1  88           	dey
+000084r 1  B1 rr        	lda     (sp),y
+000086r 1  85 rr        	sta     ptr1
+000088r 1  A0 08        	ldy     #$08
+00008Ar 1  B1 rr        	lda     (sp),y
+00008Cr 1  AA           	tax
+00008Dr 1  88           	dey
+00008Er 1  B1 rr        	lda     (sp),y
+000090r 1  A0 01        	ldy     #$01
+000092r 1  91 rr        	sta     (ptr1),y
+000094r 1  C8           	iny
+000095r 1  8A           	txa
+000096r 1  91 rr        	sta     (ptr1),y
+000098r 1  B1 rr        	lda     (sp),y
+00009Ar 1  85 rr        	sta     ptr1+1
+00009Cr 1  88           	dey
+00009Dr 1  B1 rr        	lda     (sp),y
+00009Fr 1  85 rr        	sta     ptr1
+0000A1r 1  A0 06        	ldy     #$06
+0000A3r 1  B1 rr        	lda     (sp),y
+0000A5r 1  AA           	tax
+0000A6r 1  88           	dey
+0000A7r 1  B1 rr        	lda     (sp),y
+0000A9r 1  A0 03        	ldy     #$03
+0000ABr 1  91 rr        	sta     (ptr1),y
+0000ADr 1  C8           	iny
+0000AEr 1  8A           	txa
+0000AFr 1  91 rr        	sta     (ptr1),y
+0000B1r 1  B1 rr        	lda     (sp),y
+0000B3r 1  85 rr        	sta     ptr1+1
+0000B5r 1  88           	dey
+0000B6r 1  B1 rr        	lda     (sp),y
+0000B8r 1  85 rr        	sta     ptr1
+0000BAr 1  A0 00        	ldy     #$00
+0000BCr 1  B1 rr        	lda     (ptr1),y
+0000BEr 1  91 rr        	sta     (sp),y
+0000C0r 1  A2 00        	ldx     #$00
+0000C2r 1  B1 rr        	lda     (sp),y
+0000C4r 1  A0 09        	ldy     #$09
+0000C6r 1  4C rr rr     	jmp     addysp
+0000C9r 1               
+0000C9r 1               .endproc
+0000C9r 1               
+0000C9r 1               ; ---------------------------------------------------------------
+0000C9r 1               ; void __near__ draw_pixel (unsigned int, unsigned int, unsigned char)
+0000C9r 1               ; ---------------------------------------------------------------
+0000C9r 1               
+0000C9r 1               .segment	"CODE"
+0000C9r 1               
+0000C9r 1               .proc	_draw_pixel: near
+0000C9r 1               
+0000C9r 1               .segment	"CODE"
+0000C9r 1               
+0000C9r 1  20 rr rr     	jsr     pusha
+0000CCr 1  20 rr rr     	jsr     decsp5
+0000CFr 1  A0 03        	ldy     #$03
+0000D1r 1  A9 08        	lda     #$08
+0000D3r 1  91 rr        	sta     (sp),y
+0000D5r 1  A9 F0        	lda     #$F0
+0000D7r 1  C8           	iny
+0000D8r 1  91 rr        	sta     (sp),y
+0000DAr 1  A2 F1        	ldx     #$F1
+0000DCr 1  A9 00        	lda     #$00
+0000DEr 1  A0 01        	ldy     #$01
+0000E0r 1  20 rr rr     	jsr     staxysp
+0000E3r 1  85 rr        	sta     ptr1
+0000E5r 1  86 rr        	stx     ptr1+1
+0000E7r 1  A9 03        	lda     #$03
+0000E9r 1  A0 00        	ldy     #$00
+0000EBr 1  91 rr        	sta     (ptr1),y
+0000EDr 1  A0 02        	ldy     #$02
+0000EFr 1  B1 rr        	lda     (sp),y
+0000F1r 1  85 rr        	sta     ptr1+1
+0000F3r 1  88           	dey
+0000F4r 1  B1 rr        	lda     (sp),y
+0000F6r 1  85 rr        	sta     ptr1
+0000F8r 1  A0 09        	ldy     #$09
+0000FAr 1  B1 rr        	lda     (sp),y
+0000FCr 1  AA           	tax
+0000FDr 1  88           	dey
+0000FEr 1  B1 rr        	lda     (sp),y
+000100r 1  A0 01        	ldy     #$01
+000102r 1  91 rr        	sta     (ptr1),y
+000104r 1  C8           	iny
+000105r 1  8A           	txa
+000106r 1  91 rr        	sta     (ptr1),y
+000108r 1  B1 rr        	lda     (sp),y
+00010Ar 1  85 rr        	sta     ptr1+1
+00010Cr 1  88           	dey
+00010Dr 1  B1 rr        	lda     (sp),y
+00010Fr 1  85 rr        	sta     ptr1
+000111r 1  A0 07        	ldy     #$07
+000113r 1  B1 rr        	lda     (sp),y
+000115r 1  AA           	tax
+000116r 1  88           	dey
+000117r 1  B1 rr        	lda     (sp),y
+000119r 1  A0 03        	ldy     #$03
+00011Br 1  91 rr        	sta     (ptr1),y
+00011Dr 1  C8           	iny
+00011Er 1  8A           	txa
+00011Fr 1  91 rr        	sta     (ptr1),y
+000121r 1  A0 02        	ldy     #$02
+000123r 1  B1 rr        	lda     (sp),y
+000125r 1  85 rr        	sta     ptr1+1
+000127r 1  88           	dey
+000128r 1  B1 rr        	lda     (sp),y
+00012Ar 1  85 rr        	sta     ptr1
+00012Cr 1  A0 05        	ldy     #$05
+00012Er 1  B1 rr        	lda     (sp),y
+000130r 1  91 rr        	sta     (ptr1),y
+000132r 1  88           	dey
+000133r 1  B1 rr        	lda     (sp),y
+000135r 1  85 rr        	sta     ptr1+1
+000137r 1  88           	dey
+000138r 1  B1 rr        	lda     (sp),y
+00013Ar 1  85 rr        	sta     ptr1
+00013Cr 1  A0 00        	ldy     #$00
+00013Er 1  B1 rr        	lda     (ptr1),y
+000140r 1  91 rr        	sta     (sp),y
+000142r 1  A0 0A        	ldy     #$0A
+000144r 1  4C rr rr     	jmp     addysp
+000147r 1               
+000147r 1               .endproc
+000147r 1               
+000147r 1               ; ---------------------------------------------------------------
+000147r 1               ; void __near__ draw_char (unsigned int, unsigned int, unsigned char, unsigned char)
+000147r 1               ; ---------------------------------------------------------------
+000147r 1               
+000147r 1               .segment	"CODE"
+000147r 1               
+000147r 1               .proc	_draw_char: near
+000147r 1               
+000147r 1               .segment	"CODE"
+000147r 1               
+000147r 1  20 rr rr     	jsr     pusha
+00014Ar 1  20 rr rr     	jsr     decsp5
+00014Dr 1  A0 03        	ldy     #$03
+00014Fr 1  A9 08        	lda     #$08
+000151r 1  91 rr        	sta     (sp),y
+000153r 1  A9 F0        	lda     #$F0
+000155r 1  C8           	iny
+000156r 1  91 rr        	sta     (sp),y
+000158r 1  A2 F1        	ldx     #$F1
+00015Ar 1  A9 00        	lda     #$00
+00015Cr 1  A0 01        	ldy     #$01
+00015Er 1  20 rr rr     	jsr     staxysp
+000161r 1  85 rr        	sta     ptr1
+000163r 1  86 rr        	stx     ptr1+1
+000165r 1  A9 04        	lda     #$04
+000167r 1  A0 00        	ldy     #$00
+000169r 1  91 rr        	sta     (ptr1),y
+00016Br 1  A0 02        	ldy     #$02
+00016Dr 1  B1 rr        	lda     (sp),y
+00016Fr 1  85 rr        	sta     ptr1+1
+000171r 1  88           	dey
+000172r 1  B1 rr        	lda     (sp),y
+000174r 1  85 rr        	sta     ptr1
+000176r 1  A0 0A        	ldy     #$0A
+000178r 1  B1 rr        	lda     (sp),y
+00017Ar 1  AA           	tax
+00017Br 1  88           	dey
+00017Cr 1  B1 rr        	lda     (sp),y
+00017Er 1  A0 01        	ldy     #$01
+000180r 1  91 rr        	sta     (ptr1),y
+000182r 1  C8           	iny
+000183r 1  8A           	txa
+000184r 1  91 rr        	sta     (ptr1),y
+000186r 1  B1 rr        	lda     (sp),y
+000188r 1  85 rr        	sta     ptr1+1
+00018Ar 1  88           	dey
+00018Br 1  B1 rr        	lda     (sp),y
+00018Dr 1  85 rr        	sta     ptr1
+00018Fr 1  A0 08        	ldy     #$08
+000191r 1  B1 rr        	lda     (sp),y
+000193r 1  AA           	tax
+000194r 1  88           	dey
+000195r 1  B1 rr        	lda     (sp),y
+000197r 1  A0 03        	ldy     #$03
+000199r 1  91 rr        	sta     (ptr1),y
+00019Br 1  C8           	iny
+00019Cr 1  8A           	txa
+00019Dr 1  91 rr        	sta     (ptr1),y
+00019Fr 1  A0 02        	ldy     #$02
+0001A1r 1  B1 rr        	lda     (sp),y
+0001A3r 1  85 rr        	sta     ptr1+1
+0001A5r 1  88           	dey
+0001A6r 1  B1 rr        	lda     (sp),y
+0001A8r 1  85 rr        	sta     ptr1
+0001AAr 1  A0 06        	ldy     #$06
+0001ACr 1  B1 rr        	lda     (sp),y
+0001AEr 1  88           	dey
+0001AFr 1  91 rr        	sta     (ptr1),y
+0001B1r 1  A0 02        	ldy     #$02
+0001B3r 1  B1 rr        	lda     (sp),y
+0001B5r 1  85 rr        	sta     ptr1+1
+0001B7r 1  88           	dey
+0001B8r 1  B1 rr        	lda     (sp),y
+0001BAr 1  85 rr        	sta     ptr1
+0001BCr 1  A0 05        	ldy     #$05
+0001BEr 1  B1 rr        	lda     (sp),y
+0001C0r 1  C8           	iny
+0001C1r 1  91 rr        	sta     (ptr1),y
+0001C3r 1  A0 04        	ldy     #$04
+0001C5r 1  B1 rr        	lda     (sp),y
+0001C7r 1  85 rr        	sta     ptr1+1
+0001C9r 1  88           	dey
+0001CAr 1  B1 rr        	lda     (sp),y
+0001CCr 1  85 rr        	sta     ptr1
+0001CEr 1  A0 00        	ldy     #$00
+0001D0r 1  B1 rr        	lda     (ptr1),y
+0001D2r 1  91 rr        	sta     (sp),y
+0001D4r 1  A0 0B        	ldy     #$0B
+0001D6r 1  4C rr rr     	jmp     addysp
+0001D9r 1               
+0001D9r 1               .endproc
+0001D9r 1               
+0001D9r 1               ; ---------------------------------------------------------------
+0001D9r 1               ; int __near__ main (void)
+0001D9r 1               ; ---------------------------------------------------------------
+0001D9r 1               
+0001D9r 1               .segment	"CODE"
+0001D9r 1               
+0001D9r 1               .proc	_main: near
+0001D9r 1               
+0001D9r 1               .segment	"CODE"
+0001D9r 1               
+0001D9r 1  20 rr rr     	jsr     decsp3
+0001DCr 1  A2 F1        	ldx     #$F1
+0001DEr 1  A9 0B        	lda     #$0B
+0001E0r 1  20 rr rr     	jsr     pushax
+0001E3r 1  20 rr rr     	jsr     decsp1
+0001E6r 1  A9 01        	lda     #$01
+0001E8r 1  A0 00        	ldy     #$00
+0001EAr 1  91 rr        	sta     (sp),y
+0001ECr 1  98           	tya
+0001EDr 1  A0 05        	ldy     #$05
+0001EFr 1  91 rr        	sta     (sp),y
+0001F1r 1  A0 03        	ldy     #$03
+0001F3r 1  91 rr        	sta     (sp),y
+0001F5r 1  C8           	iny
+0001F6r 1  91 rr        	sta     (sp),y
+0001F8r 1  A9 03        	lda     #$03
+0001FAr 1  20 rr rr     	jsr     _change_palette
+0001FDr 1  A0 05        L0051:	ldy     #$05
+0001FFr 1  B1 rr        L0076:	lda     (sp),y
+000201r 1  48           	pha
+000202r 1  38           	sec
+000203r 1  E9 01        	sbc     #$01
+000205r 1  91 rr        	sta     (sp),y
+000207r 1  68           	pla
+000208r 1  D0 F5        	bne     L0076
+00020Ar 1  A0 04        	ldy     #$04
+00020Cr 1  B1 rr        	lda     (sp),y
+00020Er 1  18           	clc
+00020Fr 1  69 01        	adc     #$01
+000211r 1  91 rr        	sta     (sp),y
+000213r 1  A0 02        	ldy     #$02
+000215r 1  B1 rr        	lda     (sp),y
+000217r 1  AA           	tax
+000218r 1  88           	dey
+000219r 1  B1 rr        	lda     (sp),y
+00021Br 1  18           	clc
+00021Cr 1  69 90        	adc     #$90
+00021Er 1  90 01        	bcc     L005B
+000220r 1  E8           	inx
+000221r 1  E8           L005B:	inx
+000222r 1  85 rr        	sta     ptr1
+000224r 1  86 rr        	stx     ptr1+1
+000226r 1  A0 04        	ldy     #$04
+000228r 1  B1 rr        	lda     (sp),y
+00022Ar 1  18           	clc
+00022Br 1  65 rr        	adc     ptr1
+00022Dr 1  A6 rr        	ldx     ptr1+1
+00022Fr 1  90 01        	bcc     L0073
+000231r 1  E8           	inx
+000232r 1  85 rr        L0073:	sta     ptr1
+000234r 1  86 rr        	stx     ptr1+1
+000236r 1  88           	dey
+000237r 1  B1 rr        	lda     (sp),y
+000239r 1  18           	clc
+00023Ar 1  C8           	iny
+00023Br 1  71 rr        	adc     (sp),y
+00023Dr 1  A0 00        	ldy     #$00
+00023Fr 1  91 rr        	sta     (ptr1),y
+000241r 1  A0 03        	ldy     #$03
+000243r 1  B1 rr        	lda     (sp),y
+000245r 1  C9 64        	cmp     #$64
+000247r 1  90 04        	bcc     L005D
+000249r 1  A9 00        	lda     #$00
+00024Br 1  91 rr        	sta     (sp),y
+00024Dr 1  C8           L005D:	iny
+00024Er 1  B1 rr        	lda     (sp),y
+000250r 1  D0 1C        	bne     L0061
+000252r 1  88           	dey
+000253r 1  B1 rr        	lda     (sp),y
+000255r 1  18           	clc
+000256r 1  69 01        	adc     #$01
+000258r 1  91 rr        	sta     (sp),y
+00025Ar 1  A0 00        	ldy     #$00
+00025Cr 1  B1 rr        	lda     (sp),y
+00025Er 1  C9 03        	cmp     #$03
+000260r 1  D0 05        	bne     L0077
+000262r 1  A9 01        	lda     #$01
+000264r 1  4C rr rr     	jmp     L0079
+000267r 1  A9 03        L0077:	lda     #$03
+000269r 1  91 rr        L0079:	sta     (sp),y
+00026Br 1  20 rr rr     	jsr     _change_palette
+00026Er 1  20 rr rr     L0061:	jsr     decsp5
+000271r 1  A9 14        	lda     #$14
+000273r 1  A0 03        	ldy     #$03
+000275r 1  91 rr        	sta     (sp),y
+000277r 1  C8           	iny
+000278r 1  A9 00        	lda     #$00
+00027Ar 1  91 rr        	sta     (sp),y
+00027Cr 1  A9 14        	lda     #$14
+00027Er 1  A0 01        	ldy     #$01
+000280r 1  91 rr        	sta     (sp),y
+000282r 1  C8           	iny
+000283r 1  A9 00        	lda     #$00
+000285r 1  91 rr        	sta     (sp),y
+000287r 1  A9 48        	lda     #$48
+000289r 1  A0 00        	ldy     #$00
+00028Br 1  91 rr        	sta     (sp),y
+00028Dr 1  A9 03        	lda     #$03
+00028Fr 1  20 rr rr     	jsr     _draw_char
+000292r 1  4C rr rr     	jmp     L0051
+000295r 1               
+000295r 1               .endproc
+000295r 1               
+000295r 1               

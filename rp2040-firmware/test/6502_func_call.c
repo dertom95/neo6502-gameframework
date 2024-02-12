@@ -25,6 +25,53 @@ void change_palette(uint8_t asset){
     func_call_ok = *trigger_function;
 }
 
+uint8_t get_pixel(uint16_t x, uint16_t y) {
+    volatile uint8_t* trigger_function;
+    gfx_get_pixel_t* func_data;
+    uint8_t func_call_ok;
+
+    trigger_function = (uint8_t*)MM_FUNC_CALL;
+    func_data = (gfx_get_pixel_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->func_id = 0x02;
+    func_data->x = x;
+    func_data->y = y;
+
+    func_call_ok = *trigger_function;
+
+    return func_call_ok;
+}
+
+void draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx) {
+    volatile uint8_t* trigger_function;
+    gfx_draw_pixel_t* func_data;
+    uint8_t func_call_ok;
+
+    trigger_function = (uint8_t*)MM_FUNC_CALL;
+    func_data = (gfx_draw_pixel_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->func_id = 0x03;
+    func_data->x = x;
+    func_data->y = y;
+    func_data->color_idx = color_idx;
+
+    func_call_ok = *trigger_function;
+}
+
+void draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx) {
+    volatile uint8_t* trigger_function;
+    gfx_draw_char_t* func_data;
+    uint8_t func_call_ok;
+
+    trigger_function = (uint8_t*)MM_FUNC_CALL;
+    func_data = (gfx_draw_char_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->func_id = 0x04;
+    func_data->x = x;
+    func_data->y = y;
+    func_data->ch = ch;
+    func_data->color_idx = color_idx;
+
+    func_call_ok = *trigger_function;
+}
+
 int main(){
     uint8_t timer;
     uint8_t pos_x;
@@ -43,12 +90,15 @@ int main(){
         if(!(timer--)){
             pos_x++;
             *(tile_map+10*40+pos_x)=pos_x+rows;        
-
+            if (rows>=100){
+                rows=0;
+            }
             if (pos_x==0){
                 rows++;
                 palette = (palette == ASSETID_PALETTE_SMALL) ? ASSETID_PALETTE : ASSETID_PALETTE_SMALL;
                 change_palette(palette);                
             }
+            draw_char(20,20,'H',3);
         }
 
     }
