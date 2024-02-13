@@ -4,6 +4,8 @@ from math import sqrt
 from PIL import Image
 from utils import value_to_csv_le,write_header
 from ng_config import DATA_TYPE
+from struct import pack
+import struct
 
 def convert_tilesheet(args):
     # Your conversion logic here
@@ -13,7 +15,7 @@ def convert_tilesheet(args):
     print(f"Palette file: {args.palette_file}")
     print(f"Output file: {args.output}")
     print(f"Array name: {args.array_name}") 
-    print(f"Transparent-Idx: {args.transparent_idx}");
+    print(f"Transparent-Idx: {args.transparent_idx}")
 
     if args.tile_size:
         if 'x' in args.tile_size:
@@ -24,7 +26,10 @@ def convert_tilesheet(args):
             exit(1)
     
     palette_colors = read_palette_colors(args.palette_file)
-    convert_image_to_array(args.tilesheet_file, args.tile_width, args.tile_height, args.array_name, palette_colors, args.output)
+    if args.binary:
+        data = encode_tiles(args.tilesheet_file, args.tile_width, args.tile_height, palette_colors, args.transparent_idx,args.output)
+    else:
+        convert_image_to_array(args.tilesheet_file, args.tile_width, args.tile_height, args.array_name, palette_colors, args.output,args.transparent_idx)
     
 def closest_color(rgb, colors):
     # Calculate the Euclidean distance between the RGB color and each color in the list
@@ -35,7 +40,52 @@ def closest_color(rgb, colors):
 
     return closest_index
 
- 
+
+def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_idx, output):
+    image = Image.open(image_filename)
+
+    width, height = image.size
+    # Calculate the number of tiles in each dimension
+    num_tiles_x = width // tile_width
+    num_tiles_y = height // tile_height
+
+    # Create the byte array
+    byte_array = bytearray()
+    
+    byte_array.append(1) # TYPE-TILESHEET
+
+    # Pack and append the values to the byte array with little endian byte order
+    byte_array.extend(struct.pack('<B', tile_width))
+    byte_array.extend(struct.pack('<B', tile_height))
+    byte_array.extend(struct.pack('<B', num_tiles_x))
+    byte_array.extend(struct.pack('<B', num_tiles_y))
+
+    # Iterate over each tile
+    for y in range(num_tiles_y):
+        for x in range(num_tiles_x):
+            # Get the tile pixels
+            tile_pixels = image.crop((x * tile_width, y * tile_height, (x + 1) * tile_width, (y + 1) * tile_height))
+
+            # Iterate over each pixel in the tile
+            for pixel in tile_pixels.getdata():
+                if len(pixel) == 4 and pixel[3] < 128:
+                    # Transparent pixel, use a specific color index
+                    color_index = transparent_idx
+                else:
+                    # Convert the RGB value to the closest color index
+                    color_index = closest_color(pixel[:3], colors)
+
+                # Append the color index as a single byte to the byte array
+                byte_array.append(color_index & 0xFF)
+
+    with open(output, 'wb') as file:
+        file.write(byte_array)
+
+    # Return the resulting byte array
+    return byte_array
+
+
+
 
 def convert_image_to_array(image_filename, tile_width, tile_height, array_name, colors, output_filename, transparaent_idx=255):
     # Load the image
@@ -67,7 +117,7 @@ def convert_image_to_array(image_filename, tile_width, tile_height, array_name, 
     if tilesheet_size>65535:
         raise ValueError(f"Tilesheet {array_name} too huge!({tilesheet_size} bytes) only 65535 allowed!")
     
-    output_file.write("0,0, 0,0, 0,0,0,0, ") # ng_mem_block_t (u16[start], u16[size], u32[ptr])
+    output_file.write("0,0, 0,0, 0,0,0,0,") # ng_mem_block_t (u16[start], u16[size], u32[ptr])
     output_file.write(f'{value_to_csv_le(tilesheet_size,"H")},{tile_width},{tile_height},{num_tiles_x},{num_tiles_x*num_tiles_y},')
     output_file.write('0,0,1,0, ') # 16bit flags, format and one pad
     output_file.write('0,0,0,0, ') # tilesheet_data_ram pointer - data

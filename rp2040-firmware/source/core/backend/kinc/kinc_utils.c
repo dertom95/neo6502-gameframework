@@ -1,5 +1,6 @@
 #include "../../../ng_utils.h"
-
+#include "../../../ng_gfx.h"
+#include "../../../ng_mem.h"
 #include <malloc.h>
 #include <kinc/system.h>
 
@@ -30,4 +31,6 @@ void* asset_get_pointer(uint8_t asset_id) {
    // TODO: some sort of check if at least this asset-id exists...
    return assets[asset_id];
 }
+
+
 

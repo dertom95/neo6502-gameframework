@@ -14,8 +14,7 @@
 extern "C" {
 #endif
 
-#define SEGMENT_GFX_DATA 0
-#define SEGMENT_6502_MEM 1
+
 
 extern uint8_t  mem[];
 extern uint16_t address;

@@ -85,10 +85,12 @@ def main():
     parser_convert_tilesheet.add_argument('--tile-size', help='Size of each tile in the format [width]x[height]')
     parser_convert_tilesheet.add_argument('--tilesheet-file', help='Path to the tilesheet image file')
     parser_convert_tilesheet.add_argument('--palette-file', help='Path to the palette image file')
-    parser_convert_tilesheet.add_argument('--output', help='Path to the output header file')
+    parser_convert_tilesheet.add_argument('--output', help='Output File-Path')
     parser_convert_tilesheet.add_argument('--array-name', help='Name of the C array variable')
     parser_convert_tilesheet.add_argument('--transparent-idx', help="idx to be used for transparent! (default:255)", default=255)
-
+    parser_convert_tilesheet.add_argument('--binary',action='store_true', help='Export as binary')
+    
+    
     args = None
     # Parse the arguments
     try:

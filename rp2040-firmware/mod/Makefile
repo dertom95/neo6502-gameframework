@@ -23,13 +23,18 @@ assets-create: initialize
 									--tile-size 16x16 \
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name sprites_misc \
-									--output $(EXPORT_FOLDER)/sprites_misc.h 
+									--output $(EXPORT_FOLDER)/sprites_misc.bin \
+									--binary
 
 	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/old_guy.png \
 									--tile-size 16x16 \
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name gold_guy \
-									--output $(EXPORT_FOLDER)/old_guy.h 
+									--output $(EXPORT_FOLDER)/old_guy.bin \
+									--binary
+
+	bin2c export/old_guy.bin -H export/old_guy.h
+	bin2c export/sprites_misc.bin -H export/sprites_misc.h
 
 
 clean:

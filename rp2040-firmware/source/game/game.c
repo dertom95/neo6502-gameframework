@@ -26,12 +26,12 @@ bool pal_small = false;
 gfx_tilesheet_t ts_sprites_misc;
 gfx_tilesheet_t ts_old_guy;
 
-const void* assets[]={
+const uint8_t* assets[]={
     bin2c_font8_bin,
     color_palette,
-    sprites_misc,
+    bin2c_sprites_misc_bin,
     color_palette_small,
-    gold_guy
+    bin2c_old_guy_bin
 };
 
 
@@ -79,17 +79,15 @@ void game_init()
 
     gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
-    gfx_tilesheet_t* ts = asset_get_pointer(ASSETID_SPRITE_MISC);
-    ts_sprites_misc = *ts;
-    ts_sprites_misc.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
+    gfx_tilesheet_t* ts_sprites_misc = asset_get_tilesheet(ASSETID_SPRITE_MISC);
+    sprite = gfx_sprite_create_from_tilesheet(&sprite_buffer, 100,100,ts_sprites_misc);
+    // ts_sprites_misc = *ts;
+    // ts_sprites_misc.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
 
-    ts = asset_get_pointer(ASSETID_SPRITE_OLD_GUY);
-    ts_old_guy = *ts;
-    ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
-
-    sprite = gfx_sprite_create_from_tilesheet(&sprite_buffer, 100,100,&ts_sprites_misc);
-    sprite_oldguy = gfx_sprite_create_from_tilesheet(&sprite_buffer,150,150,&ts_old_guy);
-
+    gfx_tilesheet_t* ts_old_guy = asset_get_tilesheet(ASSETID_SPRITE_OLD_GUY);
+    sprite_oldguy = gfx_sprite_create_from_tilesheet(&sprite_buffer,150,150,ts_old_guy);
+    // ts_old_guy = *ts;
+    // ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
 }
 
 

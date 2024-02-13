@@ -1,6 +1,8 @@
 #ifndef __NG_CONFIG_H_
 #define __NG_CONFIG_H_
 
+#include "../ng_defines.h"
+
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 

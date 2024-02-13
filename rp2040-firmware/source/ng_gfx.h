@@ -7,6 +7,7 @@
 #include <stdarg.h>
 
 #include "ng_mem.h"
+#include "ng_defines.h"
 
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
@@ -46,17 +47,17 @@ typedef struct data_header_t {
 } data_header_t;
 
 typedef struct gfx_tilesheet_t {
-	ng_mem_block_t mem;
-	uint16_t data_size;
+	uint8_t type;
 	uint8_t tile_width;
 	uint8_t tile_height;
 	uint8_t cols;
+	uint8_t rows;
+
 	uint8_t tile_amount;
-	
+
 	uint16_t flags;
-	uint8_t format;
-	uint8_t pad1;
-	uint8_t* tilesheet_data_flash;
+	uint8_t** cached_tile_ptrs; // array of pointers to the 'cached' tiles. in pico these should be in RAM in x86 we can just point to the raw data
+	uint8_t* tilesheet_data_raw;
 } gfx_tilesheet_t;
 
 #define SPRITE_FLAG_INUSE (1 << 0)
@@ -122,6 +123,8 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer);
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts);
 void          gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id);
+// gets cached tile. caches it if it is not cached already (platform specific call)
+void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
 uint16_t gfx_get_palettecolor(uint8_t color_idx);
@@ -140,5 +143,5 @@ void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *for
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
-
+gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
 #endif

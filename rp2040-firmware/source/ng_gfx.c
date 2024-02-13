@@ -22,7 +22,9 @@
 #include <assert.h>
 #include "core/memory.h"
 
+#include <stddef.h>
 
+uint8_t default_allocation_segment = SEGMENT_GFX_DATA;
 
 
 // TODO: this must be done somewhere else in userspace
@@ -102,14 +104,7 @@ gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer
 	sprite->x=x;
 	sprite->y=y;
 	sprite->flags = 1; // TODO
-	
-#ifdef PICO_NEO6502
-	if (ts->mem.data == NULL){
-		// we need to copy sprites to RAM!
-		// TODO: do this on a per tile base (not the whole tilesheet)
-		neo6502_copy_from_flash_to_ram(&ts->mem,SEGMENT_GFX_DATA,MEM_USAGE_TILESHEET,ts->tilesheet_data_flash,ts->data_size);
-	}
-#endif
+	sprite->tile_id = 255; // add value != 0 for the set_tileid to actually work
 	gfx_sprite_set_tileid(sprite,0);
 
 	return sprite;
@@ -117,14 +112,13 @@ gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer
 
 void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
 {
+	if (tile_id == sprite->tile_id){
+		return;
+	}
 	assert(tile_id < sprite->tilesheet->tile_amount && "exceeded tile-id");
 	assert(sprite->tilesheet!=NULL && "no tilesheet set for sprite");
-	assert(sprite->tilesheet->mem.data!=NULL && "tilesheet data not copied to RAM");
 	
-	gfx_tilesheet_t* ts = sprite->tilesheet;
-	uint16_t size_per_tile = (ts->tile_width*ts->tile_height);
-	uint8_t* tile_ptr = ts->mem.data + tile_id * size_per_tile;
-	sprite->tile_ptr = tile_ptr;
+	sprite->tile_ptr = gfx_tilesheet_get_chached_tile(sprite->tilesheet, tile_id);
 	sprite->tile_id = tile_id;
 }
 
@@ -143,6 +137,8 @@ void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
         }
     }
 }
+
+#include <stdint.h>
 
 
 // SCANLINE-RENDERER
@@ -499,4 +495,24 @@ void gfx_renderqueue_apply(void)
 {
 	requested_renderqueue_apply=true;
 	renderqueue_request_amount=0;
+}
+
+extern void* assets[];
+
+gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
+	gfx_tilesheet_t* assetdata = assets[asset_id];
+	assert(assetdata->type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
+
+	gfx_tilesheet_t* tilesheet = ng_mem_allocate(default_allocation_segment,sizeof(gfx_tilesheet_t));
+	*tilesheet = *assetdata;
+	tilesheet->tile_amount = tilesheet->rows*tilesheet->cols;
+	tilesheet->flags=0;
+	
+	uint32_t data_size = sizeof(uint8_t*)*tilesheet->tile_amount;
+	tilesheet->cached_tile_ptrs = ng_mem_allocate(default_allocation_segment,data_size);
+	memset(tilesheet->cached_tile_ptrs,0,data_size);
+
+	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+5;
+
+	return tilesheet;
 }

@@ -68,6 +68,7 @@
 #error "Select a video mode!"
 #endif
 
+extern uint8_t default_allocation_segment;
 extern bool requested_renderqueue_apply;
 extern ng_mem_block_t* renderqueue_1[GFX_RENDERQUEUE_MAX_ELEMENTS];
 extern ng_mem_block_t* renderqueue_2[GFX_RENDERQUEUE_MAX_ELEMENTS];
@@ -184,4 +185,20 @@ void gfx_backend_init()
 void gfx_backend_update()
 {
 
+}
+
+void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
+	uint8_t* data = ts->cached_tile_ptrs[tile_id];
+	if (data!=NULL){
+		return data; 
+	}
+	
+	uint16_t size_per_tile = (ts->tile_width*ts->tile_height);
+	uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
+	
+	void* dest = ng_mem_allocate(default_allocation_segment, size_per_tile);
+	memcpy(dest, tile_ptr, size_per_tile);
+
+	ts->cached_tile_ptrs[tile_id]=dest;
+	return dest;
 }
