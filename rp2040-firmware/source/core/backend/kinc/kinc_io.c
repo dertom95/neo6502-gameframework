@@ -36,6 +36,9 @@
 
 #define KEYBOARD_REPORT_MAX_KEYCODES 6
 
+extern uint16_t window_width, window_height;
+extern float    window_factor_x, window_factor_y;
+
 typedef struct hid_keyboard_report_t
 {
   uint8_t modifier;   
@@ -47,7 +50,7 @@ hid_keyboard_report_t kb_pressed;
 hid_keyboard_report_t kb_down;
 hid_keyboard_report_t kb_released;
 
-
+float mouse_factor;
 
 static void keyboard_pressed(int key, void* data)
 {
@@ -71,16 +74,51 @@ static void keyboard_released(int key, void* data)
   }
 }
 
+static void callback_mouse_moved(int window, int x, int y, int dx, int dy,void* data){
+  mouse_x=x*window_factor_x;
+  mouse_y=y*window_factor_y;
+}
+
+static void callback_mouse_button_pressed(int window,int button,int x,int y,void* data){
+  mouse_btn_state |= (1 << button);
+}
+
+static void callback_mouse_button_released(int window,int button,int x,int y,void* data){
+  mouse_btn_state &= ~(1<<button);
+}
+
+static void callback_mouse_wheel_updated(int window,int delta, void* data){
+  mouse_wheel = delta;
+}
+
 void io_backend_init()
 {
   kinc_keyboard_set_key_down_callback(&keyboard_pressed, NULL);
   kinc_keyboard_set_key_up_callback(&keyboard_released, NULL);
+
+// void kinc_mouse_set_press_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/, void * /*data*/), void *data) {
+// 	mouse_press_callback = value;
+// 	mouse_press_callback_data = data;
+// }
+
+// void kinc_mouse_set_release_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/, void * /*data*/), void *data) {
+// 	mouse_release_callback = value;
+// 	mouse_release_callback_data = data;
+// }
+
+// void kinc_mouse_set_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, int /*movement_x*/, int /*movement_y*/, void * /*data*/), void *data) {
+
+  kinc_mouse_set_move_callback(&callback_mouse_moved,NULL);
+  kinc_mouse_set_press_callback(&callback_mouse_button_pressed, NULL);
+  kinc_mouse_set_release_callback(&callback_mouse_button_released, NULL);
+  kinc_mouse_set_scroll_callback(&callback_mouse_wheel_updated, NULL);
 }
 
 void io_backend_update()
 {
   kb_pressed=(hid_keyboard_report_t){0};
   kb_released=(hid_keyboard_report_t){0};
+  mouse_wheel = 0;
 }
 
 // look up new key in previous keys

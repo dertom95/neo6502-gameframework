@@ -117,7 +117,7 @@ void game_tick(int dt)
         pal_small = !pal_small;
         gfx_pixelbuffer_set_active(pal_small ? &second_pixel_buffer : &initial_pixelbuffer);
 
-        //gfx_set_palette_from_assset(pal_small ? ASSETID_PALETTE_SMALL : ASSETID_PALETTE,0);
+        gfx_set_palette_from_assset(pal_small ? ASSETID_PALETTE_SMALL : ASSETID_PALETTE,0);
     }
     if (io_keyboard_is_pressed(HID_KEY_ENTER)){
         if (sprite->tile_id<7){
@@ -127,6 +127,8 @@ void game_tick(int dt)
         }
     }
     //#define NO_BOUNDCHECK
+
+    gfx_draw_printf(0,10,COL_WHITE, "M:%d|%d [%d|%d]",mouse_x,mouse_y,mouse_btn_state,mouse_wheel);
 
     bool paint = false;
     if (io_keyboard_is_pressed(HID_KEY_A)){

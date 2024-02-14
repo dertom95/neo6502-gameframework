@@ -48,4 +48,12 @@
 #define HID_KEY_EQUAL KINC_KEY_EQUAL
 
 
+#define HID_MOUSE_LEFT KINC_MOUSE_LEFT 
+#define HID_MOUSE_RIGHT KINC_MOUSE_RIGHT 
+#define HID_MOUSE_MIDDLE KINC_MOUSE_MIDDLE 
+// eg backward sidebutton
+#define HID_MOUSE_EXTRA1 KINC_MOUSE_EXTRA1 
+// eg forward sidebutton
+#define HID_MOUSE_EXTRA2 KINC_MOUSE_EXTRA2 
+
 #endif

@@ -1,6 +1,9 @@
 #ifdef __KINC__
 
 #include "kinc_ng.h"
+#include <stdint.h>
+#include <string.h>
+
 #include "../../../ng_gfx.h"
 #include "../../../api/ng_config.h"
 #include "../../../ng_mem.h"
@@ -8,7 +11,7 @@
 #include <kinc/graphics1/graphics.h>
 #include <kinc/system.h>
 #include <kinc/log.h>
-#include <string.h>
+#include <kinc/window.h>
 
 extern bool requested_renderqueue_apply;
 extern ng_mem_block_t* renderqueue_1[GFX_RENDERQUEUE_MAX_ELEMENTS];
@@ -22,8 +25,9 @@ uint16_t* pixbuf;
 uint32_t framebuffer[SCREEN_WIDTH*SCREEN_HEIGHT];
 #define FRAMEBUFFER_SIZE (SCREEN_HEIGHT*SCREEN_WIDTH*4)
 
+uint16_t window_width=0, window_height=0;
+float    window_factor_x=1.0f, window_factor_y=1.0f;
 
-#include <stdint.h>
 
 uint32_t convertColor565toRGBA(uint16_t color565) {
     // Extract the color components from the 16-bit color value
@@ -45,12 +49,21 @@ void flush_buffer() {
     memcpy(kinc_internal_g1_image, framebuffer, FRAMEBUFFER_SIZE);
 }
 
+static void callback_window_resized(int x, int y,void* data){
+    window_width=x;
+    window_height=y;
+    window_factor_x = SCREEN_WIDTH / (float)window_width;
+    window_factor_y = SCREEN_HEIGHT / (float)window_height;
+}
+
 void gfx_backend_init()
 {
     pixbuf = ng_mem_allocate(SEGMENT_GFX_DATA,SCREEN_WIDTH*sizeof(uint16_t*));
-    kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
+    int win = kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
     kinc_log(KINC_LOG_LEVEL_INFO, "vga_setup");
     kinc_g1_init(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    kinc_window_set_resize_callback(win,&callback_window_resized,NULL);
 }
 
 void gfx_backend_update()
@@ -90,5 +103,7 @@ void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
 	ts->cached_tile_ptrs[tile_id]=tile_ptr;
     return tile_ptr;
 }
+
+
 
 #endif
