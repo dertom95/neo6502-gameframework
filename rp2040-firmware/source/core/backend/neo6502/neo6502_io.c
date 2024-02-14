@@ -33,6 +33,7 @@
 #include "../../../ng_io.h"
 #include "../../../ng_gfx.h"
 #include "../../memory.h"
+#include "../../../ng_utils.h"
 
 #include "class/hid/hid.h"
 

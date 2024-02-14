@@ -144,4 +144,4 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
-#endif
+#endif 

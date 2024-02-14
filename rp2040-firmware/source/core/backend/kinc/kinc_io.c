@@ -47,30 +47,46 @@ hid_keyboard_report_t kb_pressed;
 hid_keyboard_report_t kb_down;
 hid_keyboard_report_t kb_released;
 
-static void keyboard_cb(int key, void* data)
+
+
+static void keyboard_pressed(int key, void* data)
 {
-  hid_keyboard_report_t* report = data;
-  report->keycode[report->keycode_amount++]=key;
+  kb_pressed.keycode[kb_pressed.keycode_amount++]=key;
+  kb_down.keycode[kb_down.keycode_amount++]=key;
+}
+
+static void keyboard_released(int key, void* data)
+{
+  kb_released.keycode[kb_released.keycode_amount++]=key;
+  for (int i=0;i<kb_down.keycode_amount;i++){
+    if (kb_down.keycode[i]==key){
+      if (i < kb_down.keycode_amount-1){
+        // not last keycode in list?
+        kb_down.keycode[i]=kb_down.keycode[kb_down.keycode_amount-1];
+      } else {
+        kb_down.keycode[i]=0;
+      }
+      kb_down.keycode_amount--;
+    }
+  }
 }
 
 void io_backend_init()
 {
-  kinc_keyboard_set_key_press_callback(&keyboard_cb, &kb_pressed);
-  kinc_keyboard_set_key_down_callback(&keyboard_cb, &kb_down);
-  kinc_keyboard_set_key_up_callback(&keyboard_cb, &kb_released);
+  kinc_keyboard_set_key_down_callback(&keyboard_pressed, NULL);
+  kinc_keyboard_set_key_up_callback(&keyboard_released, NULL);
 }
 
 void io_backend_update()
 {
   kb_pressed=(hid_keyboard_report_t){0};
-  kb_down=(hid_keyboard_report_t){0};
   kb_released=(hid_keyboard_report_t){0};
 }
 
 // look up new key in previous keys
 bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
 {
-  for(uint8_t i=0; i<KEYBOARD_REPORT_MAX_KEYCODES; i++)
+  for(uint8_t i=0; i<report->keycode_amount; i++)
   {
     if (report->keycode[i] == keycode)  {
       return true;

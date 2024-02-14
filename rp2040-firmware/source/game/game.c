@@ -129,7 +129,7 @@ void game_tick(int dt)
     //#define NO_BOUNDCHECK
 
     bool paint = false;
-    if (io_keyboard_is_down(HID_KEY_A)){
+    if (io_keyboard_is_pressed(HID_KEY_A)){
 #ifdef BOUNDCHECK
         if (posx>0)
 #endif        

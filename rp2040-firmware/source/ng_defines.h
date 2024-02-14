@@ -8,7 +8,7 @@
 #ifdef PICO_NEO6502
 # include "pico/platform.h"
 #else
-  #define __not_in_flash_func(FUNC) FUNC
+# define __not_in_flash_func(FUNC) FUNC
 #endif
 
 #define SEGMENT_GFX_DATA 0
@@ -16,5 +16,12 @@
 
 #define ASSET_TYPE_TILESHEET 1
 #define ASSET_TYPE_PALETTE   2
+
+
+#if PICO_NEO6502
+# include "core/backend/neo6502/neo6502_defines.h"
+#elif __KINC__
+# include "core/backend/kinc/kinc_defines.h"
+#endif
 
 #endif
