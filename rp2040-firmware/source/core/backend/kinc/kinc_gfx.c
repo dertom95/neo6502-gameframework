@@ -12,6 +12,7 @@
 #include <kinc/system.h>
 #include <kinc/log.h>
 #include <kinc/window.h>
+#include <kinc/threads/thread.h>
 
 extern bool requested_renderqueue_apply;
 extern ng_mem_block_t* renderqueue_1[GFX_RENDERQUEUE_MAX_ELEMENTS];
@@ -59,7 +60,12 @@ static void callback_window_resized(int x, int y,void* data){
 void gfx_backend_init()
 {
     pixbuf = ng_mem_allocate(SEGMENT_GFX_DATA,SCREEN_WIDTH*sizeof(uint16_t*));
-    int win = kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
+    
+    kinc_framebuffer_options_t framebuffer_opts;
+    kinc_framebuffer_options_set_defaults(&framebuffer_opts);
+    framebuffer_opts.vertical_sync=false;
+    framebuffer_opts.frequency=10000;
+    int win = kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, &framebuffer_opts);
     kinc_log(KINC_LOG_LEVEL_INFO, "vga_setup");
     kinc_g1_init(SCREEN_WIDTH, SCREEN_HEIGHT);
 

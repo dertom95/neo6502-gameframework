@@ -131,7 +131,7 @@ void game_tick(int dt)
     gfx_draw_printf(0,10,COL_WHITE, "M:%d|%d [%d|%d]",mouse_x,mouse_y,mouse_btn_state,mouse_wheel);
 
     bool paint = false;
-    if (io_keyboard_is_pressed(HID_KEY_A)){
+    if (io_keyboard_is_down(HID_KEY_A)){
 #ifdef BOUNDCHECK
         if (posx>0)
 #endif        

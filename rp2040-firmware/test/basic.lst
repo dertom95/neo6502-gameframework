@@ -441,15 +441,15 @@ Current file: 6502_func_call.s
 0001F5r 1  C8           	iny
 0001F6r 1  91 rr        	sta     (sp),y
 0001F8r 1  A9 03        	lda     #$03
-0001FAr 1  20 rr rr     	jsr     _change_palette
+0001FAr 1  20 rr rr     L0070:	jsr     _change_palette
 0001FDr 1  A0 05        L0051:	ldy     #$05
-0001FFr 1  B1 rr        L0076:	lda     (sp),y
+0001FFr 1  B1 rr        L0072:	lda     (sp),y
 000201r 1  48           	pha
 000202r 1  38           	sec
 000203r 1  E9 01        	sbc     #$01
 000205r 1  91 rr        	sta     (sp),y
 000207r 1  68           	pla
-000208r 1  D0 F5        	bne     L0076
+000208r 1  D0 F5        	bne     L0072
 00020Ar 1  A0 04        	ldy     #$04
 00020Cr 1  B1 rr        	lda     (sp),y
 00020Er 1  18           	clc
@@ -472,9 +472,9 @@ Current file: 6502_func_call.s
 00022Ar 1  18           	clc
 00022Br 1  65 rr        	adc     ptr1
 00022Dr 1  A6 rr        	ldx     ptr1+1
-00022Fr 1  90 01        	bcc     L0073
+00022Fr 1  90 01        	bcc     L006E
 000231r 1  E8           	inx
-000232r 1  85 rr        L0073:	sta     ptr1
+000232r 1  85 rr        L006E:	sta     ptr1
 000234r 1  86 rr        	stx     ptr1+1
 000236r 1  88           	dey
 000237r 1  B1 rr        	lda     (sp),y
@@ -491,7 +491,7 @@ Current file: 6502_func_call.s
 00024Br 1  91 rr        	sta     (sp),y
 00024Dr 1  C8           L005D:	iny
 00024Er 1  B1 rr        	lda     (sp),y
-000250r 1  D0 1C        	bne     L0061
+000250r 1  D0 AB        	bne     L0051
 000252r 1  88           	dey
 000253r 1  B1 rr        	lda     (sp),y
 000255r 1  18           	clc
@@ -500,32 +500,13 @@ Current file: 6502_func_call.s
 00025Ar 1  A0 00        	ldy     #$00
 00025Cr 1  B1 rr        	lda     (sp),y
 00025Er 1  C9 03        	cmp     #$03
-000260r 1  D0 05        	bne     L0077
+000260r 1  D0 05        	bne     L0073
 000262r 1  A9 01        	lda     #$01
-000264r 1  4C rr rr     	jmp     L0079
-000267r 1  A9 03        L0077:	lda     #$03
-000269r 1  91 rr        L0079:	sta     (sp),y
-00026Br 1  20 rr rr     	jsr     _change_palette
-00026Er 1  20 rr rr     L0061:	jsr     decsp5
-000271r 1  A9 14        	lda     #$14
-000273r 1  A0 03        	ldy     #$03
-000275r 1  91 rr        	sta     (sp),y
-000277r 1  C8           	iny
-000278r 1  A9 00        	lda     #$00
-00027Ar 1  91 rr        	sta     (sp),y
-00027Cr 1  A9 14        	lda     #$14
-00027Er 1  A0 01        	ldy     #$01
-000280r 1  91 rr        	sta     (sp),y
-000282r 1  C8           	iny
-000283r 1  A9 00        	lda     #$00
-000285r 1  91 rr        	sta     (sp),y
-000287r 1  A9 48        	lda     #$48
-000289r 1  A0 00        	ldy     #$00
-00028Br 1  91 rr        	sta     (sp),y
-00028Dr 1  A9 03        	lda     #$03
-00028Fr 1  20 rr rr     	jsr     _draw_char
-000292r 1  4C rr rr     	jmp     L0051
-000295r 1               
-000295r 1               .endproc
-000295r 1               
-000295r 1               
+000264r 1  4C rr rr     	jmp     L0075
+000267r 1  A9 03        L0073:	lda     #$03
+000269r 1  91 rr        L0075:	sta     (sp),y
+00026Br 1  4C rr rr     	jmp     L0070
+00026Er 1               
+00026Er 1               .endproc
+00026Er 1               
+00026Er 1               

@@ -17,10 +17,13 @@
 
 #ifdef __KINC__
 # include <kinc/system.h>
+# include <stdio.h>
+# include <kinc/threads/thread.h>
 #elif PICO_NEO6502
 # include "core/backend/neo6502/neo6502.h"
 # include "pico/time.h"
 #endif
+
 
 
 #include<stdio.h>
@@ -40,8 +43,10 @@
 
 extern uint32_t tickscpu;
 extern uint32_t frame;
+extern uint32_t lasst_address;
+extern uint8_t last_data;
 
-const uint32_t frame_len = 1000 / 60;
+const uint32_t frame_len = 1000 / 30;
 
 int32_t last_millis = 0;
 int32_t last_sound_ms = 0;
@@ -49,6 +54,8 @@ int32_t msCount = 0;
 int32_t tps = 0;
 int32_t fps=0;
 uint32_t tick_counter = 0;
+
+
 
 int main_init(){
     io_init();
@@ -58,6 +65,8 @@ int main_init(){
     game_init();
     
 	loadROMS();
+
+
 
 #ifdef SOUND
 
@@ -71,82 +80,93 @@ int main_init(){
 
 
 //stdio_init_all();
-
+bool running = true;
 
 void main_loop(void* data)
 {
-    int current_millis = utils_millis();        
-    int msDelta = current_millis - last_millis;
-    msCount += msDelta;
-    tick_counter += msDelta;
-    last_millis = current_millis;
+#if __KINC__
+    kinc_thread_set_name("MAIN_LOOP");
+#endif    
 
-    
-    if (msCount > 1000){
-        tps = (tickscpu);
-        tickscpu = 0;
-        msCount=0;
-        fps = frame;
-        frame = 0;
+    while(running){
+        int32_t current_millis = utils_millis();        
+        int32_t msDelta = current_millis - last_millis;
+        msCount += msDelta;
+        tick_counter += msDelta;
+        last_millis = current_millis;
 
-        gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%7d addr:%04x data:%02x",fps,tps,address,data);
-        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d",tickscpu);
-        gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
-    }     
+        
+        if (msCount > 1000){
+            tps = (tickscpu);
+            tickscpu = 0;
+            msCount=0;
+            fps = frame;
+            frame = 0;
 
-    if (tick_counter < frame_len){
+            gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
+            //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
+        }     
+        //gfx_draw_printf(0,20,COL_WHITE,"current:%06d delta:%06d",current_millis,msDelta);
+        //gfx_draw_printf(0,40,COL_WHITE,"msc:%06d tc:%06d",msCount,tick_counter);
+        
+        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d counter:%d",tickscpu,mem[0x2000]);
+        //printf("ticks:%06d counter:%d addr:%04x data:%02x\n",tickscpu,mem[0x2000],last_address,last_data);
+
         ng_cpu_update();
-        return;
-    }
+        if (tick_counter < frame_len){
+            continue;
+        }
+        //gfx_update();
 
 
-// gfx_draw();
-    gfx_update();
-    game_tick(tick_counter);
+    // gfx_draw();
+        game_tick(tick_counter);
 
 
-    io_update();
+        io_update();
+            
+
+
+        // gfx_draw_pixel(mouse_x,mouse_y,current_col);
+
         
 
 
-    // gfx_draw_pixel(mouse_x,mouse_y,current_col);
+    #ifdef SOUND
+        if (current_millis - last_sound_ms > 15){
+            sound_update();
+            last_sound_ms = current_millis;
+        }
+    #endif
 
-    
 
-
-#ifdef SOUND
-    if (current_millis - last_sound_ms > 15){
-        sound_update();
-        last_sound_ms = current_millis;
+        tick_counter = 0;
     }
-#endif
 
-
-//        gfx_draw_printf(0,0,COL_BLACK,"fps:%d heap: total:%d free:%d",fps,utils_get_heap_total(),utils_get_heap_free());
-    //gfx_draw_printf(0,10,COL_WHITE,"fps:%03d",fps);
-
-
-
-    tick_counter = 0;
-
-
-//	__builtin_unreachable();
+    int a = 0;
 }
 
 
 #ifdef __KINC__
+kinc_thread_t logic_thread;
+
+void graphics_loop(void* data){
+    gfx_update();
+}
+
 int kickstart(int argc, char **argv){
+    kinc_threads_init();
+
     main_init();
 
-    kinc_set_update_callback(main_loop,NULL);
+    kinc_set_update_callback(graphics_loop,NULL);
+    kinc_thread_init(&logic_thread,main_loop,NULL);
 	kinc_start();
 }
 #else
 int main(){
     main_init();
-    while(1){
-        main_loop(NULL);
-    }
+    main_loop(NULL);
 }
 #endif
 

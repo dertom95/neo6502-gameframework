@@ -17,13 +17,12 @@ extern "C" {
 
 
 extern uint8_t  mem[];
-extern uint16_t address;
-extern uint8_t  data;
-extern uint16_t write_address;
-extern uint8_t write_data;
+extern uint32_t last_address;
+extern uint8_t  last_data;
+//extern uint8_t write_data;
 
-void memory_write_data(uint8_t data);
-uint8_t memory_read_data();
+void memory_write_data(uint32_t address,uint8_t data);
+uint8_t memory_read_data(uint32_t address);
 
 //externally supplied functions
 void memory_init();

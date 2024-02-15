@@ -173,4 +173,12 @@
 #define HID_KEY_ALT_RIGHT                 0xE6
 #define HID_KEY_GUI_RIGHT                 0xE7
 
+#define HID_MOUSE_LEFT MOUSE_BUTTON_LEFT 
+#define HID_MOUSE_RIGHT MOUSE_BUTTON_RIGHT 
+#define HID_MOUSE_MIDDLE MOUSE_BUTTON_MIDDLE 
+// eg backward sidebutton
+#define HID_MOUSE_EXTRA1 MOUSE_BUTTON_BACKWARD
+// eg forward sidebutton
+#define HID_MOUSE_EXTRA2 MOUSE_BUTTON_FORWARD
+
 #endif

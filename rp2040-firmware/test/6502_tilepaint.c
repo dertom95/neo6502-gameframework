@@ -4,36 +4,45 @@
 
 
 int main(){
-    uint16_t i=MEMORY_TILES_TOTALSPACE;
-    uint8_t* tilemap;
-    uint8_t col=0;
-    uint8_t iters = 3;
-
-    tilemap = (uint8_t*)MEMORY_TILEAREA_START;
+    uint8_t* counter = (uint8_t*)(0x2000);
+    *counter = 0;
     while(1){
-        *(tilemap++)=col++;        
-        i--;
-        if (i==0){
-            tilemap = (uint8_t*)MEMORY_TILEAREA_START;
-            i=MEMORY_TILES_TOTALSPACE;
-            if (iters--==0){
-                break;
-            }
-        }
-    }
-    {
-        int a=0;
-        tilemap = (uint8_t*)MEMORY_TILEAREA_START+90;
-        while (1){
-            while(a!=0){
-                a--;
-            }
-            a=255;
-            *(tilemap)=col++;
-        }
+        *counter=(*counter)+1;
     }
     return 0;
 }
+
+// int main(){
+//     uint16_t i=MEMORY_TILES_TOTALSPACE;
+//     uint8_t* tilemap;
+//     uint8_t col=0;
+//     uint8_t iters = 3;
+
+//     tilemap = (uint8_t*)MEMORY_TILEAREA_BEGIN;
+//     while(1){
+//         *(tilemap++)=col++;        
+//         i--;
+//         if (i==0){
+//             tilemap = (uint8_t*)MEMORY_TILEAREA_BEGIN;
+//             i=MEMORY_TILES_TOTALSPACE;
+//             if (iters--==0){
+//                 break;
+//             }
+//         }
+//     }
+//     {
+//         int a=0;
+//         tilemap = (uint8_t*)MEMORY_TILEAREA_BEGIN+90;
+//         while (1){
+//             while(a!=0){
+//                 a--;
+//             }
+//             a=255;
+//             *(tilemap)=col++;
+//         }
+//     }
+//     return 0;
+// }
 
 // int main(){
 //     uint8_t* tilegfx;

@@ -25,15 +25,14 @@ uint8_t gfx_ram[GFX_MEMORY_SIZE] __attribute__((aligned(16)));
 uint8_t mem[CPU6502_MEMORY_SIZE] __attribute__((aligned(16)));
 
 // address and data registers
-uint16_t address;
-uint8_t  data;
-
+uint32_t last_address;
+uint8_t last_data;
 /// <summary>
 /// initialise memory
 /// </summary>
 void memory_init() {
-  address = 0UL;
-  data = 0;
+  last_address = 0UL;
+  last_data = 0;
 
   uint8_t seg_id = ng_mem_segment_create(gfx_ram,GFX_MEMORY_SIZE);
   assert(seg_id==SEGMENT_GFX_DATA && "segment id mismatch! GFX_MEMORY needs to be the first segment to be created! otherwise alter #defines");
@@ -46,7 +45,8 @@ void memory_init() {
   // }
 }
 
-void __not_in_flash_func(memory_write_data)(uint8_t data) {
+void __not_in_flash_func(memory_write_data)(uint32_t address,uint8_t data) {
+  last_address=address;
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     // memory map
   }
@@ -93,19 +93,20 @@ uint8_t call_function()
 }
 
 #define CASE_16BIT(NAME,variable) \
-        case NAME: return data = (variable & 0x00ff); \
-        case NAME+1: return data = (variable & 0xff00)>>8; \
+        case NAME: return last_data = (variable & 0x00ff); \
+        case NAME+1: return last_data = (variable & 0xff00)>>8; \
 
 #define CASE_8BIT(NAME,variable) \
-        case NAME: return data = (variable);
+        case NAME: return last_data = (variable);
 
-uint8_t __not_in_flash_func(memory_read_data)() {
+uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
+  last_address = address;
   // memory map
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     switch (address) {
         //CASE_8BIT(MM_KEYSET,last_pressed_key)
         case (MM_KEYSET): {
-          return data = (keyboard_last_pressed_key);
+          return last_data = (keyboard_last_pressed_key);
         }
         CASE_16BIT(MM_MOUSE_X,mouse_x)
         CASE_16BIT(MM_MOUSE_Y,mouse_y)
@@ -117,7 +118,7 @@ uint8_t __not_in_flash_func(memory_read_data)() {
         }
         default:
           //unknown
-          return data = 0x95;  
+          return last_data = 0x95;  
     }
   } 
   else if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
@@ -126,7 +127,7 @@ uint8_t __not_in_flash_func(memory_read_data)() {
   }
   
   else {
-    return data = mem[address];
+    return last_data = mem[address];
   }
 }
 

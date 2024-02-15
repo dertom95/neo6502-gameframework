@@ -98,7 +98,7 @@ int main(){
                 palette = (palette == ASSETID_PALETTE_SMALL) ? ASSETID_PALETTE : ASSETID_PALETTE_SMALL;
                 change_palette(palette);                
             }
-            draw_char(20,20,'H',3);
+            //draw_char(20,20,'H',3);
         }
 
     }
