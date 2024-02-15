@@ -12,7 +12,7 @@
                 "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/Graphics4/OpenGL/Sources",
                 "${workspaceFolder}/build-scripts/kinc/tmp/Kinc/Backends/Graphics5/G5onG4/Sources"
             ],
-            "defines": ["TESTING","__KINC__"],
+            "defines": ["TESTING","__KINC__","INCLUDE_DATA"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c99",
             "intelliSenseMode": "gcc-x64"
@@ -49,7 +49,8 @@
             },
             "defines": [
                 "PICO_NEO6502",
-                "CHIPS_IMPL"
+                "CHIPS_IMPL",
+                "INCLUDE_DATA"
             ],
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",

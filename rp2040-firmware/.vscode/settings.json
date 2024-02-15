@@ -130,7 +130,9 @@
         "log.h": "c",
         "kinc_ng.h": "c",
         "mouse.h": "c",
-        "ng_cpu.h": "c"
+        "ng_cpu.h": "c",
+        "ng_assets.h": "c",
+        "assets.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

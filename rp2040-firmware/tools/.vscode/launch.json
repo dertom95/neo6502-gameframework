@@ -14,7 +14,7 @@
             "args": ["convert-sprite"]
         },
         {
-            "name": "Python: Convert Palette",
+            "name": "ng: Convert Palette",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/ngtool/ng_tool.py",
@@ -31,7 +31,23 @@
             ]
         },
         {
-            "name": "Convert Tilesheet",
+            "name": "ng: Convert Palette(Binary)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "console": "integratedTerminal",
+            "justMyCode": true, 
+            "args": [
+                "convert-palette",
+                "--input",
+                "res/palette.png",
+                "--output",
+                "test/palette.bin",
+                "--binary"
+            ]
+        },        
+        {
+            "name": "ng:Tilesheet",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/ngtool/ng_tool.py",
@@ -47,6 +63,18 @@
                 "test/sprite_misc.h",
                 "--array-name",
                 "sprite_misc"
+            ]
+        }        
+
+        ,{
+            "name": "ng:pack-files",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "args": [
+                "pack-files",
+                "${workspaceFolder}/../mod/assets/sprites/*.png",
+                "--output","${workspaceFolder}/test/sprites.bin"
             ]
         }        
 

@@ -41,8 +41,8 @@ void ng_cpu_init(void){
 }
 
 void ng_cpu_update(){
-    //step6502();
-    exec6502(STEPS_6502_CALL);
+    step6502();
+    //exec6502(STEPS_6502_CALL);
     //printf("TICK: %d\n",tickscpu);
     tickscpu+=STEPS_6502_CALL;
 }

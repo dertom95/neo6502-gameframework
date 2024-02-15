@@ -109,7 +109,7 @@ void main_loop(void* data)
         //gfx_draw_printf(0,20,COL_WHITE,"current:%06d delta:%06d",current_millis,msDelta);
         //gfx_draw_printf(0,40,COL_WHITE,"msc:%06d tc:%06d",msCount,tick_counter);
         
-        gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d counter:%d",tickscpu,mem[0x2000]);
+       // gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d counter:%d",tickscpu,mem[0x2000]);
         //printf("ticks:%06d counter:%d addr:%04x data:%02x\n",tickscpu,mem[0x2000],last_address,last_data);
 
         ng_cpu_update();
@@ -159,7 +159,9 @@ int kickstart(int argc, char **argv){
 
     main_init();
 
+    // graphics thread is running on mainthread
     kinc_set_update_callback(graphics_loop,NULL);
+    // logic on other thread
     kinc_thread_init(&logic_thread,main_loop,NULL);
 	kinc_start();
 }

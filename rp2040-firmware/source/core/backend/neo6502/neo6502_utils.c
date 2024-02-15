@@ -3,7 +3,6 @@
 #include <pico/time.h>
 #include <malloc.h>
 
-extern void* assets[];
 
 uint32_t utils_millis(void) {
     return to_ms_since_boot(get_absolute_time());
@@ -21,8 +20,3 @@ uint32_t utils_get_heap_free(void) {
    return utils_get_heap_total() - m.uordblks;
 }
 
-// get void pointer for an asset_id
-void* asset_get_pointer(uint8_t asset_id) {
-   // TODO: some sort of check if at least this asset-id exists...
-   return assets[asset_id];
-}

@@ -21,6 +21,7 @@
 #include "ng_utils.h"
 #include <assert.h>
 #include "core/memory.h"
+#include "ng_assets.h"
 
 #include <stddef.h>
 
@@ -289,8 +290,6 @@ void gfx_init()
 
 	// gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
 	// gfx_renderqueue_apply();
-
- 	font = (uint8_t*)bin2c_font8_bin;
 }
 
 void gfx_draw()
@@ -310,7 +309,7 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
 
 void gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx)
 {
-	gfx_palette_t* palette = asset_get_pointer(asset_id);
+	gfx_palette_t* palette = assets_get_pointer(asset_id);
 	memcpy(color_palette, palette+1, palette->color_amount * sizeof(uint16_t));
 	if (palette->color_amount<256){
 		uint8_t dif = 256 - palette->color_amount;
@@ -334,7 +333,7 @@ void     gfx_set_font(uint8_t* font_bpp1)
 
 void     gfx_set_font_from_asset(uint8_t asset_id) 
 {
-	uint8_t* font = asset_get_pointer(asset_id);
+	uint8_t* font = assets_get_pointer(asset_id);
 	gfx_set_font(font);
 }
 
@@ -385,7 +384,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 		uint8_t* buffer_tip = _pixelbuffer_location_ptr(x,y++);
 		uint8_t current_font_line = *(character_ptr++);
 		uint8_t mask = 1;
-
+		printf("Print: %c : %d\n",ch);
 		// unfold? let's not wait with crazy stuff
 		for (int j=0;j<width;j++){
 			if (current_font_line & mask){
@@ -497,10 +496,8 @@ void gfx_renderqueue_apply(void)
 	renderqueue_request_amount=0;
 }
 
-extern void* assets[];
-
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
-	gfx_tilesheet_t* assetdata = assets[asset_id];
+	gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
 	assert(assetdata->type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
 
 	gfx_tilesheet_t* tilesheet = ng_mem_allocate(default_allocation_segment,sizeof(gfx_tilesheet_t));

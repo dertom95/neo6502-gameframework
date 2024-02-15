@@ -4,8 +4,6 @@
 #include <malloc.h>
 #include <kinc/system.h>
 
-extern void* assets[];
-
 uint32_t utils_millis(void) {
    double time = kinc_time();
    uint32_t result = (uint32_t)(time * 1000);
@@ -26,11 +24,7 @@ uint32_t utils_get_heap_free(void) {
    // return utils_get_heap_total() - m.uordblks;
 }
 
-// get void pointer for an asset_id
-void* asset_get_pointer(uint8_t asset_id) {
-   // TODO: some sort of check if at least this asset-id exists...
-   return assets[asset_id];
-}
+
 
 
 

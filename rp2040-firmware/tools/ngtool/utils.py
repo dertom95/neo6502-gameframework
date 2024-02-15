@@ -18,3 +18,10 @@ def value_to_csv_le(value,type):
 def write_header(output:TextIOWrapper,type,size):
     result = f"{value_to_csv_le(type,'I')},{value_to_csv_le(size,'I')},"
     output.write(result)
+
+def convert_to_rgb565(rgb):
+    r, g, b = rgb
+    r = (r >> 3) & 0x1F
+    g = (g >> 2) & 0x3F
+    b = (b >> 3) & 0x1F
+    return (r << 11) | (g << 5) | b

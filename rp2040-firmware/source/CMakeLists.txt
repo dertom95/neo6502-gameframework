@@ -2,7 +2,7 @@ set(BACKEND_SOURCE)
 set(BACKEND PICO_NEO6502)
 
 if(BACKEND STREQUAL "PICO_NEO6502")
-	add_definitions(-D${BACKEND} -DCHIPS_IMPL)
+	add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA)
 	list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
 			 core/backend/neo6502/neo6502_io.c
@@ -21,12 +21,15 @@ add_executable(neo6502firmware
 	core/backend/cpu/wdc65C02cpu.c
 	core/roms.c
 	../test/gen_prg1.c
+	../mod/export/assets.c
 
 	ng_gfx.c
 	ng_sound.c
 	ng_utils.c
 	ng_io.c
 	ng_mem.c
+	ng_assets.c
+
 
 	game/game.c
 

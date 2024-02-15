@@ -7,15 +7,27 @@
 #include "../ng_gfx.h"
 #include "../ng_io.h"
 #include "../api/ng_api.h"
+#include "../ng_assets.h"
 #include "../ng_utils.h"
 #include <assert.h>
 
 // assets
-#include "../../mod/export/font.h"
-#include "../../mod/export/color_palette.h"
-#include "../../mod/export/color_palette_small.h"
-#include "../../mod/export/sprites_misc.h"
-#include "../../mod/export/old_guy.h"
+// #include "../../mod/export/font.h"
+// #include "../../mod/export/color_palette.h"
+// #include "../../mod/export/color_palette_small.h"
+// #include "../../mod/export/sprites_misc.h"
+// #include "../../mod/export/old_guy.h"
+
+#include "../../mod/export/assets.h"
+
+assetpack_t assets = {
+    .asset_amount = ASSETS_AMOUNT,
+    .data = assets_data,
+    .sizes = assets_sizes,
+    .offsets = assets_offsets
+};
+
+
 
 int16_t posx=0;
 int16_t posy=0;
@@ -26,13 +38,13 @@ bool pal_small = false;
 gfx_tilesheet_t ts_sprites_misc;
 gfx_tilesheet_t ts_old_guy;
 
-const uint8_t* assets[]={
-    bin2c_font8_bin,
-    color_palette,
-    bin2c_sprites_misc_bin,
-    color_palette_small,
-    bin2c_old_guy_bin
-};
+// const uint8_t* assets[]={
+//     bin2c_font8_bin,
+//     color_palette,
+//     bin2c_sprites_misc_bin,
+//     color_palette_small,
+//     bin2c_old_guy_bin
+// };
 
 
 uint8_t col;
@@ -58,8 +70,9 @@ gfx_sprite_buffer_t sprite_buffer = {
 
 void game_init()
 {
-    gfx_set_palette_from_assset(ASSETID_PALETTE,0);
-    gfx_set_font_from_asset(ASSETID_FONT);
+    assets_set_current_pack(&assets);
+    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
+    gfx_set_font_from_asset(ASSET_FONT8);
 
     bool success = gfx_pixelbuffer_create(SEGMENT_GFX_DATA, &second_pixel_buffer);
     assert(success);
@@ -79,12 +92,12 @@ void game_init()
 
     gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
-    gfx_tilesheet_t* ts_sprites_misc = asset_get_tilesheet(ASSETID_SPRITE_MISC);
+    gfx_tilesheet_t* ts_sprites_misc = asset_get_tilesheet(ASSET_SPRITES_MISC);
     sprite = gfx_sprite_create_from_tilesheet(&sprite_buffer, 100,100,ts_sprites_misc);
     // ts_sprites_misc = *ts;
     // ts_sprites_misc.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
 
-    gfx_tilesheet_t* ts_old_guy = asset_get_tilesheet(ASSETID_SPRITE_OLD_GUY);
+    gfx_tilesheet_t* ts_old_guy = asset_get_tilesheet(ASSET_OLD_GUY);
     sprite_oldguy = gfx_sprite_create_from_tilesheet(&sprite_buffer,150,150,ts_old_guy);
     // ts_old_guy = *ts;
     // ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
@@ -117,7 +130,7 @@ void game_tick(int dt)
         pal_small = !pal_small;
         gfx_pixelbuffer_set_active(pal_small ? &second_pixel_buffer : &initial_pixelbuffer);
 
-        gfx_set_palette_from_assset(pal_small ? ASSETID_PALETTE_SMALL : ASSETID_PALETTE,0);
+        gfx_set_palette_from_assset(pal_small ? ASSET_COLOR_PALETTE_SMALL : ASSET_COLOR_PALETTE ,0);
     }
     if (io_keyboard_is_pressed(HID_KEY_ENTER)){
         if (sprite->tile_id<7){
