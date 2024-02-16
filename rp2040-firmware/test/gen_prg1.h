@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-extern const unsigned char bin2c_prg1_bin[854];
+extern const unsigned char bin2c_prg1_bin[851];
 
 #ifdef __cplusplus
 } /* extern "C" */

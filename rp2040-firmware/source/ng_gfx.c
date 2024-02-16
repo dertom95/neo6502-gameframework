@@ -384,7 +384,6 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 		uint8_t* buffer_tip = _pixelbuffer_location_ptr(x,y++);
 		uint8_t current_font_line = *(character_ptr++);
 		uint8_t mask = 1;
-		printf("Print: %c : %d\n",ch);
 		// unfold? let's not wait with crazy stuff
 		for (int j=0;j<width;j++){
 			if (current_font_line & mask){

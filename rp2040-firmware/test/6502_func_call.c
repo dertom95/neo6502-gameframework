@@ -1,14 +1,7 @@
 
 #include<stdint.h>
 #include "../source/api/ng_api.h"
-
-
-#define ASSETID_FONT    0
-#define ASSETID_PALETTE 1
-#define ASSETID_SPRITE_MISC 2
-#define ASSETID_PALETTE_SMALL 3
-#define ASSETID_SPRITE_OLD_GUY 4
-
+#include "../mod/export/assets.h"
 
 
 void change_palette(uint8_t asset){
@@ -79,12 +72,12 @@ int main(){
     uint8_t* tile_map = (uint8_t*)MEMORY_TILEAREA_BEGIN;
     uint8_t palette;
 
-    palette = ASSETID_PALETTE;
+    palette = ASSET_COLOR_PALETTE;
     timer = 0;
     rows = 0;
     pos_x = 0;
 
-    change_palette(ASSETID_PALETTE_SMALL);
+    change_palette(ASSET_COLOR_PALETTE_SMALL);
 
     while (1){
         if(!(timer--)){
@@ -95,7 +88,7 @@ int main(){
             }
             if (pos_x==0){
                 rows++;
-                palette = (palette == ASSETID_PALETTE_SMALL) ? ASSETID_PALETTE : ASSETID_PALETTE_SMALL;
+                palette = (palette == ASSET_COLOR_PALETTE_SMALL) ? ASSET_COLOR_PALETTE : ASSET_COLOR_PALETTE_SMALL;
                 change_palette(palette);                
             }
             //draw_char(20,20,'H',3);

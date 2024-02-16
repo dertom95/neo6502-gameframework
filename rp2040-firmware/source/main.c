@@ -55,8 +55,6 @@ int32_t tps = 0;
 int32_t fps=0;
 uint32_t tick_counter = 0;
 
-
-
 int main_init(){
     io_init();
     
