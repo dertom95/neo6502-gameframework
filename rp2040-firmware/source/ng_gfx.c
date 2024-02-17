@@ -48,7 +48,7 @@ uint8_t renderqueue_request_amount=0;
 ng_mem_block_t** renderqueue_current = renderqueue_1;
 ng_mem_block_t** renderqueue_request = renderqueue_2;
 
-uint8_t* font=NULL; 		  // 1bpp
+const uint8_t* font=NULL; 		  // 1bpp
 gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
 game_state_t state;
@@ -309,8 +309,11 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565)
 
 void gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx)
 {
-	gfx_palette_t* palette = assets_get_pointer(asset_id);
-	memcpy(color_palette, palette+1, palette->color_amount * sizeof(uint16_t));
+	const gfx_palette_t* palette = assets_get_pointer(asset_id);
+	memcpy(color_palette, &palette->colors, palette->color_amount * sizeof(uint16_t));
+	// for (uint16_t i=0,iEnd=palette->color_amount;i<iEnd;i++){
+	// 	color_palette[i]=palette->colors[i];
+	// }
 	if (palette->color_amount<256){
 		uint8_t dif = 256 - palette->color_amount;
 		uint16_t fillup_color = color_palette[fill_unused_with_idx];
@@ -326,14 +329,14 @@ uint16_t gfx_get_palettecolor(uint8_t color_idx)
 	return color_palette[color_idx];
 }
 
-void     gfx_set_font(uint8_t* font_bpp1)
+void     gfx_set_font(const uint8_t* font_bpp1)
 {
 	font = font_bpp1;
 }
 
 void     gfx_set_font_from_asset(uint8_t asset_id) 
 {
-	uint8_t* font = assets_get_pointer(asset_id);
+	const uint8_t* font = assets_get_pointer(asset_id);
 	gfx_set_font(font);
 }
 
@@ -353,7 +356,7 @@ void  gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 }
 
 // get pointer to character in fontbuffer
-uint8_t* _char2fontbuffer(uint8_t ch)
+const uint8_t* _char2fontbuffer(uint8_t ch)
 {
 	uint16_t pos = 0;
 
@@ -375,7 +378,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 		return;
 	}
 
-	uint8_t* character_ptr = _char2fontbuffer(ch);
+	const uint8_t* character_ptr = _char2fontbuffer(ch);
 
 	uint8_t width = min(8, active_pixelbuffer->width-x);
 
@@ -496,12 +499,20 @@ void gfx_renderqueue_apply(void)
 }
 
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
-	gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
+	const gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
 	assert(assetdata->type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
 
 	gfx_tilesheet_t* tilesheet = ng_mem_allocate(default_allocation_segment,sizeof(gfx_tilesheet_t));
-	*tilesheet = *assetdata;
-	tilesheet->tile_amount = tilesheet->rows*tilesheet->cols;
+	
+	//*tilesheet = *assetdata;
+	memcpy(tilesheet,assetdata,sizeof(gfx_tilesheet_t));
+	// tilesheet->type = assetdata->type;
+	// tilesheet->tile_width = assetdata->tile_width;
+	// tilesheet->tile_height = assetdata->tile_height;
+	// tilesheet->rows = assetdata->rows;
+	// tilesheet->cols = assetdata->cols;
+
+	tilesheet->tile_amount = assetdata->rows*assetdata->cols;
 	tilesheet->flags=0;
 	
 	uint32_t data_size = sizeof(uint8_t*)*tilesheet->tile_amount;

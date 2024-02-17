@@ -71,8 +71,8 @@ gfx_sprite_buffer_t sprite_buffer = {
 void game_init()
 {
     assets_set_current_pack(&assets);
-    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
     gfx_set_font_from_asset(ASSET_FONT8);
+    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
 
     bool success = gfx_pixelbuffer_create(SEGMENT_GFX_DATA, &second_pixel_buffer);
     assert(success);

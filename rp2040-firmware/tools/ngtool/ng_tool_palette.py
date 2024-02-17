@@ -55,4 +55,6 @@ def convert_palette(args):
     print("Input:", args.input)
     print("Output:", args.output)
     print("Array Name:", args.array_name)
+    if not args.binary and not args.array_name:
+        raise ValueError("You need to name the array wiht --array-name if using header-output")
     generate_header_file(args.input, args.output, args.array_name,args.binary)

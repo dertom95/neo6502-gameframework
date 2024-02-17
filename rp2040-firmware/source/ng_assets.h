@@ -17,6 +17,6 @@ typedef struct assetpack_t {
 // get void pointer for an asset_id
 void            assets_set_current_pack(assetpack_t* mgr );
 assetpack_t*    assets_get_current_pack(void);
-const uint8_t*           assets_get_pointer(uint8_t asset_id);
+const void*           assets_get_pointer(uint8_t asset_id);
 
 #endif

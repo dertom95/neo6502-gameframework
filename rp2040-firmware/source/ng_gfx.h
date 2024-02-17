@@ -130,7 +130,7 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
 uint16_t gfx_get_palettecolor(uint8_t color_idx);
 void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx);
 // set fontbuffer. the font needs to be 1bpp and 'character-aligned': first 8bytes for char1, then second,...
-void     gfx_set_font(uint8_t* font_bpp1); 
+void     gfx_set_font(const uint8_t* font_bpp1); 
 void     gfx_set_font_from_asset(uint8_t asset_id);
 // canvas functions
 uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);

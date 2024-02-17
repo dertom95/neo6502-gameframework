@@ -46,8 +46,10 @@ extern uint32_t tickscpu;
 extern uint32_t frame;
 extern uint32_t lasst_address;
 extern uint8_t last_data;
+#ifdef __KINC__
 extern long long diff;
 extern uint32_t ns_timer;
+#endif
 
 const uint32_t frame_len = 1000 / 30;
 
@@ -108,7 +110,12 @@ void main_loop(void* data)
             fps = frame;
             frame = 0;
             gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
+            
+#ifdef __KINC__            
             gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
+#endif            
+            
+            
             //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
         }     
         //gfx_draw_printf(0,20,COL_WHITE,"current:%06d delta:%06d",current_millis,msDelta);

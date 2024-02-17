@@ -25,6 +25,11 @@ def pack_files(args):
 
         # Write the file data
         for data in file_data:
+            pos = outfile.tell()
+            padding = 0
+            if (pos&1)==1:
+                outfile.write(struct.pack('B', 0))
+
             asset_offsets.append((outfile.tell(),len(data)))
             outfile.write(data)
 
