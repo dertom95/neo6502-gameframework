@@ -52,26 +52,24 @@ void ng_cpu_init(void){
     reset6502();
 }
 
-#define STEP_NS 25000
+#define STEP_NS 1000
 
-uint16_t counter2 = 0;
+long long diff = 0;
+uint32_t ns_timer = 0;
+
+uint32_t counter2 = 0;
 void ng_cpu_update(){
     long long tick = get_ns();
-    long long diff = tick - last_ns;
-    last_ns=tick;
+    diff = tick - last_ns;
+    last_ns = tick;
+    ns_timer += diff;
 
-    if (counter2++>8){
+    if (ns_timer > STEP_NS){
+        ns_timer -= STEP_NS;
         step6502();
-        counter2=0;
         tickscpu+=1;
     }
 
-
-
-
-
-    //exec6502(STEPS_6502_CALL);
-    //printf("TICK: %d\n",tickscpu);
 }
 
 #endif

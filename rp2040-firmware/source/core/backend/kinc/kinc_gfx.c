@@ -22,6 +22,8 @@ extern uint8_t renderqueue_request_amount;
 extern ng_mem_block_t** renderqueue_current;
 extern ng_mem_block_t** renderqueue_request;
 
+extern uint32_t frame;
+
 uint16_t* pixbuf;
 uint32_t framebuffer[SCREEN_WIDTH*SCREEN_HEIGHT];
 #define FRAMEBUFFER_SIZE (SCREEN_HEIGHT*SCREEN_WIDTH*4)
@@ -63,8 +65,9 @@ void gfx_backend_init()
     
     kinc_framebuffer_options_t framebuffer_opts;
     kinc_framebuffer_options_set_defaults(&framebuffer_opts);
-    framebuffer_opts.vertical_sync=false;
-    framebuffer_opts.frequency=10000;
+    framebuffer_opts.frequency=60;
+    // framebuffer_opts.vertical_sync=tru;
+    // framebuffer_opts.frequency=10000;
     int win = kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, &framebuffer_opts);
     kinc_log(KINC_LOG_LEVEL_INFO, "vga_setup");
     kinc_g1_init(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -95,6 +98,7 @@ void gfx_backend_update()
     }
     flush_buffer();
     kinc_g1_end();
+    frame++;
 }
 
 void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){

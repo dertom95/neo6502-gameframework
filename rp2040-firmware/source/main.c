@@ -41,10 +41,13 @@
 #endif
 
 
+// TODO: clean this up
 extern uint32_t tickscpu;
 extern uint32_t frame;
 extern uint32_t lasst_address;
 extern uint8_t last_data;
+extern long long diff;
+extern uint32_t ns_timer;
 
 const uint32_t frame_len = 1000 / 30;
 
@@ -54,6 +57,7 @@ int32_t msCount = 0;
 int32_t tps = 0;
 int32_t fps=0;
 uint32_t tick_counter = 0;
+
 
 int main_init(){
     io_init();
@@ -80,6 +84,9 @@ int main_init(){
 //stdio_init_all();
 bool running = true;
 
+
+
+
 void main_loop(void* data)
 {
 #if __KINC__
@@ -97,11 +104,11 @@ void main_loop(void* data)
         if (msCount > 1000){
             tps = (tickscpu);
             tickscpu = 0;
-            msCount=0;
+            msCount=-1000;
             fps = frame;
             frame = 0;
-
             gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
+            gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
             //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
         }     
         //gfx_draw_printf(0,20,COL_WHITE,"current:%06d delta:%06d",current_millis,msDelta);
