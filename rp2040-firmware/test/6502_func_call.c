@@ -80,7 +80,8 @@ int main(){
     change_palette(ASSET_COLOR_PALETTE_SMALL);
 
     while (1){
-        if(!(timer--)){
+        //if(!(timer--))
+        {
             pos_x++;
             *(tile_map+10*40+pos_x)=pos_x+rows;        
             if (rows>=100){

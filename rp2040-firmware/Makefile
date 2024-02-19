@@ -37,6 +37,11 @@ assets-create:
 	# python3 tools/create_palette.py resources/palette_pico-8_duel-1x.png source/gen/color_palette.h color_palette
 
 	# python3 tools/ng_tool.py --convert-palette --input 
+
+gluecode-create:
+	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_gfx.h source/ng_io.h --output tools/generator/input/glue.xml
+	python3 tools/ngtool/gen.py --config-file tools/generator/generate_gluecode.json
+
 clean:
 	rm -Rf build-cmake
 	rm -Rf temp

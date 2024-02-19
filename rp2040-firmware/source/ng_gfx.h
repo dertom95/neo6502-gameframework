@@ -98,6 +98,7 @@ typedef struct gfx_sprite_buffer_t {
 
 #define TILESHEET_FORMAT_INDEXED = 1
 
+
 void 	 gfx_init();
 void     gfx_backend_init();
 void 	 gfx_draw();
@@ -113,7 +114,7 @@ void gfx_renderqueue_add(ng_mem_block_t* renderblock);
 void gfx_renderqueue_wipe(void);
 /// @brief tell's the renderer to render this queue from now on
 /// @param  
-void gfx_renderqueue_apply(void);
+/*api:1:1*/void gfx_renderqueue_apply(void);
 
 bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data);
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
@@ -126,16 +127,17 @@ void          gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id);
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 
-void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
-uint16_t gfx_get_palettecolor(uint8_t color_idx);
-void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx);
+/*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
+/*api:1:3*/uint16_t gfx_get_palettecolor(uint8_t color_idx);
+/*api:1:4*/void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx);
 // set fontbuffer. the font needs to be 1bpp and 'character-aligned': first 8bytes for char1, then second,...
 void     gfx_set_font(const uint8_t* font_bpp1); 
-void     gfx_set_font_from_asset(uint8_t asset_id);
+/*api:1:5*/void     gfx_set_font_from_asset(uint8_t asset_id);
 // canvas functions
-uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
-void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
-void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
+/*api:1:6*/uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
+/*api:1:7*/void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
+/*api:1:8*/void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
+
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)
 void     gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));

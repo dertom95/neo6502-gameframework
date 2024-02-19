@@ -77,6 +77,26 @@
                 "--output","${workspaceFolder}/test/sprites.bin"
             ]
         }        
-
+        ,{
+            "name": "ng:create-gluecode",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "args": [
+                "create-gluecode",
+                "${workspaceFolder}/../source/ng_gfx.h","${workspaceFolder}/../source/ng_io.h",
+                "--output","${workspaceFolder}/generator/input/glue.xml"
+            ]
+        },
+        {
+            "name": "ng: gluecode",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/gen.py",
+            "args" : [
+                "--config-file","${workspaceFolder}/generator/generate_gluecode.json"
+            ],
+            "console": "integratedTerminal"
+        },           
     ]
 }

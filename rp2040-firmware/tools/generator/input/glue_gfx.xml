@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+    <gluecode>
+        <function name="gfx_renderqueue_apply" return_type="void" />
+        <function name="gfx_set_palettecolor" return_type="void">
+            <parameter name="color_idx" type="uint8_t" />
+            <parameter name="color565" type="uint16_t" />
+        </function>
+        <function name="gfx_get_palettecolor" return_type="uint16_t">
+            <parameter name="color_idx" type="uint8_t" />
+        </function>
+        <function name="gfx_set_palette_from_assset" return_type="void">
+            <parameter name="asset_id" type="uint8_t" />
+            <parameter name="fill_unused_with_idx" type="uint8_t" />
+        </function>
+        <function name="gfx_set_font_from_asset" return_type="void">
+            <parameter name="asset_id" type="uint8_t" />
+        </function>
+        <function name="gfx_get_pixel" return_type="uint8_t">
+            <parameter name="x" type="uint16_t" />
+            <parameter name="y" type="uint16_t" />
+        </function>
+        <function name="gfx_draw_pixel" return_type="void">
+            <parameter name="x" type="uint16_t" />
+            <parameter name="y" type="uint16_t" />
+            <parameter name="color_idx" type="uint8_t" />
+        </function>
+        <function name="gfx_draw_char" return_type="void">
+            <parameter name="x" type="uint16_t" />
+            <parameter name="y" type="uint16_t" />
+            <parameter name="ch" type="char" />
+            <parameter name="color_idx" type="uint8_t" />
+        </function>
+    </gluecode>
+</root>

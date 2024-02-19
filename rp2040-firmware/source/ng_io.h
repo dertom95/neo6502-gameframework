@@ -24,11 +24,11 @@ bool io_keyboard_connected(void);
 bool io_mouse_connected(void);
 
 // key just pressed
-bool io_keyboard_is_pressed(uint8_t keycode);
+/*api:2:1*/bool io_keyboard_is_pressed(uint8_t keycode);
 // key is hold down
-bool io_keyboard_is_down(uint8_t keycode);
+/*api:2:2*/bool io_keyboard_is_down(uint8_t keycode);
 // key is just released
-bool io_keyboard_is_released(uint8_t keycode);
+/*api:2:3*/bool io_keyboard_is_released(uint8_t keycode);
 // converts keycode to ascii
 uint8_t io_keycode_to_ascii(uint8_t keycode);
 

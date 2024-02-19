@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="https://dtGlue6502.com" xmlns="https://dtGlue6502.com" elementFormDefault="qualified">
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="gluecode">
+					<xs:complexType>
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="function">
+								<xs:complexType>
+									<xs:choice minOccurs="0" maxOccurs="unbounded">
+										<xs:element name="parameter">
+											<xs:complexType>
+												<xs:attribute name="name" type="xs:string"/>
+												<xs:attribute name="type" type="xs:string"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:choice>
+									<xs:attribute name="function_group" type="xs:string"/>
+									<xs:attribute name="function_id" type="xs:string"/>
+									<xs:attribute name="name" type="xs:string"/>
+									<xs:attribute name="return_type" type="xs:string"/>
+									<xs:attribute name="signature" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+						<xs:attribute name="rip" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

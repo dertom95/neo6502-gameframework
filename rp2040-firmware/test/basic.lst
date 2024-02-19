@@ -440,72 +440,64 @@ Current file: 6502_func_call.s
 0001F3r 1  C8           	iny
 0001F4r 1  91 rr        	sta     (sp),y
 0001F6r 1  A9 01        	lda     #$01
-0001F8r 1  20 rr rr     L0070:	jsr     _change_palette
-0001FBr 1  A0 05        L0051:	ldy     #$05
-0001FDr 1  B1 rr        L0072:	lda     (sp),y
-0001FFr 1  48           	pha
-000200r 1  38           	sec
-000201r 1  E9 01        	sbc     #$01
-000203r 1  91 rr        	sta     (sp),y
-000205r 1  68           	pla
-000206r 1  D0 F5        	bne     L0072
-000208r 1  A0 04        	ldy     #$04
+0001F8r 1  20 rr rr     L006D:	jsr     _change_palette
+0001FBr 1  A0 04        	ldy     #$04
+0001FDr 1  B1 rr        L006F:	lda     (sp),y
+0001FFr 1  18           	clc
+000200r 1  69 01        	adc     #$01
+000202r 1  91 rr        	sta     (sp),y
+000204r 1  A0 02        	ldy     #$02
+000206r 1  B1 rr        	lda     (sp),y
+000208r 1  AA           	tax
+000209r 1  88           	dey
 00020Ar 1  B1 rr        	lda     (sp),y
 00020Cr 1  18           	clc
-00020Dr 1  69 01        	adc     #$01
-00020Fr 1  91 rr        	sta     (sp),y
-000211r 1  A0 02        	ldy     #$02
-000213r 1  B1 rr        	lda     (sp),y
-000215r 1  AA           	tax
-000216r 1  88           	dey
-000217r 1  B1 rr        	lda     (sp),y
-000219r 1  18           	clc
-00021Ar 1  69 90        	adc     #$90
-00021Cr 1  90 01        	bcc     L005B
-00021Er 1  E8           	inx
-00021Fr 1  E8           L005B:	inx
-000220r 1  85 rr        	sta     ptr1
-000222r 1  86 rr        	stx     ptr1+1
-000224r 1  A0 04        	ldy     #$04
-000226r 1  B1 rr        	lda     (sp),y
-000228r 1  18           	clc
-000229r 1  65 rr        	adc     ptr1
-00022Br 1  A6 rr        	ldx     ptr1+1
-00022Dr 1  90 01        	bcc     L006E
-00022Fr 1  E8           	inx
-000230r 1  85 rr        L006E:	sta     ptr1
-000232r 1  86 rr        	stx     ptr1+1
-000234r 1  88           	dey
-000235r 1  B1 rr        	lda     (sp),y
-000237r 1  18           	clc
-000238r 1  C8           	iny
-000239r 1  71 rr        	adc     (sp),y
-00023Br 1  A0 00        	ldy     #$00
-00023Dr 1  91 rr        	sta     (ptr1),y
-00023Fr 1  A0 03        	ldy     #$03
-000241r 1  B1 rr        	lda     (sp),y
-000243r 1  C9 64        	cmp     #$64
-000245r 1  90 04        	bcc     L005D
-000247r 1  A9 00        	lda     #$00
+00020Dr 1  69 90        	adc     #$90
+00020Fr 1  90 01        	bcc     L0058
+000211r 1  E8           	inx
+000212r 1  E8           L0058:	inx
+000213r 1  85 rr        	sta     ptr1
+000215r 1  86 rr        	stx     ptr1+1
+000217r 1  A0 04        	ldy     #$04
+000219r 1  B1 rr        	lda     (sp),y
+00021Br 1  18           	clc
+00021Cr 1  65 rr        	adc     ptr1
+00021Er 1  A6 rr        	ldx     ptr1+1
+000220r 1  90 01        	bcc     L006B
+000222r 1  E8           	inx
+000223r 1  85 rr        L006B:	sta     ptr1
+000225r 1  86 rr        	stx     ptr1+1
+000227r 1  88           	dey
+000228r 1  B1 rr        	lda     (sp),y
+00022Ar 1  18           	clc
+00022Br 1  C8           	iny
+00022Cr 1  71 rr        	adc     (sp),y
+00022Er 1  A0 00        	ldy     #$00
+000230r 1  91 rr        	sta     (ptr1),y
+000232r 1  A0 03        	ldy     #$03
+000234r 1  B1 rr        	lda     (sp),y
+000236r 1  C9 64        	cmp     #$64
+000238r 1  90 04        	bcc     L005A
+00023Ar 1  A9 00        	lda     #$00
+00023Cr 1  91 rr        	sta     (sp),y
+00023Er 1  C8           L005A:	iny
+00023Fr 1  B1 rr        	lda     (sp),y
+000241r 1  D0 BA        	bne     L006F
+000243r 1  88           	dey
+000244r 1  B1 rr        	lda     (sp),y
+000246r 1  18           	clc
+000247r 1  69 01        	adc     #$01
 000249r 1  91 rr        	sta     (sp),y
-00024Br 1  C8           L005D:	iny
-00024Cr 1  B1 rr        	lda     (sp),y
-00024Er 1  D0 AB        	bne     L0051
-000250r 1  88           	dey
-000251r 1  B1 rr        	lda     (sp),y
-000253r 1  18           	clc
-000254r 1  69 01        	adc     #$01
-000256r 1  91 rr        	sta     (sp),y
-000258r 1  A0 00        	ldy     #$00
-00025Ar 1  B1 rr        	lda     (sp),y
-00025Cr 1  C9 01        	cmp     #$01
-00025Er 1  D0 04        	bne     L0073
-000260r 1  98           	tya
-000261r 1  4C rr rr     	jmp     L0075
-000264r 1  A9 01        L0073:	lda     #$01
-000266r 1  91 rr        L0075:	sta     (sp),y
-000268r 1  4C rr rr     	jmp     L0070
-00026Br 1               
-00026Br 1               .endproc
-00026Br 1               
-00026Br 1               
+00024Br 1  A0 00        	ldy     #$00
+00024Dr 1  B1 rr        	lda     (sp),y
+00024Fr 1  C9 01        	cmp     #$01
+000251r 1  D0 04        	bne     L0070
+000253r 1  98           	tya
+000254r 1  4C rr rr     	jmp     L0072
+000257r 1  A9 01        L0070:	lda     #$01
+000259r 1  91 rr        L0072:	sta     (sp),y
+00025Br 1  4C rr rr     	jmp     L006D
+00025Er 1               
+00025Er 1               .endproc
+00025Er 1               
+00025Er 1               

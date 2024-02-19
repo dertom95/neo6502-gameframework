@@ -1,3 +1,5 @@
+
+
 #ifndef __NG_API_H_
 #define __NG_API_H_
 
@@ -36,31 +38,84 @@
 #define COL_PINK 15
 #define COL_PEACH 16
 
-typedef struct call_gfx_set_palette_from_assset_t {
-    uint8_t function_id;
+typedef struct call_header_t {
+    uint8_t func_type;
+    uint8_t func_id;
+}
+
+typedef struct call_prototype_t {
+    uint8_t data;
+} call_prototype_t;
+
+typedef struct gfx_renderqueue_apply_t {
+// returns: void
+
     uint8_t asset_id;
     uint8_t fillempty_with;
-} call_gfx_set_palette_from_assset_t;
+} gfx_renderqueue_apply_t;
 
-typedef struct {
-    uint8_t func_id;
+typedef struct gfx_set_palettecolor_t {
+// returns: void
+    uint8_t color_idx;
+    uint16_t color565;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
+} gfx_set_palettecolor_t;
+
+typedef struct gfx_get_palettecolor_t {
+// returns: uint16_t
+    uint8_t color_idx;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
+} gfx_get_palettecolor_t;
+
+typedef struct gfx_set_palette_from_assset_t {
+// returns: void
+    uint8_t asset_id;
+    uint8_t fill_unused_with_idx;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
+} gfx_set_palette_from_assset_t;
+
+typedef struct gfx_set_font_from_asset_t {
+// returns: void
+    uint8_t asset_id;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
+} gfx_set_font_from_asset_t;
+
+typedef struct gfx_get_pixel_t {
+// returns: uint8_t
     uint16_t x;
     uint16_t y;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
 } gfx_get_pixel_t;
 
-typedef struct {
-    uint8_t func_id;
+typedef struct gfx_draw_pixel_t {
+// returns: void
     uint16_t x;
     uint16_t y;
     uint8_t color_idx;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
 } gfx_draw_pixel_t;
 
-typedef struct {
-    uint8_t func_id;
+typedef struct gfx_draw_char_t {
+// returns: void
     uint16_t x;
     uint16_t y;
     char ch;
     uint8_t color_idx;
+
+    uint8_t asset_id;
+    uint8_t fillempty_with;
 } gfx_draw_char_t;
 
 #endif

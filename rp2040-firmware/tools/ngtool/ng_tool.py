@@ -6,6 +6,7 @@ from ng_config import DATA_TYPE
 from ng_tool_tilesheet import convert_tilesheet
 from ng_tool_packfiles import pack_files
 from ng_tool_palette import convert_palette
+from ng_tool_create_gluecode import create_gluecode_xml
 
 from utils import write_header
 
@@ -38,6 +39,11 @@ def main():
     packfiles_parser.add_argument('filepaths', nargs='+', help='Filepaths to pack')
     packfiles_parser.add_argument('--output', help='Output file path')
 
+    gluecode_parser = subparsers.add_parser("create-gluecode",description='Create glue code!')
+    gluecode_parser.add_argument('filepaths', nargs='+', help='Filepaths to pack')
+    gluecode_parser.add_argument('--output', help='Output file path')
+    gluecode_parser.add_argument('--target', help='path to the target-script')
+
     args = None
     # Parse the arguments
     try:
@@ -57,6 +63,10 @@ def main():
         convert_tilesheet(args)
     elif args.command == 'pack-files':
         pack_files(args)
+    elif args.command == 'create-gluecode':
+        create_gluecode_xml(args)
+
+
 
 
 if __name__ == '__main__':

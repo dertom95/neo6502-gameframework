@@ -1,0 +1,21 @@
+{
+    "name" : "service-generator",
+    "rootname": "root",
+    "config" : {
+        "xsd-schema-name":"dtGlue6502",
+        "xsd-output":"${configfolder}/gen/xsd/dtGlue6502.xsd",
+        "gen-input-folder":["${configfolder}/input"],
+        "gen-root-folder":"${configfolder}/../../source/gen",
+		"gen-inputfile-if-missing":true,
+        "start-runtime":true
+    },
+    "templates": [
+        {
+            "name": "header",
+            "path": "${configfolder}/../../source/gen-templates/templ_ng_api.h"
+        },
+        {
+            "name": "impl",
+            "path": "${configfolder}/../../source/gen-templates/templ_ng_api.c"
+        }]
+}
