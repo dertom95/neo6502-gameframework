@@ -5,7 +5,6 @@
 # include "pico/platform.h"
 #endif
 
-#include "gen/font_8.h"
 #include "gen/color_palette.h"
 //#include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
@@ -14,8 +13,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "api/gen/ng_api.h"
+
 #include "ng_io.h"
-#include "api/ng_api.h"
 #include <math.h>
 
 #include "ng_utils.h"

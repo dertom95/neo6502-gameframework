@@ -22,6 +22,8 @@ add_executable(neo6502firmware
 	core/roms.c
 	../test/gen_prg1.c
 	../mod/export/assets.c
+	
+	gen/inc_ng_api.c
 
 	ng_gfx.c
 	ng_sound.c

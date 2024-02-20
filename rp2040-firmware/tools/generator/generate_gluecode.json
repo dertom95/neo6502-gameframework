@@ -5,17 +5,18 @@
         "xsd-schema-name":"dtGlue6502",
         "xsd-output":"${configfolder}/gen/xsd/dtGlue6502.xsd",
         "gen-input-folder":["${configfolder}/input"],
-        "gen-root-folder":"${configfolder}/../../source/gen",
+        "gen-root-folder":"${configfolder}/../../source/api/gen",
 		"gen-inputfile-if-missing":true,
         "start-runtime":true
     },
     "templates": [
         {
             "name": "header",
-            "path": "${configfolder}/../../source/gen-templates/templ_ng_api.h"
+            "path": "${configfolder}/../../source/api/gen-templates/templ_ng_api.h"
         },
         {
             "name": "impl",
-            "path": "${configfolder}/../../source/gen-templates/templ_ng_api.c"
-        }]
+            "path": "${configfolder}/../../source/api/gen-templates/templ_ng_api.c"
+        }
+    ]
 }

@@ -8,7 +8,7 @@ extern "C" {
 #include "memory.h"
 #include "roms.h"
 #include "../ng_defines.h"
-#include "../api/ng_api.h"
+#include "../api/gen/ng_api.h"
 #include "../ng_io.h"
 #include "../ng_gfx.h"
 #include <assert.h>

@@ -3,7 +3,7 @@
 #ifndef __NG_API_H_
 #define __NG_API_H_
 
-#include "../api/ng_config.h"
+#include "../ng_config.h"
 
 #define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
 #define MM_KEYSET       (MM_SB + 0x01)      // uint8
