@@ -13,8 +13,6 @@
 
 #include <string.h>
 
-#include "../ng_io.h"
-#include "../api/ng_api.h"
 
 #ifdef CHIPS_IMPL
 # include <string.h>

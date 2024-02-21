@@ -1,4 +1,5 @@
-
+#ifndef __MEMORY_CALL_FUNCTION_IMPL_
+#define __MEMORY_CALL_FUNCTION_IMPL_
 
 #include "ng_api.h"
 #include "../../core/memory.h"
@@ -103,3 +104,4 @@ uint8_t call_function()
     return FUNCTION_RETURN_ERROR;
 }
 
+#endif

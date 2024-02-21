@@ -23,7 +23,6 @@ add_executable(neo6502firmware
 	../test/gen_prg1.c
 	../mod/export/assets.c
 	
-	gen/inc_ng_api.c
 
 	ng_gfx.c
 	ng_sound.c
@@ -32,7 +31,7 @@ add_executable(neo6502firmware
 	ng_mem.c
 	ng_assets.c
 
-	api/gen/memory_call_function.cmake_host_system_information()
+	#api/gen/memory_call_function.c
 
 	game/game.c
 
