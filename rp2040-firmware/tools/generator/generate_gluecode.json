@@ -17,6 +17,10 @@
         {
             "name": "impl",
             "path": "${configfolder}/../../source/api/gen-templates/templ_ng_api.c"
+        },
+        {
+            "name": "caller",
+            "path": "${configfolder}/../../source/api/gen-templates/templ_ng_mem_callfunction.c"
         }
     ]
 }

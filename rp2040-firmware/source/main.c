@@ -9,7 +9,7 @@
 //#include <pico/stdlib.h>
 #include <stdint.h>
 #include <signal.h>
-#include "api/ng_api.h"
+#include "api/gen/ng_api.h"
 #include "core/memory.h"
 #include "core/roms.h"
 #include "core/backend/cpu/wdc65C02cpu.h"

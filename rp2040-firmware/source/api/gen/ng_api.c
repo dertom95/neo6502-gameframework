@@ -2,7 +2,8 @@
 
 #include "ng_api.h"
 
-const volatile uint8_t* call_function = (uint8_t*)MM_FUNC_CALL;
+const volatile uint8_t* mem_call_function = (uint8_t*)MM_FUNC_CALL;
+const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFFER_BEGIN;
 
 // returns: void f-grp:1 f-id:1
 void gfx_renderqueue_apply(void){
@@ -12,8 +13,12 @@ void gfx_renderqueue_apply(void){
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 1;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
 // returns: void f-grp:1 f-id:2
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565){
@@ -25,8 +30,12 @@ void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565){
     func_data->color_idx=color_idx;
     func_data->color565=color565;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
 // returns: uint16_t f-grp:1 f-id:3
 uint16_t gfx_get_palettecolor(uint8_t color_idx){
@@ -37,8 +46,13 @@ uint16_t gfx_get_palettecolor(uint8_t color_idx){
     func_data->hdr.func_id = 3;
     func_data->color_idx=color_idx;
 
-    result_code = *call_function;
-    return *((uint16_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN));
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
+
+    {
+        uint16_t call_result = (uint16_t)*mem_call_result;
+        return call_result;
+    }
 }   
 // returns: void f-grp:1 f-id:4
 void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx){
@@ -50,8 +64,12 @@ void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_
     func_data->asset_id=asset_id;
     func_data->fill_unused_with_idx=fill_unused_with_idx;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
 // returns: void f-grp:1 f-id:5
 void     gfx_set_font_from_asset(uint8_t asset_id){
@@ -62,8 +80,12 @@ void     gfx_set_font_from_asset(uint8_t asset_id){
     func_data->hdr.func_id = 5;
     func_data->asset_id=asset_id;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
 // returns: uint8_t f-grp:1 f-id:6
 uint8_t  gfx_get_pixel(uint16_t x, uint16_t y){
@@ -75,8 +97,13 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y){
     func_data->x=x;
     func_data->y=y;
 
-    result_code = *call_function;
-    return *((uint8_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN));
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+        return call_result;
+    }
 }   
 // returns: void f-grp:1 f-id:7
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx){
@@ -89,8 +116,12 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx){
     func_data->y=y;
     func_data->color_idx=color_idx;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
 // returns: void f-grp:1 f-id:8
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx){
@@ -104,10 +135,15 @@ void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx){
     func_data->ch=ch;
     func_data->color_idx=color_idx;
 
-    result_code = *call_function;
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
 
+    {
+
+    }
 }   
-// returns: bool f-grp:2 f-id:1
+
+// returns: bool f-grp:1 f-id:1
 bool io_keyboard_is_pressed(uint8_t keycode){
     uint8_t result_code;
     call_io_keyboard_is_pressed_t* func_data;
@@ -116,10 +152,15 @@ bool io_keyboard_is_pressed(uint8_t keycode){
     func_data->hdr.func_id = 1;
     func_data->keycode=keycode;
 
-    result_code = *call_function;
-    return *((bool*)(MEMORY_MAP_CALL_BUFFER_BEGIN));
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
+
+    {
+        bool call_result = (bool)*mem_call_result;
+        return call_result;
+    }
 }   
-// returns: bool f-grp:2 f-id:2
+// returns: bool f-grp:1 f-id:2
 bool io_keyboard_is_down(uint8_t keycode){
     uint8_t result_code;
     call_io_keyboard_is_down_t* func_data;
@@ -128,10 +169,15 @@ bool io_keyboard_is_down(uint8_t keycode){
     func_data->hdr.func_id = 2;
     func_data->keycode=keycode;
 
-    result_code = *call_function;
-    return *((bool*)(MEMORY_MAP_CALL_BUFFER_BEGIN));
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
+
+    {
+        bool call_result = (bool)*mem_call_result;
+        return call_result;
+    }
 }   
-// returns: bool f-grp:2 f-id:3
+// returns: bool f-grp:1 f-id:3
 bool io_keyboard_is_released(uint8_t keycode){
     uint8_t result_code;
     call_io_keyboard_is_released_t* func_data;
@@ -140,7 +186,12 @@ bool io_keyboard_is_released(uint8_t keycode){
     func_data->hdr.func_id = 3;
     func_data->keycode=keycode;
 
-    result_code = *call_function;
-    return *((bool*)(MEMORY_MAP_CALL_BUFFER_BEGIN));
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?
+
+    {
+        bool call_result = (bool)*mem_call_result;
+        return call_result;
+    }
 }   
 

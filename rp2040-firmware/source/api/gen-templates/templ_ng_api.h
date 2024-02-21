@@ -43,13 +43,14 @@ typedef struct call_header_t {
     uint8_t func_id;
 } call_header_t;
 
-/*block:function*/ // returns: /*name:return_type*/void/*endname*/ f-grp:/*name:function_group*/1/*endname*/ f-id:/*name:function_id*/2/*endname*/;
-/*name:signature*/void gfx_set_palette_from_assset_t(uint8_t some_byte)/*endname*/;
-/*endblock:function*/
 
-typedef struct call_prototype_t {
-    uint8_t data;
-} call_prototype_t;
+/*block:function-group*/
+
+// function grp: /*name:id*/0/*endname*/
+
+/*block:function*/ // returns: /*name:return_type*/void/*endname*/ f-grp:/*name:function_group*/1/*endname*/ f-id:/*name:function_id*/2/*endname*/;
+/*name:return_type*/void/*endname*/ /*name:signature*/ do_somedata(uint8_t some_byte)/*endname*/;
+/*endblock:function*/
 
 /*block:function*/// returns: /*name:return_type*/void/*endname*/ f-grp:/*name:function_group*/1/*endname*/ f-id:/*name:function_id*/2/*endname*/
 typedef struct /*name:name|pre:call_|post:_t*/somedata_t/*endname*/ {
@@ -57,6 +58,8 @@ typedef struct /*name:name|pre:call_|post:_t*/somedata_t/*endname*/ {
 /*block:parameter*/    /*name:type*/uint8_t/*endname*/ /*name:name*/some_byte/*endname*/;
 /*endblock:parameter*/} /*name:name|pre:call_|post:_t*/somedata_t/*endname*/;
 /*endblock:function*/
+
+/*endblock:function-group*/
 
 /*endblock:gluecode*/
 

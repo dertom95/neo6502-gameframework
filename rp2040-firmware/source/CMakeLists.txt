@@ -32,6 +32,7 @@ add_executable(neo6502firmware
 	ng_mem.c
 	ng_assets.c
 
+	api/gen/memory_call_function.cmake_host_system_information()
 
 	game/game.c
 

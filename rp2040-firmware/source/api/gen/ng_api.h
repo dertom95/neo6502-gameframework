@@ -43,73 +43,65 @@ typedef struct call_header_t {
     uint8_t func_id;
 } call_header_t;
 
- // returns: void f-grp:1 f-id:1;
+// function grp: 1
+
+ // returns: void f-grp: f-id:1;
 void gfx_renderqueue_apply(void);
- // returns: void f-grp:1 f-id:2;
+ // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
- // returns: uint16_t f-grp:1 f-id:3;
+ // returns: uint16_t f-grp: f-id:3;
 uint16_t gfx_get_palettecolor(uint8_t color_idx);
- // returns: void f-grp:1 f-id:4;
+ // returns: void f-grp: f-id:4;
 void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx);
- // returns: void f-grp:1 f-id:5;
+ // returns: void f-grp: f-id:5;
 void     gfx_set_font_from_asset(uint8_t asset_id);
- // returns: uint8_t f-grp:1 f-id:6;
+ // returns: uint8_t f-grp: f-id:6;
 uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
- // returns: void f-grp:1 f-id:7;
+ // returns: void f-grp: f-id:7;
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
- // returns: void f-grp:1 f-id:8;
+ // returns: void f-grp: f-id:8;
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
- // returns: bool f-grp:2 f-id:1;
-bool io_keyboard_is_pressed(uint8_t keycode);
- // returns: bool f-grp:2 f-id:2;
-bool io_keyboard_is_down(uint8_t keycode);
- // returns: bool f-grp:2 f-id:3;
-bool io_keyboard_is_released(uint8_t keycode);
 
-typedef struct call_prototype_t {
-    uint8_t data;
-} call_prototype_t;
-
-// returns: void f-grp:1 f-id:1
+// returns: void f-grp: f-id:1
 typedef struct call_gfx_renderqueue_apply_t {
     call_header_t hdr;
 } call_gfx_renderqueue_apply_t;
-// returns: void f-grp:1 f-id:2
+// returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;
     uint8_t color_idx;
     uint16_t color565;
 } call_gfx_set_palettecolor_t;
-// returns: uint16_t f-grp:1 f-id:3
+// returns: uint16_t f-grp: f-id:3
 typedef struct call_gfx_get_palettecolor_t {
     call_header_t hdr;
     uint8_t color_idx;
 } call_gfx_get_palettecolor_t;
-// returns: void f-grp:1 f-id:4
+// returns: void f-grp: f-id:4
 typedef struct call_gfx_set_palette_from_assset_t {
     call_header_t hdr;
     uint8_t asset_id;
     uint8_t fill_unused_with_idx;
 } call_gfx_set_palette_from_assset_t;
-// returns: void f-grp:1 f-id:5
+// returns: void f-grp: f-id:5
 typedef struct call_gfx_set_font_from_asset_t {
     call_header_t hdr;
     uint8_t asset_id;
 } call_gfx_set_font_from_asset_t;
-// returns: uint8_t f-grp:1 f-id:6
+// returns: uint8_t f-grp: f-id:6
 typedef struct call_gfx_get_pixel_t {
     call_header_t hdr;
     uint16_t x;
     uint16_t y;
 } call_gfx_get_pixel_t;
-// returns: void f-grp:1 f-id:7
+// returns: void f-grp: f-id:7
 typedef struct call_gfx_draw_pixel_t {
     call_header_t hdr;
     uint16_t x;
     uint16_t y;
     uint8_t color_idx;
 } call_gfx_draw_pixel_t;
-// returns: void f-grp:1 f-id:8
+// returns: void f-grp: f-id:8
 typedef struct call_gfx_draw_char_t {
     call_header_t hdr;
     uint16_t x;
@@ -117,17 +109,27 @@ typedef struct call_gfx_draw_char_t {
     char ch;
     uint8_t color_idx;
 } call_gfx_draw_char_t;
-// returns: bool f-grp:2 f-id:1
+
+// function grp: 2
+
+ // returns: bool f-grp: f-id:1;
+bool io_keyboard_is_pressed(uint8_t keycode);
+ // returns: bool f-grp: f-id:2;
+bool io_keyboard_is_down(uint8_t keycode);
+ // returns: bool f-grp: f-id:3;
+bool io_keyboard_is_released(uint8_t keycode);
+
+// returns: bool f-grp: f-id:1
 typedef struct call_io_keyboard_is_pressed_t {
     call_header_t hdr;
     uint8_t keycode;
 } call_io_keyboard_is_pressed_t;
-// returns: bool f-grp:2 f-id:2
+// returns: bool f-grp: f-id:2
 typedef struct call_io_keyboard_is_down_t {
     call_header_t hdr;
     uint8_t keycode;
 } call_io_keyboard_is_down_t;
-// returns: bool f-grp:2 f-id:3
+// returns: bool f-grp: f-id:3
 typedef struct call_io_keyboard_is_released_t {
     call_header_t hdr;
     uint8_t keycode;

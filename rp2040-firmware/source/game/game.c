@@ -6,7 +6,7 @@
 
 #include "../ng_gfx.h"
 #include "../ng_io.h"
-#include "../api/ng_api.h"
+#include "../api/gen/ng_api.h"
 #include "../ng_assets.h"
 #include "../ng_utils.h"
 #include <assert.h>

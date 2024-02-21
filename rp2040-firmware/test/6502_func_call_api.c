@@ -71,6 +71,10 @@ int main(){
     uint8_t pos_x;
     uint8_t rows;
     uint8_t* tile_map = (uint8_t*)MEMORY_TILEAREA_BEGIN;
+    uint8_t col;
+    volatile uint16_t* mouse_x = (uint16_t*)MM_MOUSE_X;
+    volatile uint16_t* mouse_y = (uint16_t*)MM_MOUSE_Y;
+
     uint8_t palette;
 
     palette = ASSET_COLOR_PALETTE;
@@ -78,22 +82,29 @@ int main(){
     rows = 0;
     pos_x = 0;
 
-    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE_SMALL,0);
+
+    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,2);
 
     while (1){
-        //if(!(timer--))
+        // //if(!(timer--))
+        // {
+        //     pos_x++;
+        //     *(tile_map+10*40+pos_x)=pos_x+rows;        
+        //     if (rows>=100){
+        //         rows=0;
+        //     }
+        //     if (pos_x==0){
+        //         rows++;
+        //         palette = (palette == ASSET_COLOR_PALETTE_SMALL) ? ASSET_COLOR_PALETTE : ASSET_COLOR_PALETTE_SMALL;
+        //         gfx_set_palette_from_assset(palette,1);                
+        //     }
+        //     //draw_char(20,20,'H',3);
+        // }
+
         {
-            pos_x++;
-            *(tile_map+10*40+pos_x)=pos_x+rows;        
-            if (rows>=100){
-                rows=0;
-            }
-            if (pos_x==0){
-                rows++;
-                palette = (palette == ASSET_COLOR_PALETTE_SMALL) ? ASSET_COLOR_PALETTE : ASSET_COLOR_PALETTE_SMALL;
-                gfx_set_palette_from_assset(palette,0);                
-            }
-            //draw_char(20,20,'H',3);
+            uint8_t x = *mouse_x / 8;
+            uint8_t y = *mouse_y / 8;
+            *(tile_map+y*40+x)=col++;
         }
 
     }

@@ -7,7 +7,6 @@
 #include "memory.h"
 #include <stdint.h>
 #include "../../test/gen_prg1.h"
-#include "../gen/ng_api.h"
 
 #include <string.h>
 
