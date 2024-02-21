@@ -20,8 +20,6 @@ add_executable(neo6502firmware
 	core/memory.c
 	core/backend/cpu/wdc65C02cpu.c
 	core/roms.c
-	../test/gen_prg1.c
-	../mod/export/assets.c
 	
 
 	ng_gfx.c

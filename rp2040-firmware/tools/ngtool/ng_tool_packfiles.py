@@ -11,6 +11,7 @@ def pack_files(args):
             filepaths.append(path)
 
     num_files = len(filepaths)
+
     asset_offsets = []
     file_data = []
 
@@ -20,18 +21,29 @@ def pack_files(args):
             file_data.append(file_content)
 
     with open(args.output, 'wb') as outfile:
+        def allign():
+            pos = outfile.tell()
+            modulo = pos%4 # align to 4byte
+            if modulo!=0:
+                for i in range(4-modulo):
+                    outfile.write(struct.pack('B', 0))
+
         # Write the number of files merged into the file
         outfile.write(struct.pack('B', num_files))
 
         # Write the file data
         for data in file_data:
-            pos = outfile.tell()
-            padding = 0
-            if (pos&1)==1:
-                outfile.write(struct.pack('B', 0))
+            allign()
 
             asset_offsets.append((outfile.tell(),len(data)))
             outfile.write(data)
+
+
+        allign()
+        for pos,size in asset_offsets:
+            outfile.write(struct.pack('I', pos))
+        for pos,size in asset_offsets:
+            outfile.write(struct.pack('I', size))
 
     write_header_file(args.output, filepaths, asset_offsets)
 

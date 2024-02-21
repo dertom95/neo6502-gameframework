@@ -28,15 +28,8 @@ kinc-build: kinc_get
 	cd build-scripts/kinc && tmp/Kinc/make  --to ../../build-kinc --target linux --graphics opengl --compile		
 
 assets-create:
-	cd mod && make assets-clear assets-pack
-
-	# mkdir -p temp
-	# 3rd/PicoDVI/software/scripts/packtiles --format r1 3rd/PicoDVI/software/assets/font_8x8.png temp/font8.bin 
-	# bin2c temp/font8.bin -H source/gen/font_8.h
-
-	# python3 tools/create_palette.py resources/palette_pico-8_duel-1x.png source/gen/color_palette.h color_palette
-
-	# python3 tools/ng_tool.py --convert-palette --input 
+	# todo: get rid of intermediate step to pack assets twice (once without code and once with code compiled)
+	cd mod && make assets-clear assets-pack-no-code assets-pack
 
 gluecode-create:
 	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_gfx.h source/ng_io.h --output tools/generator/input/glue.xml

@@ -11,23 +11,16 @@
 #include "../ng_utils.h"
 #include <assert.h>
 
+#define INCLUDE_DATA
+#include "../../mod/export/assets.h"
+#include "../../mod/export/assets.c"
+
 // assets
 // #include "../../mod/export/font.h"
 // #include "../../mod/export/color_palette.h"
 // #include "../../mod/export/color_palette_small.h"
 // #include "../../mod/export/sprites_misc.h"
 // #include "../../mod/export/old_guy.h"
-
-#include "../../mod/export/assets.h"
-
-assetpack_t assets = {
-    .asset_amount = ASSETS_AMOUNT,
-    .data = assets_data,
-    .sizes = assets_sizes,
-    .offsets = assets_offsets
-};
-
-
 
 int16_t posx=0;
 int16_t posy=0;
@@ -70,7 +63,7 @@ gfx_sprite_buffer_t sprite_buffer = {
 
 void game_init()
 {
-    assets_set_current_pack(&assets);
+    assets_set_current_pack((void*)assets_data,sizeof(assets_data));
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
 

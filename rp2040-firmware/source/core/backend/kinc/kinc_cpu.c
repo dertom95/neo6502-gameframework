@@ -58,7 +58,11 @@ long long diff = 0;
 uint32_t ns_timer = 0;
 
 uint32_t counter2 = 0;
-void ng_cpu_update(){
+void ng_cpu_update(void){
+    if (!cpu_running){
+        return;
+    }
+    
     long long tick = get_ns();
     diff = tick - last_ns;
     last_ns = tick;

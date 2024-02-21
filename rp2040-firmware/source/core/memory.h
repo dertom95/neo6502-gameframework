@@ -23,16 +23,11 @@ extern uint32_t last_address;
 extern uint8_t  last_data;
 //extern uint8_t write_data;
 
-uint8_t call_function();
 void memory_write_data(uint32_t address,uint8_t data);
 uint8_t memory_read_data(uint32_t address);
-
-//externally supplied functions
 void memory_init();
+uint8_t call_function(); // generated
 
-// void readmemory();
-
-// void writememory();
 
 #ifdef __cplusplus
 }

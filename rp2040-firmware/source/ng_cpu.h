@@ -1,7 +1,12 @@
 #ifndef __NG_CPU_H_
 #define __NG_CPU_H_
 
-void ng_cpu_init();
-void ng_cpu_update();
+#include <stdbool.h>
+
+extern bool cpu_running;
+
+void ng_cpu_init(void);
+void ng_cpu_start(void);
+void ng_cpu_update(void);
 
 #endif

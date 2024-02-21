@@ -6,15 +6,20 @@ NG_TOOL := python3 $(MOD_DIR)/../tools/ngtool/ng_tool.py
 initialize:
 	mkdir -p $(MOD_DIR)/temp
 	mkdir -p $(MOD_DIR)/export
+	mkdir -p $(MOD_DIR)/source
 	mkdir -p $(ASSET_FOLDER)/fonts
 	mkdir -p $(ASSET_FOLDER)/sprites
 	mkdir -p $(ASSET_FOLDER)/tiles
 	mkdir -p $(ASSET_FOLDER)/palette
 
+source-compile:
+	cc65 -Osir source/main.c --add-source -I../source/api -I. -o temp/main.s
+	ca65 -g -l basic.lst --feature labels_without_colons temp/main.s
+	ld65 -C $(MOD_DIR)/../tools/cc65/cc65-mem-usercode.cfg -o temp/code.bin temp/main.o none.lib
+
 assets-create: initialize
 #	../3rd/PicoDVI/software/scripts/packtiles --format r1 $(ASSET_FOLDER)/fonts/font_8x8.png temp/font8.bin 
 #	bin2c temp/font8.bin -H $(EXPORT_FOLDER)/font.h
-
 	../3rd/PicoDVI/software/scripts/packtiles --format r1 $(ASSET_FOLDER)/fonts/font_8x8.png $(EXPORT_FOLDER)/font8.bin 
 
 	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette.png --output $(EXPORT_FOLDER)/color_palette.bin --binary
@@ -36,11 +41,24 @@ assets-create: initialize
 									--output $(EXPORT_FOLDER)/old_guy.bin \
 									--binary
 
-assets-pack: assets-create
-	$(NG_TOOL) pack-files $(EXPORT_FOLDER)/*.bin --output $(EXPORT_FOLDER)/assets.dat
+
+check_code_bin:
+	@if [ ! -f temp/code.bin ]; then \
+		echo "Creating code.bin..."; \
+		touch temp/code.bin; \
+		else \
+		echo "code.bin already exists."; \
+	fi
+
+assets-pack-no-code: check_code_bin
+	$(NG_TOOL) pack-files temp/code.bin $(EXPORT_FOLDER)/*.bin --output $(EXPORT_FOLDER)/assets.dat
+
+assets-pack: assets-create  source-compile
+	$(NG_TOOL) pack-files temp/code.bin $(EXPORT_FOLDER)/*.bin --output $(EXPORT_FOLDER)/assets.dat
 									
 assets-clear: 
 	-rm $(EXPORT_FOLDER)/*
+	-rm $(MOD_DIR)/temp
 #bin2c export/old_guy.bin -H export/old_guy.h
 #bin2c export/sprites_misc.bin -H export/sprites_misc.h
 

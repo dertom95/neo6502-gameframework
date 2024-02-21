@@ -2,6 +2,17 @@
 {
     "configurations": [
         {
+            "name": "6502-src",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/source/api",
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c89",
+            "intelliSenseMode": "gcc-x64"
+        },        
+        {
             "name": "Kinc",
             "includePath": [
                 "${workspaceFolder}/**",

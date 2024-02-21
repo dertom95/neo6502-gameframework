@@ -37,7 +37,7 @@ const uint8_t vectors_bin[] = {
 ///  the ROM images to load
 /// </summary>
 sROMImage ROMs[] = {
-  { "my_prog", 0x1000, sizeof(bin2c_prg1_bin), bin2c_prg1_bin },
+ // { "my_prog", 0x1000, sizeof(bin2c_prg1_bin), bin2c_prg1_bin },
   { "Vectors",          0xFFFA,        0X0006,       vectors_bin },
   { "", 0x0000, 0x0000 }
 };
