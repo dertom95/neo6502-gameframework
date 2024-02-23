@@ -9,6 +9,9 @@ void ng_cpu_init(void){
 }
 
 void ng_cpu_update(){
+    if (!cpu_running){
+        return;
+    }
     tick6502();
 }
 

@@ -4,6 +4,8 @@
 #define __NG_API_H_
 
 #include "../ng_config.h"
+#include "../../ng_io.h"
+#include "../../ng_gfx.h"
 
 #define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
 #define MM_KEYSET       (MM_SB + 0x01)      // uint8
@@ -13,11 +15,11 @@
 #define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
 #define MM_FUNC_CALL    (MM_SB + 0x08)      // uint8 
 
-#define MOUSE_BUTTON_LEFT     = (1 << 0), ///< Left button
-#define MOUSE_BUTTON_RIGHT    = (1 << 1), ///< Right button
-#define MOUSE_BUTTON_MIDDLE   = (1 << 2), ///< Middle button
-#define MOUSE_BUTTON_BACKWARD = (1 << 3), ///< Backward button,
-#define MOUSE_BUTTON_FORWARD  = (1 << 4), ///< Forward button,
+#define MOUSE_BUTTON_LEFT      (1 << 0) ///< Left button
+#define MOUSE_BUTTON_RIGHT     (1 << 1) ///< Right button
+#define MOUSE_BUTTON_MIDDLE    (1 << 2) ///< Middle button
+#define MOUSE_BUTTON_BACKWARD  (1 << 3) ///< Backward button,
+#define MOUSE_BUTTON_FORWARD   (1 << 4) ///< Forward button,
 
 #define PALETTE_SIZE 255
 #define COL_TRANSPARENT 0
@@ -55,7 +57,7 @@ typedef struct call_header_t {
 /*block:function*/// returns: /*name:return_type*/void/*endname*/ f-grp:/*name:function_group*/1/*endname*/ f-id:/*name:function_id*/2/*endname*/
 typedef struct /*name:name|pre:call_|post:_t*/somedata_t/*endname*/ {
     call_header_t hdr;
-/*block:parameter*/    /*name:type*/uint8_t/*endname*/ /*name:name*/some_byte/*endname*/;
+/*block:parameter*/    /*name:type|if:@type.endswith("*"),uint16_t,@type*/uint8_t/*endname*/ /*name:name*/some_byte/*endname*/;
 /*endblock:parameter*/} /*name:name|pre:call_|post:_t*/somedata_t/*endname*/;
 /*endblock:function*/
 

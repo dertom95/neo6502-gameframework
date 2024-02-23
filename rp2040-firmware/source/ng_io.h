@@ -4,6 +4,7 @@
 #include<stdint.h>
 #include<stdbool.h>
 
+#include "api/ng_config.h"
 
 extern int16_t mouse_x;
 extern int16_t mouse_y;
@@ -29,6 +30,15 @@ bool io_mouse_connected(void);
 /*api:2:2*/bool io_keyboard_is_down(uint8_t keycode);
 // key is just released
 /*api:2:3*/bool io_keyboard_is_released(uint8_t keycode);
+
+/// @brief register keyboardmappings to the system
+/// @param address 
+/// @param amount 
+/*api:2:4*/void io_keyboardmapping_register(keyboard_mapping_t* address, uint8_t amount);
+
+/// @brief Unregisters the current keyboard mapping!
+/*api:2:5*/void   io_keyboardmapping_unregister(void);
+
 // converts keycode to ascii
 uint8_t io_keycode_to_ascii(uint8_t keycode);
 

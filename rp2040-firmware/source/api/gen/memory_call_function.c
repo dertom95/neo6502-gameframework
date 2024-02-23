@@ -1,5 +1,4 @@
-#ifndef __MEMORY_CALL_FUNCTION_IMPL_
-#define __MEMORY_CALL_FUNCTION_IMPL_
+
 
 #include "ng_api.h"
 #include "../../core/memory.h"
@@ -22,14 +21,14 @@ uint8_t call_function()
 
             case 2: {
                 call_gfx_set_palettecolor_t* call = (call_gfx_set_palettecolor_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_set_palettecolor(call->color_idx,  swap16(call->color565)  );
+                  gfx_set_palettecolor(  call->color_idx  ,    swap16(call->color565)    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 3: {
                 call_gfx_get_palettecolor_t* call = (call_gfx_get_palettecolor_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                uint16_t call_result =  gfx_get_palettecolor(call->color_idx  );
+                uint16_t call_result =  gfx_get_palettecolor(  call->color_idx    );
                 *((uint16_t*)call_buffer_return)=swap16(call_result);
 
                 return FUNCTION_RETURN_OK;
@@ -37,36 +36,37 @@ uint8_t call_function()
 
             case 4: {
                 call_gfx_set_palette_from_assset_t* call = (call_gfx_set_palette_from_assset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_set_palette_from_assset(call->asset_id,  call->fill_unused_with_idx  );
+                  gfx_set_palette_from_assset(  call->asset_id  ,    call->fill_unused_with_idx    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 5: {
                 call_gfx_set_font_from_asset_t* call = (call_gfx_set_font_from_asset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_set_font_from_asset(call->asset_id  );
+                  gfx_set_font_from_asset(  call->asset_id    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 6: {
                 call_gfx_get_pixel_t* call = (call_gfx_get_pixel_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                uint8_t call_result =  gfx_get_pixel(swap16(call->x),  swap16(call->y)  );
+                uint8_t call_result =  gfx_get_pixel(  swap16(call->x)  ,    swap16(call->y)    );
 
                 *call_buffer_return=call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
             case 7: {
                 call_gfx_draw_pixel_t* call = (call_gfx_draw_pixel_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_draw_pixel(swap16(call->x),  swap16(call->y),  call->color_idx  );
+                  gfx_draw_pixel(  swap16(call->x)  ,    swap16(call->y)  ,    call->color_idx    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 8: {
                 call_gfx_draw_char_t* call = (call_gfx_draw_char_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_draw_char(swap16(call->x),  swap16(call->y),  call->ch,  call->color_idx  );
+                  gfx_draw_char(  swap16(call->x)  ,    swap16(call->y)  ,    call->ch  ,    call->color_idx    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -79,21 +79,38 @@ uint8_t call_function()
 
             case 1: {
                 call_io_keyboard_is_pressed_t* call = (call_io_keyboard_is_pressed_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                bool call_result =  io_keyboard_is_pressed(call->keycode  );
+                bool call_result =  io_keyboard_is_pressed(  call->keycode    );
 
+                *call_buffer_return=(uint8_t)call_result;
                 return FUNCTION_RETURN_OK;
             }
 
             case 2: {
                 call_io_keyboard_is_down_t* call = (call_io_keyboard_is_down_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                bool call_result =  io_keyboard_is_down(call->keycode  );
+                bool call_result =  io_keyboard_is_down(  call->keycode    );
 
+                *call_buffer_return=(uint8_t)call_result;
                 return FUNCTION_RETURN_OK;
             }
 
             case 3: {
                 call_io_keyboard_is_released_t* call = (call_io_keyboard_is_released_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                bool call_result =  io_keyboard_is_released(call->keycode  );
+                bool call_result =  io_keyboard_is_released(  call->keycode    );
+
+                *call_buffer_return=(uint8_t)call_result;
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 4: {
+                call_io_keyboardmapping_register_t* call = (call_io_keyboardmapping_register_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  io_keyboardmapping_register( (keyboard_mapping_t*)(&mem[ call->address ]) ,    call->amount    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 5: {
+                call_io_keyboardmapping_unregister_t* call = (call_io_keyboardmapping_unregister_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  io_keyboardmapping_unregister();
 
                 return FUNCTION_RETURN_OK;
             }
@@ -104,4 +121,3 @@ uint8_t call_function()
     return FUNCTION_RETURN_ERROR;
 }
 
-#endif

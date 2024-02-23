@@ -27,9 +27,12 @@ kinc_get:
 kinc-build: kinc_get
 	cd build-scripts/kinc && tmp/Kinc/make  --to ../../build-kinc --target linux --graphics opengl --compile		
 
-assets-create:
+mod-assets-create:
 	# todo: get rid of intermediate step to pack assets twice (once without code and once with code compiled)
 	cd mod && make assets-clear assets-pack-no-code assets-pack
+
+mod-source-compile:
+	cd mod && make source-compile
 
 gluecode-create:
 	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_gfx.h source/ng_io.h --output tools/generator/input/glue.xml

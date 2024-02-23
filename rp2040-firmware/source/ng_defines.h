@@ -6,6 +6,26 @@
 #include <stdbool.h>
 #include <assert.h>
 
+// userspace address (6502)=>16bit
+typedef uint8_t* US_ADDRESS;
+
+#define ASSERT_MODE_STRICT
+#define LITTLEENDIAN
+
+#ifdef ASSERT_MODE_STRICT
+# define ASSERT_STRICT(X) assert(X)
+#else
+# define ASSERT_STRICT(X) void
+#endif
+
+#ifdef LITTLEENDIAN
+// no need to swap
+# define swap16(val) (val)
+#else
+# define swap16(val) (val << 8) | (val >> 8)
+#endif
+
+
 #ifdef PICO_NEO6502
 # include "pico/platform.h"
 #else

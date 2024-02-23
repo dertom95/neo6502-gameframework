@@ -4,6 +4,8 @@
 #define __NG_API_H_
 
 #include "../ng_config.h"
+#include "../../ng_io.h"
+#include "../../ng_gfx.h"
 
 #define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
 #define MM_KEYSET       (MM_SB + 0x01)      // uint8
@@ -13,11 +15,11 @@
 #define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
 #define MM_FUNC_CALL    (MM_SB + 0x08)      // uint8 
 
-#define MOUSE_BUTTON_LEFT     = (1 << 0), ///< Left button
-#define MOUSE_BUTTON_RIGHT    = (1 << 1), ///< Right button
-#define MOUSE_BUTTON_MIDDLE   = (1 << 2), ///< Middle button
-#define MOUSE_BUTTON_BACKWARD = (1 << 3), ///< Backward button,
-#define MOUSE_BUTTON_FORWARD  = (1 << 4), ///< Forward button,
+#define MOUSE_BUTTON_LEFT      (1 << 0) ///< Left button
+#define MOUSE_BUTTON_RIGHT     (1 << 1) ///< Right button
+#define MOUSE_BUTTON_MIDDLE    (1 << 2) ///< Middle button
+#define MOUSE_BUTTON_BACKWARD  (1 << 3) ///< Backward button,
+#define MOUSE_BUTTON_FORWARD   (1 << 4) ///< Forward button,
 
 #define PALETTE_SIZE 255
 #define COL_TRANSPARENT 0
@@ -118,6 +120,10 @@ bool io_keyboard_is_pressed(uint8_t keycode);
 bool io_keyboard_is_down(uint8_t keycode);
  // returns: bool f-grp: f-id:3;
 bool io_keyboard_is_released(uint8_t keycode);
+ // returns: void f-grp: f-id:4;
+void io_keyboardmapping_register(keyboard_mapping_t* address, uint8_t amount);
+ // returns: void f-grp: f-id:5;
+void   io_keyboardmapping_unregister(void);
 
 // returns: bool f-grp: f-id:1
 typedef struct call_io_keyboard_is_pressed_t {
@@ -134,5 +140,15 @@ typedef struct call_io_keyboard_is_released_t {
     call_header_t hdr;
     uint8_t keycode;
 } call_io_keyboard_is_released_t;
+// returns: void f-grp: f-id:4
+typedef struct call_io_keyboardmapping_register_t {
+    call_header_t hdr;
+    uint16_t address;
+    uint8_t amount;
+} call_io_keyboardmapping_register_t;
+// returns: void f-grp: f-id:5
+typedef struct call_io_keyboardmapping_unregister_t {
+    call_header_t hdr;
+} call_io_keyboardmapping_unregister_t;
 
 #endif

@@ -133,7 +133,8 @@
         "ng_cpu.h": "c",
         "ng_assets.h": "c",
         "assets.h": "c",
-        "templ_ng_api.h": "c"
+        "templ_ng_api.h": "c",
+        "ng_defines.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

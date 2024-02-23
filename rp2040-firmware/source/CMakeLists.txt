@@ -23,6 +23,7 @@ add_executable(neo6502firmware
 	
 
 	ng_gfx.c
+	ng_cpu.c
 	ng_sound.c
 	ng_utils.c
 	ng_io.c

@@ -43,11 +43,11 @@ def simple_glue(input_paths,output_file):
                     xfunction_group = function_groups[function_group]
 
                 # use regex to match the return type, function name and parameters
-                match = re.match(r"(\w+)\s+(\w+)\((.*)\);", line)
+                match = re.match(r"(\w+\s*\*?)\s+(\w+)\((.*)\);", line)
                 if match:
                     # get the return type, function name and parameters
-                    return_type = match.group(1)
-                    function_name = match.group(2)
+                    return_type = match.group(1).strip()
+                    function_name = match.group(2).strip()
                     parameters = match.group(3).split(",")
                     # create function element
                     function = ET.SubElement(xfunction_group, "function")
@@ -62,11 +62,12 @@ def simple_glue(input_paths,output_file):
                     # loop through the parameters
                     for parameter in parameters:
                         # use regex to match the parameter type and name
-                        match = re.match(r"(\w+)\s+(\w+)", parameter.strip())
+                        match = re.match(r"(\w+\s*\*?)\s+(\w+)", parameter.strip())                        
+                        #match = re.match(r"(\w+)\s+(\w+)", parameter.strip())
                         if match:
                             # get the parameter type and name
-                            parameter_type = match.group(1)
-                            parameter_name = match.group(2)
+                            parameter_type = match.group(1).strip()
+                            parameter_name = match.group(2).strip()
                             # create parameter element
                             parameter_element = ET.SubElement(function, "parameter")
                             # set the name and type attributes

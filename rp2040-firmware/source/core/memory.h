@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#define swap16(val) (val << 8) | (val >> 8)
+
 
 
 

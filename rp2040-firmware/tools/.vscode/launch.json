@@ -84,7 +84,8 @@
             "program": "${workspaceFolder}/ngtool/ng_tool.py",
             "args": [
                 "create-gluecode",
-                "${workspaceFolder}/../source/ng_gfx.h","${workspaceFolder}/../source/ng_io.h",
+                //"${workspaceFolder}/../source/ng_gfx.h",
+                "${workspaceFolder}/../source/ng_io.h",
                 "--output","${workspaceFolder}/generator/input/glue.xml"
             ]
         },

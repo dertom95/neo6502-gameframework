@@ -14,10 +14,10 @@ const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFF
     func_data = (/*name:name|pre:call_|post:_t*/somedata_t/*endname*/*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = /*name:function_group|auto|echo:%s,@function-group.id*/1/*endname*/;
     func_data->hdr.func_id = /*name:function_id*/1/*endname*/;
-/*block:parameter*/    func_data->/*name:name*/some_byte/*endname*/=/*name:name*/some_byte/*endname*/;
+/*block:parameter*/    func_data->/*name:name*/some_byte/*endname*/=/*name:type|if:@type.endswith("*"),(uint16_t),*//*endname*/ /*name:name*/some_byte/*endname*/;
 /*endblock:parameter*/    
     result_code = *mem_call_function;
-    // TODO: resultcode some error checking?
+    // TODO: resultcode some error checking?!
 
     {
         /*name:if|auto|if:@return_type!='void',@return_type call_result = (@return_type)*mem_call_result;,*//*endname*/

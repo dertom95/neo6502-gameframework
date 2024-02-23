@@ -2,6 +2,7 @@
 #define __NG_CONFIG_H_
 
 #include "../ng_defines.h"
+#include "ng_api_shared.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240

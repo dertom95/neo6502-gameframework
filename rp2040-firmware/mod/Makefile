@@ -13,7 +13,7 @@ initialize:
 	mkdir -p $(ASSET_FOLDER)/palette
 
 source-compile:
-	cc65 -Osir source/main.c --add-source -I../source/api -I. -o temp/main.s
+	cc65 -Osir source/main.c --add-source -I../source/api -I. -o temp/main.s --standard c99
 	ca65 -g -l basic.lst --feature labels_without_colons temp/main.s
 	ld65 -C $(MOD_DIR)/../tools/cc65/cc65-mem-usercode.cfg -o temp/code.bin temp/main.o none.lib
 
