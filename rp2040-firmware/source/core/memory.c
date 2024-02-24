@@ -29,8 +29,19 @@ uint8_t mem[CPU6502_MEMORY_SIZE] __attribute__((aligned(16)));
 uint32_t last_address;
 uint8_t last_data;
 
+// memorymapped variables
 uint16_t* mm_cycle_ticks;
 uint16_t* mm_ms_delta;
+
+int16_t* mm_mouse_x=NULL;
+int16_t* mm_mouse_y=NULL;
+uint8_t* mm_mouse_btn_state=NULL;
+int8_t*  mm_mouse_wheel=NULL;
+uint8_t* mm_keyboard_last_pressed_keycode = NULL;
+char*    mm_keyboard_last_pressed_char = NULL;
+
+
+
 /// <summary>
 /// initialise memory
 /// </summary>
@@ -46,8 +57,22 @@ void memory_init() {
   mm_cycle_ticks = (uint16_t*)&mem[MM_CYCLE_TICKS];
   *mm_cycle_ticks=0;
 
+
+  mm_keyboard_last_pressed_char = MEM6502_CHPTR(MM_LAST_KB_CHAR);
+  *mm_keyboard_last_pressed_char=0;
+  mm_keyboard_last_pressed_keycode = MEM6502_U8PTR(MM_LAST_KB_KEYCODE);
+  *mm_keyboard_last_pressed_keycode=0;
+  
   mm_ms_delta = (uint16_t*)&mem[MM_MS_DELTA];
   *mm_ms_delta=0;
+  mm_mouse_btn_state = MEM6502_U8PTR(MM_MOUSE_BTN);
+  *mm_mouse_btn_state = 0;
+  mm_mouse_wheel = MEM6502_I8PTR(MM_MOUSE_WHEEL);
+  *mm_mouse_wheel = 0;
+  mm_mouse_x = MEM6502_I16PTR(MM_MOUSE_X);
+  *mm_mouse_x=0;
+  mm_mouse_y = MEM6502_I16PTR(MM_MOUSE_Y);
+  *mm_mouse_y=0;
 
 
   // lets install some ROMS
@@ -58,7 +83,7 @@ void memory_init() {
 
 void __not_in_flash_func(memory_write_data)(uint32_t address,uint8_t data) {
   last_address=address;
-  if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
+  if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
     // memory map
   }
   if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
@@ -72,34 +97,16 @@ void __not_in_flash_func(memory_write_data)(uint32_t address,uint8_t data) {
 }
 
 
-#define CASE_16BIT(NAME,variable) \
-        case NAME: return last_data = (variable & 0x00ff); \
-        case NAME+1: return last_data = (variable & 0xff00)>>8; \
-
-#define CASE_8BIT(NAME,variable) \
-        case NAME: return last_data = (variable);
-
 uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
   last_address = address;
   // memory map
-  // TODO: This is all obsolete! Just put the variable in the userspace memorymap and you are done!
-  //       only use real function-callmapping like this
-  if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
+  if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
     switch (address) {
-        //CASE_8BIT(MM_KEYSET,last_pressed_key)
-        case (MM_KEYSET): {
-          return last_data = (keyboard_last_pressed_key);
-        }
-        CASE_16BIT(MM_MOUSE_X,mouse_x)
-        CASE_16BIT(MM_MOUSE_Y,mouse_y)
-        CASE_8BIT(MM_MOUSE_BTN, mouse_btn_state)
-        CASE_8BIT(MM_MOUSE_WHEEL,mouse_wheel);
-
         case MM_FUNC_CALL:{
           return call_function();
         }
         default:
-          //unknown
+          ASSERT_STRICT(false && "ACCESSING MEMORYMAPPED AREA-");
           return mem[address];  
     }
   } 

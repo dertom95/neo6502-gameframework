@@ -611,20 +611,20 @@ static void keyboard_released(int _key, void* data)
 }
 
 static void callback_mouse_moved(int window, int x, int y, int dx, int dy,void* data){
-  mouse_x=x*window_factor_x;
-  mouse_y=y*window_factor_y;
+  *mm_mouse_x=x*window_factor_x;
+  *mm_mouse_y=y*window_factor_y;
 }
 
 static void callback_mouse_button_pressed(int window,int button,int x,int y,void* data){
-  mouse_btn_state |= (1 << button);
+  *mm_mouse_btn_state |= (1 << button);
 }
 
 static void callback_mouse_button_released(int window,int button,int x,int y,void* data){
-  mouse_btn_state &= ~(1<<button);
+  *mm_mouse_btn_state &= ~(1<<button);
 }
 
 static void callback_mouse_wheel_updated(int window,int delta, void* data){
-  mouse_wheel = delta;
+  *mm_mouse_wheel = delta;
 }
 
 void io_backend_init()
@@ -658,7 +658,7 @@ void io_backend_after_tick()
 {
   kb_pressed=(hid_keyboard_report_t){0};
   kb_released=(hid_keyboard_report_t){0};
-  mouse_wheel = 0;
+  *mm_mouse_wheel = 0;
 }
 
 // look up new key in previous keys

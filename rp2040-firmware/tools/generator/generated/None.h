@@ -5,7 +5,7 @@
 
 #include "ng_config.h"
 
-#define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
+#define MM_SB           MEMORY_MAP_FUNC_START    // memory-location where the memory-mapping starts
 #define MM_KEYSET       (MM_SB + 0x01)      // uint8
 #define MM_MOUSE_X      (MM_SB + 0x02)      // uint16 
 #define MM_MOUSE_Y      (MM_SB + 0x04)      // uint16

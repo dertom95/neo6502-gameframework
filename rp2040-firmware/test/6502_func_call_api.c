@@ -118,7 +118,7 @@ int main(){
 //     uint8_t* tilegfx;
 //     volatile uint8_t* key_pressed;
 
-//     key_pressed = (uint8_t*)MEMORY_MAP_START;
+//     key_pressed = (uint8_t*)MEMORY_MAP_FUNC_START;
 //     tilegfx = (uint8_t*)MM_KEYSET;
     
 //     {

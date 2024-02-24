@@ -11,12 +11,6 @@ typedef struct keyboard_environment_t {
   keyboard_mapping_t* keyboardmappings;
 } keyboard_environment_t;
 
-extern int16_t mouse_x;
-extern int16_t mouse_y;
-extern uint8_t mouse_btn_state;
-extern int8_t mouse_wheel;
-extern uint8_t keyboard_last_pressed_keycode;
-extern char keyboard_last_pressed_key;
 extern bool _keyboard_connected;
 extern bool _mouse_connected;
 

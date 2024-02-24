@@ -16,6 +16,37 @@ typedef struct keyboard_mapping_t {
   uint8_t flags;
 } keyboard_mapping_t;
 
+#define MM_SB           MEMORY_MAP_FUNC_START    /* memory-location where the memory-mapping starts */
+#define MM_LAST_KB_CHAR (MM_SB + 0x00)      
+#define MM_LAST_KB_KEYCODE (MM_SB + 0x01)      
+#define MM_MOUSE_X      (MM_SB + 0x02)      /* uint16 */
+#define MM_MOUSE_Y      (MM_SB + 0x04)      /* uint16 */
+#define MM_MOUSE_BTN    (MM_SB + 0x06)      /* uint8 */
+#define MM_MOUSE_WHEEL  (MM_SB + 0x07)      /* int8 */
+#define MM_FUNC_CALL    (MM_SB + 0x08)      /* uint8 */
+// #define MM_          (MM_SB + 0x09)   /* uint8 */              /* FREE */
+#define MM_CYCLE_TICKS  (MM_SB + 0x0a)      /* uint16_t*/
+#define MM_MS_DELTA     (MM_SB + 0x0c)      /* uint16_t*/
+
+#define PALETTE_SIZE 255
+#define COL_TRANSPARENT 0
+#define COL_BLACK    1
+#define COL_BLUE_DARK   2
+#define COL_VIOLETTE 3
+#define COL_GREEN_DARK    4
+#define COL_ORANGE_DARK   5
+#define COL_BROWNGREY 6
+#define COL_LIGHTGREY 7
+#define COL_WHITE     8
+#define COL_RED       9  
+#define COL_ORANGE   10
+#define COL_YELLOW   11
+#define COL_GREEN    12
+#define COL_BLUE_LIGHT 13
+#define COL_GREY 14
+#define COL_PINK 15
+#define COL_PEACH 16
+
 
 #define HID_KEY_NONE                      0x00
 #define HID_KEY_A                         0x04

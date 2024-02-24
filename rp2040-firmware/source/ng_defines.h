@@ -9,13 +9,13 @@
 // userspace address (6502)=>16bit
 typedef uint8_t* US_ADDRESS;
 
-#define ASSERT_MODE_STRICT
+//#define ASSERT_MODE_STRICT
 #define LITTLEENDIAN
 
 #ifdef ASSERT_MODE_STRICT
 # define ASSERT_STRICT(X) assert(X)
 #else
-# define ASSERT_STRICT(X) void
+# define ASSERT_STRICT(X) 
 #endif
 
 #ifdef LITTLEENDIAN

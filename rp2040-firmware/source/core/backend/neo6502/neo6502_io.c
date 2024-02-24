@@ -347,18 +347,18 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
     case HID_ITF_PROTOCOL_KEYBOARD: {
       tuh_hid_receive_report(dev_addr, instance);
       current_report = *(hid_keyboard_report_t*)report;
-      uint8_t keycode = keyboard_last_pressed_keycode = current_report.keycode[0];
+      uint8_t keycode = *mm_keyboard_last_pressed_keycode = current_report.keycode[0];
 
       if ((keycode<=0x64) && (keycode>=4)) {	//if valid HID code
         if (current_report.modifier & 0x22) {			//if Shift
-          keyboard_last_pressed_key = hid2asciiShift[keycode];
+          *mm_keyboard_last_pressed_char = hid2asciiShift[keycode];
         } else if (current_report.modifier & 0x11) {		//if Ctrl
             if (keycode <= 0x1A)
-              keyboard_last_pressed_key = hid2asciiCtrl[keycode];
+              *mm_keyboard_last_pressed_char = hid2asciiCtrl[keycode];
             else
-              keyboard_last_pressed_key = hid2ascii[keycode];
+              *mm_keyboard_last_pressed_char = hid2ascii[keycode];
           } else {
-              keyboard_last_pressed_key = hid2ascii[keycode];		//no Ctrl no Shift 
+              *mm_keyboard_last_pressed_char = hid2ascii[keycode];		//no Ctrl no Shift 
           }
       };
       break;
@@ -367,15 +367,15 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
       tuh_hid_receive_report(dev_addr, instance);
 
       hid_mouse_report_t* mouse = (hid_mouse_report_t*)report;
-      mouse_x += mouse->x;
-      mouse_y += mouse->y;
-      mouse_btn_state = mouse->buttons;
-      mouse_wheel = mouse->wheel;
+      *mm_mouse_x += mouse->x;
+      *mm_mouse_y += mouse->y;
+      *mm_mouse_btn_state = mouse->buttons;
+      *mm_mouse_wheel = mouse->wheel;
 
-      if (mouse_x < 0) mouse_x=0;
-      if (mouse_x > 320) mouse_x=320;
-      if (mouse_y < 0) mouse_y=0;
-      if (mouse_y > 240) mouse_y=240;
+      if (*mm_mouse_x < 0) *mm_mouse_x=0;
+      if (*mm_mouse_x > 320) *mm_mouse_x=320;
+      if (*mm_mouse_y < 0) *mm_mouse_y=0;
+      if (*mm_mouse_y > 240)*mm_mouse_y=240;
       
       //tuh_hid_receive_report(dev_addr, instance);
       break;
