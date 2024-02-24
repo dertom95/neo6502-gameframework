@@ -7,7 +7,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/source/api",
             ],
-            "defines": [],
+            "defines": ["__NG6502__"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c89",
             "intelliSenseMode": "gcc-x64"

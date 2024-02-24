@@ -192,13 +192,11 @@ void wdc65C02cpu_set_irq(bool state) {
 }
 
 bool rw;
-uint tickscpu;
 
 static uint16_t _address;
 static uint8_t _data;
 
 void __not_in_flash_func(_tick6502)(void){
-    tickscpu++;
 	wdc65C02cpu_tick(&_address, &rw);                                           // Tick the processor
 	if (rw) {                
         //uint8_t data = mem[address];                                               // Read put data on data lines.

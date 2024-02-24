@@ -21,10 +21,12 @@ extern bool _keyboard_connected;
 extern bool _mouse_connected;
 
 void io_init(void);
-void io_update(void);
+void io_before_tick(void);
+void io_after_tick(void);
 
 void io_backend_init(void);
-void io_backend_update(void);
+void io_backend_before_tick(void);
+void io_backend_after_tick(void);
 
 bool io_keyboard_connected(void);
 bool io_mouse_connected(void);

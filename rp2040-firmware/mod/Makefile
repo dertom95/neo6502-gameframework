@@ -59,6 +59,10 @@ assets-pack-no-code: check_code_bin
 
 assets-pack: assets-create  source-compile
 	$(NG_TOOL) pack-files temp/code.bin $(EXPORT_FOLDER)/*.bin --output $(EXPORT_FOLDER)/assets.dat
+
+assets-pack-only-compile: source-compile
+	$(NG_TOOL) pack-files temp/code.bin $(EXPORT_FOLDER)/*.bin --output $(EXPORT_FOLDER)/assets.dat
+
 									
 assets-clear: 
 	-rm $(EXPORT_FOLDER)/*

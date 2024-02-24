@@ -21,7 +21,7 @@ long long get_ns() {
     return start_time.tv_sec * 1000000000LL + start_time.tv_nsec;
 }
 
-uint32_t tickscpu;
+
 
 uint8 read6502(ushort _address)
 {
@@ -57,6 +57,8 @@ void ng_cpu_init(void){
 long long diff = 0;
 uint32_t ns_timer = 0;
 
+extern uint16_t* mm_cycle_ticks;
+
 uint32_t counter2 = 0;
 void ng_cpu_update(void){
     if (!cpu_running){
@@ -70,8 +72,9 @@ void ng_cpu_update(void){
 
     if (ns_timer > STEP_NS){
         ns_timer -= STEP_NS;
+        ng_cpu_before_tick();
         step6502();
-        tickscpu+=1;
+        ng_cpu_before_tick();
     }
 
 }

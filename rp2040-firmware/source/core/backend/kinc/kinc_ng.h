@@ -3,8 +3,6 @@
 #ifndef __KINC_NG_H_
 #define __KINC_NG_H_
 
-#define STEPS_6502_CALL 10
-
 void kinc_io_init();
 void kinc_io_update();
 

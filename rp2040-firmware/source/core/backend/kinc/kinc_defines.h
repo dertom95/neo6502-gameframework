@@ -3,49 +3,49 @@
 
 #include <kinc/input/keyboard.h>
 
-#define HID_KEY_A KINC_KEY_A
-#define HID_KEY_B KINC_KEY_B
-#define HID_KEY_C KINC_KEY_C
-#define HID_KEY_D KINC_KEY_D
-#define HID_KEY_E KINC_KEY_E
-#define HID_KEY_F KINC_KEY_F
-#define HID_KEY_G KINC_KEY_G
-#define HID_KEY_H KINC_KEY_H
-#define HID_KEY_I KINC_KEY_I
-#define HID_KEY_J KINC_KEY_J
-#define HID_KEY_K KINC_KEY_K
-#define HID_KEY_L KINC_KEY_L
-#define HID_KEY_M KINC_KEY_M
-#define HID_KEY_N KINC_KEY_N
-#define HID_KEY_O KINC_KEY_O
-#define HID_KEY_P KINC_KEY_P
-#define HID_KEY_Q KINC_KEY_Q
-#define HID_KEY_R KINC_KEY_R
-#define HID_KEY_S KINC_KEY_S
-#define HID_KEY_T KINC_KEY_T
-#define HID_KEY_U KINC_KEY_U
-#define HID_KEY_V KINC_KEY_V
-#define HID_KEY_W KINC_KEY_W
-#define HID_KEY_X KINC_KEY_X
-#define HID_KEY_Y KINC_KEY_Y
-#define HID_KEY_Z KINC_KEY_Z
-#define HID_KEY_1 KINC_KEY_1
-#define HID_KEY_2 KINC_KEY_2
-#define HID_KEY_3 KINC_KEY_3
-#define HID_KEY_4 KINC_KEY_4
-#define HID_KEY_5 KINC_KEY_5
-#define HID_KEY_6 KINC_KEY_6
-#define HID_KEY_7 KINC_KEY_7
-#define HID_KEY_8 KINC_KEY_8
-#define HID_KEY_9 KINC_KEY_9
-#define HID_KEY_0 KINC_KEY_0
-#define HID_KEY_ENTER KINC_KEY_RETURN
-#define HID_KEY_ESCAPE KINC_KEY_ESCAPE
-#define HID_KEY_BACKSPACE KINC_KEY_BACKSPACE
-#define HID_KEY_TAB KINC_KEY_TAB
-#define HID_KEY_SPACE KINC_KEY_SPACE
-#define HID_KEY_MINUS KINC_KEY_MINUS
-#define HID_KEY_EQUAL KINC_KEY_EQUAL
+// #define HID_KEY_A KINC_KEY_A
+// #define HID_KEY_B KINC_KEY_B
+// #define HID_KEY_C KINC_KEY_C
+// #define HID_KEY_D KINC_KEY_D
+// #define HID_KEY_E KINC_KEY_E
+// #define HID_KEY_F KINC_KEY_F
+// #define HID_KEY_G KINC_KEY_G
+// #define HID_KEY_H KINC_KEY_H
+// #define HID_KEY_I KINC_KEY_I
+// #define HID_KEY_J KINC_KEY_J
+// #define HID_KEY_K KINC_KEY_K
+// #define HID_KEY_L KINC_KEY_L
+// #define HID_KEY_M KINC_KEY_M
+// #define HID_KEY_N KINC_KEY_N
+// #define HID_KEY_O KINC_KEY_O
+// #define HID_KEY_P KINC_KEY_P
+// #define HID_KEY_Q KINC_KEY_Q
+// #define HID_KEY_R KINC_KEY_R
+// #define HID_KEY_S KINC_KEY_S
+// #define HID_KEY_T KINC_KEY_T
+// #define HID_KEY_U KINC_KEY_U
+// #define HID_KEY_V KINC_KEY_V
+// #define HID_KEY_W KINC_KEY_W
+// #define HID_KEY_X KINC_KEY_X
+// #define HID_KEY_Y KINC_KEY_Y
+// #define HID_KEY_Z KINC_KEY_Z
+// #define HID_KEY_1 KINC_KEY_1
+// #define HID_KEY_2 KINC_KEY_2
+// #define HID_KEY_3 KINC_KEY_3
+// #define HID_KEY_4 KINC_KEY_4
+// #define HID_KEY_5 KINC_KEY_5
+// #define HID_KEY_6 KINC_KEY_6
+// #define HID_KEY_7 KINC_KEY_7
+// #define HID_KEY_8 KINC_KEY_8
+// #define HID_KEY_9 KINC_KEY_9
+// #define HID_KEY_0 KINC_KEY_0
+// #define HID_KEY_ENTER KINC_KEY_RETURN
+// #define HID_KEY_ESCAPE KINC_KEY_ESCAPE
+// #define HID_KEY_BACKSPACE KINC_KEY_BACKSPACE
+// #define HID_KEY_TAB KINC_KEY_TAB
+// #define HID_KEY_SPACE KINC_KEY_SPACE
+// #define HID_KEY_MINUS KINC_KEY_MINUS
+// #define HID_KEY_EQUAL KINC_KEY_EQUAL
 
 
 #define HID_MOUSE_LEFT KINC_MOUSE_LEFT 

@@ -416,7 +416,10 @@ void io_backend_init(void){
   neo6502_usb_init();
 }
 
-void io_backend_update(void){
+void io_backend_before_tick(void){
+}
+
+void io_backend_after_tick(void){
   neo6502_usb_update();
 }
 

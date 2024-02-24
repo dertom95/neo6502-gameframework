@@ -61,7 +61,7 @@ int32_t fps=0;
 uint32_t tick_counter = 0;
 
 
-int main_init(){
+void main_init(){
     io_init();
     
     memory_init();
@@ -99,6 +99,7 @@ void main_loop(void* data)
         int32_t current_millis = utils_millis();        
         int32_t msDelta = current_millis - last_millis;
         msCount += msDelta;
+        *mm_ms_delta += msDelta; // memorymapped. the user can check here but have to reset the value to 0 manually
         tick_counter += msDelta;
         last_millis = current_millis;
 
@@ -130,12 +131,12 @@ void main_loop(void* data)
         }
         //gfx_update();
 
-
+        io_before_tick();
     // gfx_draw();
         game_tick(tick_counter);
 
 
-        io_update();
+        io_after_tick();
             
 
 
@@ -181,6 +182,7 @@ int kickstart(int argc, char **argv){
 int main(){
     main_init();
     main_loop(NULL);
+    return 0;
 }
 #endif
 

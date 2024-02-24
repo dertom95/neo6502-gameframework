@@ -7,19 +7,22 @@
 #include "../../ng_io.h"
 #include "../../ng_gfx.h"
 
-#define MM_SB           MEMORY_MAP_START    // memory-location where the memory-mapping starts
-#define MM_KEYSET       (MM_SB + 0x01)      // uint8
-#define MM_MOUSE_X      (MM_SB + 0x02)      // uint16 
-#define MM_MOUSE_Y      (MM_SB + 0x04)      // uint16
-#define MM_MOUSE_BTN    (MM_SB + 0x06)      // uint8
-#define MM_MOUSE_WHEEL  (MM_SB + 0x07)      // int8
-#define MM_FUNC_CALL    (MM_SB + 0x08)      // uint8 
+#define MM_SB           MEMORY_MAP_START    /* memory-location where the memory-mapping starts */
+#define MM_KEYSET       (MM_SB + 0x01)      
+#define MM_MOUSE_X      (MM_SB + 0x02)      /* uint16 */
+#define MM_MOUSE_Y      (MM_SB + 0x04)      /* uint16 */
+#define MM_MOUSE_BTN    (MM_SB + 0x06)      /* uint8 */
+#define MM_MOUSE_WHEEL  (MM_SB + 0x07)      /* int8 */
+#define MM_FUNC_CALL    (MM_SB + 0x08)      /* uint8 */
+#define MM_CYCLE_TICKS   (MM_SB + 0x0a)      /* uint16_t*/
+#define MM_MS_DELTA     (MM_SB + 0x0c)      /* uint16_t*/
 
-#define MOUSE_BUTTON_LEFT      (1 << 0) ///< Left button
-#define MOUSE_BUTTON_RIGHT     (1 << 1) ///< Right button
-#define MOUSE_BUTTON_MIDDLE    (1 << 2) ///< Middle button
-#define MOUSE_BUTTON_BACKWARD  (1 << 3) ///< Backward button,
-#define MOUSE_BUTTON_FORWARD   (1 << 4) ///< Forward button,
+#define MOUSE_BUTTON_LEFT      (1 << 0) /* Left button */
+#define MOUSE_BUTTON_RIGHT     (1 << 1) /* Right button */
+#define MOUSE_BUTTON_MIDDLE    (1 << 2) /* Middle button */
+#define MOUSE_BUTTON_BACKWARD  (1 << 3) /* Backward button, */
+#define MOUSE_BUTTON_FORWARD   (1 << 4) /* Forward button */
+
 
 #define PALETTE_SIZE 255
 #define COL_TRANSPARENT 0

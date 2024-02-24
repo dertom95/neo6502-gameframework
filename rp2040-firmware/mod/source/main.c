@@ -15,13 +15,20 @@ uint8_t current_back=0;
 uint8_t current_x=0;
 uint8_t current_y=0;
 
+#define KEY_COL_DOWN (1 << 7)
+#define KEY_COL_UP   (1 << 6)
+
 keyboard_mapping_t kbm[]={
     {
-        .key_state = 0,
-        .keycodes = {1, 2, 3, 4, 5, 6, 7, 8},
-        .flags = 0
+        .keycodes = {HID_KEY_0,HID_KEY_1,0,0,0,0,0,0},
+        .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED
     }
 };
+
+uint8_t kX=0,kY=0;
+
+#define TICK_RATE (1000/30)
+uint16_t* ms_delta = (uint16_t*)MM_MS_DELTA;
 
 int main(){
     io_keyboardmapping_register(kbm,1);
@@ -30,10 +37,25 @@ int main(){
     //     *(tile_map)=1;
     // }
 
+
     
     while(1){
+        // TODO: implement some kind of sleep
+        if (*ms_delta<TICK_RATE)
+        {
+            continue;
+        }
+        *ms_delta=0;
+
         uint8_t x = *mx / 8;
         uint8_t y = *my / 8;
+
+        if ((kbm[0].key_pressed & KEY_COL_DOWN)>0){
+            col--;
+        }
+        if ((kbm[0].key_pressed & KEY_COL_UP)>0){
+            col++;
+        }
 
         if (current_x!=x || current_y!=y){
             *(tile_map+current_y*40+current_x)=current_back;        
@@ -49,7 +71,7 @@ int main(){
                 *(tile_map+y*40+x)=COL_RED;
                 current_back=COL_RED;        
             } else {
-                *(tile_map+y*40+x)=col++;        
+                *(tile_map+y*40+x)=col;        
             }
         }        
 

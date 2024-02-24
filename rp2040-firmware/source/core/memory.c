@@ -28,6 +28,9 @@ uint8_t mem[CPU6502_MEMORY_SIZE] __attribute__((aligned(16)));
 // address and data registers
 uint32_t last_address;
 uint8_t last_data;
+
+uint16_t* mm_cycle_ticks;
+uint16_t* mm_ms_delta;
 /// <summary>
 /// initialise memory
 /// </summary>
@@ -39,6 +42,13 @@ void memory_init() {
   assert(seg_id==SEGMENT_GFX_DATA && "segment id mismatch! GFX_MEMORY needs to be the first segment to be created! otherwise alter #defines");
   seg_id = ng_mem_segment_create(mem,CPU6502_MEMORY_SIZE);
   assert(seg_id==SEGMENT_6502_MEM && "segment id mismatch! CPU6502_MEMORY_SIZE needs to be the 2nd segment to be created! otherwise alter #defines");
+
+  mm_cycle_ticks = (uint16_t*)&mem[MM_CYCLE_TICKS];
+  *mm_cycle_ticks=0;
+
+  mm_ms_delta = (uint16_t*)&mem[MM_MS_DELTA];
+  *mm_ms_delta=0;
+
 
   // lets install some ROMS
   // if (loadROMS()) {
@@ -72,6 +82,8 @@ void __not_in_flash_func(memory_write_data)(uint32_t address,uint8_t data) {
 uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
   last_address = address;
   // memory map
+  // TODO: This is all obsolete! Just put the variable in the userspace memorymap and you are done!
+  //       only use real function-callmapping like this
   if (address >= MEMORY_MAP_START && address <= MEMORY_MAP_END){
     switch (address) {
         //CASE_8BIT(MM_KEYSET,last_pressed_key)
@@ -88,7 +100,7 @@ uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
         }
         default:
           //unknown
-          return last_data = 0x95;  
+          return mem[address];  
     }
   } 
   else if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){

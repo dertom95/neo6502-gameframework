@@ -12,7 +12,9 @@ void ng_cpu_update(){
     if (!cpu_running){
         return;
     }
+    ng_cpu_before_tick();
     tick6502();
+    ng_cpu_after_tick();
 }
 
 #endif
