@@ -6,6 +6,11 @@
 
 #include "api/ng_config.h"
 
+typedef struct keyboard_environment_t {
+  uint8_t keyboardmapping_amount;
+  keyboard_mapping_t* keyboardmappings;
+} keyboard_environment_t;
+
 extern int16_t mouse_x;
 extern int16_t mouse_y;
 extern uint8_t mouse_btn_state;

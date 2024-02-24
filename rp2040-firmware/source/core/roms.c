@@ -29,7 +29,7 @@ typedef struct _sROMImage {
 const uint8_t vectors_bin[] = {
   0x00, 0x00, // NMI
 	//0x20, 0xFC, // RESET
-	0x00, 0x10, // RESET
+	0x00, 0x02, // RESET
 	0x50, 0xFE  // IRQ/BRK
 };
 

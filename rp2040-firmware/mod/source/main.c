@@ -9,20 +9,26 @@ volatile uint16_t* mx =  (uint16_t*)MM_MOUSE_X;
 volatile uint16_t* my =  (uint16_t*)MM_MOUSE_Y;
 volatile uint8_t* mbtn = (uint8_t*)MM_MOUSE_BTN;
 
-uint8_t* tile_map = (uint8_t*)MEMORY_TILEAREA_BEGIN;
+volatile uint8_t* tile_map = (uint8_t*)MEMORY_TILEAREA_BEGIN;
 uint8_t col = 0;
 uint8_t current_back=0;
 uint8_t current_x=0;
 uint8_t current_y=0;
 
-keyboard_mapping_t kbm[2];
+keyboard_mapping_t kbm[]={
+    {
+        .key_state = 0,
+        .keycodes = {1, 2, 3, 4, 5, 6, 7, 8},
+        .flags = 0
+    }
+};
 
 int main(){
-    kbm[0].key_state=8;
-    kbm[0].flags=2;
-    kbm[0].keycodes[0]=95;
-    kbm[1].key_state=6;
-    io_keyboardmapping_register(kbm,2);
+    io_keyboardmapping_register(kbm,1);
+
+    // while(1){
+    //     *(tile_map)=1;
+    // }
 
     
     while(1){

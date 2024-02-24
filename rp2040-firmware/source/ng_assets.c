@@ -34,7 +34,8 @@ void assets_set_current_pack(void* data, uint32_t size)
     }
 
     const uint8_t* code_data = assets_get_pointer(0);
-    loadROM(code_data,0x1000,current_assetpack.sizes[0]);
+    const uint16_t* start_address = (const uint16_t*)code_data;
+    loadROM(code_data+2,(*start_address),current_assetpack.sizes[0]-2);
     ng_cpu_start();
 }
 

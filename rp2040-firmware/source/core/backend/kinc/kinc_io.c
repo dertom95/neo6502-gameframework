@@ -34,6 +34,8 @@
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 
+extern keyboard_environment_t kenv;
+
 #define KEYBOARD_REPORT_MAX_KEYCODES 6
 
 extern uint16_t window_width, window_height;
@@ -52,10 +54,30 @@ hid_keyboard_report_t kb_released;
 
 float mouse_factor;
 
+static void check_keymapping(int key,bool add){
+  keyboard_mapping_t* tip = kenv.keyboardmappings;
+  uint8_t count = kenv.keyboardmapping_amount;
+  while(count--){
+    for (int i=0;i<8;i++){
+      if (tip->keycodes[i]==key){
+        if (add){
+          tip->key_state|=(1<<i);
+        } else {
+          tip->key_state&=~(1<<i);
+        }
+        break; // TODO: I decided it makes no sense to check the same key multiple times! At least for the one case it is not worth the cycles
+      }
+    }
+    tip++;
+  }
+}
+
 static void keyboard_pressed(int key, void* data)
 {
   kb_pressed.keycode[kb_pressed.keycode_amount++]=key;
   kb_down.keycode[kb_down.keycode_amount++]=key;
+
+  check_keymapping(key,true);
 }
 
 static void keyboard_released(int key, void* data)
@@ -72,6 +94,8 @@ static void keyboard_released(int key, void* data)
       kb_down.keycode_amount--;
     }
   }
+
+  check_keymapping(key,false);
 }
 
 static void callback_mouse_moved(int window, int x, int y, int dx, int dy,void* data){

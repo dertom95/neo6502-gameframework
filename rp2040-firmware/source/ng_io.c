@@ -20,10 +20,7 @@ bool _mouse_connected = false;
 
 #define KBDMAP_FLAG_INUSE (1 << 0)
 
-typedef struct keyboard_environment_t {
-  uint8_t keyboardmapping_amount;
-  keyboard_mapping_t* keyboardmappings;
-} keyboard_environment_t;
+
 
 keyboard_environment_t kenv={0};
 
