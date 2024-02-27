@@ -14,7 +14,7 @@ initialize:
 	mkdir -p $(ASSET_FOLDER)/palette
 
 source-compile:
-	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -o ../temp/code.bin -Os -lexit-loop -linit-stack -I.. -I../../source/api main.c
+	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -lexit-loop -linit-stack -I.. -I../../source/api main.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map
 	
 # source-compile-cc65:	
 # 	cc65 -Osir source/main.c --add-source -I../source/api -I. -o temp/main.s --standard c99

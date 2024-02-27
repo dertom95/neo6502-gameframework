@@ -12,9 +12,37 @@ uint8_t call_function()
     if (header->func_type==1){
         switch (header->func_id) {
 
+            case 12: {
+                call_gfx_renderqueue_add_id_t* call = (call_gfx_renderqueue_add_id_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_renderqueue_add_id(  call->id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 1: {
                 call_gfx_renderqueue_apply_t* call = (call_gfx_renderqueue_apply_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_renderqueue_apply();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 9: {
+                call_gfx_pixelbuffer_create_t* call = (call_gfx_pixelbuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_create( (gfx_pixelbuffer_t*)(&mem[ call->initial_data ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 10: {
+                call_gfx_pixelbuffer_set_active_t* call = (call_gfx_pixelbuffer_set_active_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_set_active( (gfx_pixelbuffer_t*)(&mem[ call->pxbuffer ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 11: {
+                call_gfx_pixelbuffer_get_current_t* call = (call_gfx_pixelbuffer_get_current_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                gfx_pixelbuffer_t* call_result =  gfx_pixelbuffer_get_current();
 
                 return FUNCTION_RETURN_OK;
             }

@@ -29,7 +29,10 @@ kinc-build: kinc_get
 
 mod-assets-create:
 	# todo: get rid of intermediate step to pack assets twice (once without code and once with code compiled)
-	cd mod && make assets-clear assets-pack-no-code assets-pack
+	cd mod && make assets-pack
+
+mod-assets-create-only-code:
+	cd mod && make assets-pack-only-compile
 
 mod-source-compile:
 	cd mod && make source-compile

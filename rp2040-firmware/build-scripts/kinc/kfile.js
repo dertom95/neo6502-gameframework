@@ -12,7 +12,7 @@ project.addDefine('INCLUDE_DATA')
 //project.addDefine('DATA_FROM_MEMORY');
 project.addFile('../../source/*.c');
 project.addFile('../../source/core/*.c');
-project.addFile('../../source/game/*.c');
+//project.addFile('../../source/game/*.c');
 project.addFile('../../source/core/backend/kinc/*.c');
 //project.addFile('../../test/gen_prg1.c')
 //project.addFile('../../mod/export/*.c')

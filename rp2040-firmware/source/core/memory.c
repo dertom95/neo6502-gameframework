@@ -12,6 +12,7 @@ extern "C" {
 #include "../ng_io.h"
 #include "../ng_gfx.h"
 #include "../api/gen/memory_call_function.c"
+#include "../ng_utils.h"
 #include <assert.h>
 
 
@@ -46,6 +47,7 @@ char*    mm_keyboard_last_pressed_char = NULL;
 /// initialise memory
 /// </summary>
 void memory_init() {
+  id_init(64);
   last_address = 0UL;
   last_data = 0;
 

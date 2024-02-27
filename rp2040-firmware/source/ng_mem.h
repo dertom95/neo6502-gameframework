@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "api/ng_config.h"
 
 #define MEM_USAGE_UNKNOWN       0
 #define MEM_USAGE_PIXELBUFFER   1
@@ -19,13 +20,6 @@
 #define MEMBLOCK_USAGE_MASK   (15 << 0) // bits 0-3 usage
 #define MEMBLOCK_SEGMENT_MASK (7 << 4)  // bits 4-6 segmentid
 
-typedef struct ng_mem_block_t {
-    // TODO: refactor start_pos is already obsolete! memory_segments and block-inuse still valid
-    uint16_t flags;  // bit 15-14: memory-segment   | bit13: block-inuse | bit 12-0: memory address (multiple of 8)
-    uint16_t size;     
-    uint8_t* data;         // pointer to the actual data
-} ng_mem_block_t;
-
 typedef struct ng_mem_segment_t {
     void* start;
     void* tip;
@@ -33,7 +27,10 @@ typedef struct ng_mem_segment_t {
     uint32_t size;
 } ng_mem_segment_t;
 
-
+typedef struct ng_mem_datablock_t {
+    ng_mem_block_t mem;
+    void* info;
+} ng_mem_datablock_t;
 
 // create a segment (see MEM_MAX_SEEGMENTS for the max amount). return the segment-id. max-size: 131056
 uint8_t ng_mem_segment_create(void* start, uint32_t size);

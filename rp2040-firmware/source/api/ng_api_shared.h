@@ -8,6 +8,11 @@
 // the key was just released
 #define KEYBMAP_FLAG_SCAN_KEY_RELEASED (1 << 2) 
 
+// TODO: split those in API-Header of their domain!
+
+
+// █ █▄░█ █▀█ █░█ ▀█▀
+// █ █░▀█ █▀▀ █▄█ ░█░
 typedef struct keyboard_mapping_t {
   uint8_t key_pressed;
   uint8_t key_down;
@@ -15,6 +20,32 @@ typedef struct keyboard_mapping_t {
   uint8_t keycodes[8];
   uint8_t flags;
 } keyboard_mapping_t;
+
+
+
+// █▀▄▀█ █▀▀ █▀▄▀█ █▀█ █▀█ █▄█
+// █░▀░█ ██▄ █░▀░█ █▄█ █▀▄ ░█░
+typedef struct ng_mem_block_t {
+    uint16_t flags;  // free[15-7] | segment_id bits[6-4] | usage_type bits[3-0]
+    uint16_t size;     
+    uint8_t* data;         // pointer to the actual data
+} ng_mem_block_t;
+
+// █▀▀ █▀▀ ▀▄▀
+// █▄█ █▀░ █░█
+typedef struct gfx_pixelbuffer_t {
+  uint8_t obj_id;
+	uint8_t user_value;
+
+	int16_t x;
+	int16_t y;
+
+	uint16_t width;
+	uint16_t height;
+	
+	uint16_t flags;
+} gfx_pixelbuffer_t;
+
 
 #define MM_SB           MEMORY_MAP_FUNC_START    /* memory-location where the memory-mapping starts */
 #define MM_LAST_KB_CHAR (MM_SB + 0x00)      

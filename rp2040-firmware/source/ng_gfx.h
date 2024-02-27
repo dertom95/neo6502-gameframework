@@ -8,6 +8,7 @@
 
 #include "ng_mem.h"
 #include "ng_defines.h"
+#include "api/ng_api_shared.h"
 
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
@@ -72,18 +73,7 @@ typedef struct gfx_sprite_t {
 } gfx_sprite_t;
 
 
-typedef struct gfx_pixelbuffer_t {
-	ng_mem_block_t mem;
-	int16_t x;
-	int16_t y;
 
-	uint16_t width;
-	uint16_t height;
-	
-	uint8_t flags;
-	uint8_t upscale;
-	uint16_t user_value;
-} gfx_pixelbuffer_t;
 
 typedef struct gfx_palette_t {
     uint16_t color_amount;
@@ -106,9 +96,12 @@ void 	 gfx_update();
 void     gfx_backend_update();
 uint8_t* gfx_get_pixelbuffer(void);
 
+
 /// @brief add renderblock to this renderqueue builder (the renderqueue must be applied when finished)
 /// @param renderblock 
 void gfx_renderqueue_add(ng_mem_block_t* renderblock);
+/*api:1:12*/void gfx_renderqueue_add_id(uint8_t id);
+
 /// @brief start over with the renderqueue builder
 /// @param  
 void gfx_renderqueue_wipe(void);
@@ -116,9 +109,10 @@ void gfx_renderqueue_wipe(void);
 /// @param  
 /*api:1:1*/void gfx_renderqueue_apply(void);
 
-bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data);
-void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
-gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
+// TODO: how to handle this id-framentation?
+/*api:1:9*/void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
+/*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
+/*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 
 
 bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer);
@@ -146,4 +140,7 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
+
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:11
+
 #endif 

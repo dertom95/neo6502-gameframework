@@ -135,7 +135,8 @@
         "assets.h": "c",
         "templ_ng_api.h": "c",
         "ng_defines.h": "c",
-        "ng_api_shared.h": "c"
+        "ng_api_shared.h": "c",
+        "ng_mem.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"]    
 }

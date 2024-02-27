@@ -18,8 +18,16 @@ typedef struct call_header_t {
 
 // function grp: 1
 
+ // returns: void f-grp: f-id:12;
+void gfx_renderqueue_add_id(uint8_t id);
  // returns: void f-grp: f-id:1;
 void gfx_renderqueue_apply(void);
+ // returns: void f-grp: f-id:9;
+void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
+ // returns: void f-grp: f-id:10;
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
+ // returns: gfx_pixelbuffer_t* f-grp: f-id:11;
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -35,10 +43,29 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
  // returns: void f-grp: f-id:8;
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
 
+// returns: void f-grp: f-id:12
+typedef struct call_gfx_renderqueue_add_id_t {
+    call_header_t hdr;
+    uint8_t id;
+} call_gfx_renderqueue_add_id_t;
 // returns: void f-grp: f-id:1
 typedef struct call_gfx_renderqueue_apply_t {
     call_header_t hdr;
 } call_gfx_renderqueue_apply_t;
+// returns: void f-grp: f-id:9
+typedef struct call_gfx_pixelbuffer_create_t {
+    call_header_t hdr;
+    uint16_t initial_data;
+} call_gfx_pixelbuffer_create_t;
+// returns: void f-grp: f-id:10
+typedef struct call_gfx_pixelbuffer_set_active_t {
+    call_header_t hdr;
+    uint16_t pxbuffer;
+} call_gfx_pixelbuffer_set_active_t;
+// returns: gfx_pixelbuffer_t* f-grp: f-id:11
+typedef struct call_gfx_pixelbuffer_get_current_t {
+    call_header_t hdr;
+} call_gfx_pixelbuffer_get_current_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;

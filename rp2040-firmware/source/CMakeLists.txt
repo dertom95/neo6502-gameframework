@@ -32,7 +32,7 @@ add_executable(neo6502firmware
 
 	#api/gen/memory_call_function.c
 
-	game/game.c
+#	game/game.c
 
 	${BACKEND_SOURCE}
 

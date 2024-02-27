@@ -74,7 +74,7 @@ void ng_cpu_update(void){
         ns_timer -= STEP_NS;
         ng_cpu_before_tick();
         step6502();
-        ng_cpu_before_tick();
+        ng_cpu_after_tick();
     }
 
 }

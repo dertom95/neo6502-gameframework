@@ -5,6 +5,22 @@
 const volatile uint8_t* mem_call_function = (uint8_t*)MM_FUNC_CALL;
 const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFFER_BEGIN;
 
+// returns: void f-grp:1 f-id:12
+void gfx_renderqueue_add_id(uint8_t id){
+    uint8_t result_code;
+    call_gfx_renderqueue_add_id_t* func_data;
+    func_data = (call_gfx_renderqueue_add_id_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 12;
+    func_data->id= id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: void f-grp:1 f-id:1
 void gfx_renderqueue_apply(void){
     uint8_t result_code;
@@ -18,6 +34,54 @@ void gfx_renderqueue_apply(void){
 
     {
 
+    }
+}   
+// returns: void f-grp:1 f-id:9
+void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_create_t* func_data;
+    func_data = (call_gfx_pixelbuffer_create_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 9;
+    func_data->initial_data=(uint16_t) initial_data;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:10
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_set_active_t* func_data;
+    func_data = (call_gfx_pixelbuffer_set_active_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 10;
+    func_data->pxbuffer=(uint16_t) pxbuffer;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: gfx_pixelbuffer_t* f-grp:1 f-id:11
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_get_current_t* func_data;
+    func_data = (call_gfx_pixelbuffer_get_current_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 11;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        gfx_pixelbuffer_t* call_result = (gfx_pixelbuffer_t*)*mem_call_result;
+        return call_result;
     }
 }   
 // returns: void f-grp:1 f-id:2

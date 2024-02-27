@@ -28,13 +28,13 @@
 uint8_t default_allocation_segment = SEGMENT_GFX_DATA;
 
 
-// TODO: this must be done somewhere else in userspace
-gfx_pixelbuffer_t initial_pixelbuffer={
-	.x=0,
-	.y=0,
-	.width=320,
-	.height=100,
-};
+// // TODO: this must be done somewhere else in userspace
+// gfx_pixelbuffer_t initial_pixelbuffer={
+// 	.x=0,
+// 	.y=0,
+// 	.width=320,
+// 	.height=100,
+// };
 
 
 // bool __scratch_x("render") requested_renderqueue_apply = false;
@@ -49,6 +49,7 @@ ng_mem_block_t** renderqueue_current = renderqueue_1;
 ng_mem_block_t** renderqueue_request = renderqueue_2;
 
 const uint8_t* font=NULL; 		  // 1bpp
+ng_mem_datablock_t* active_pixelbuffer_data = NULL;
 gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
 game_state_t state;
@@ -167,7 +168,8 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 				// █▀█ █ ▀▄▀ █▀▀ █░░ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
 				// █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
 
-				gfx_pixelbuffer_t* pixelbuffer = (gfx_pixelbuffer_t*)current_render_block;
+				ng_mem_datablock_t* db = (ng_mem_datablock_t*)current_render_block;
+				gfx_pixelbuffer_t* pixelbuffer = db->info;
 
 				int16_t pixel_y = y - pixelbuffer->y;
 
@@ -179,7 +181,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 				if (is_visible){
 					//uint8_t* buffer = &pixelbuffer[y*320];
 					uint16_t count;
-					uint8_t* buffer = pixelbuffer->mem.data + pixel_y*pixelbuffer->width;
+					uint8_t* buffer = db->mem.data + pixel_y*pixelbuffer->width;
 					
 					if (pixelbuffer->x>0){
 						write_buf+=pixelbuffer->x; 
@@ -276,7 +278,7 @@ uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 	assert(x>0 || x < active_pixelbuffer->width);
 	assert(y>0 || y < active_pixelbuffer->height);
 
-	uint8_t* result = active_pixelbuffer->mem.data;
+	uint8_t* result = active_pixelbuffer_data->mem.data;
 	result += x + y * active_pixelbuffer->width;
 	return result;
 }
@@ -285,8 +287,8 @@ void gfx_init()
 {
 	gfx_backend_init();
 
-	gfx_pixelbuffer_create(SEGMENT_GFX_DATA,&initial_pixelbuffer);
-	gfx_pixelbuffer_set_active(&initial_pixelbuffer);
+	// gfx_pixelbuffer_create(&initial_pixelbuffer,SEGMENT_GFX_DATA);
+	// gfx_pixelbuffer_set_active(&initial_pixelbuffer);
 
 	// gfx_renderqueue_add((ng_mem_block_t*)&initial_pixelbuffer);
 	// gfx_renderqueue_apply();
@@ -456,25 +458,40 @@ void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format,
 	}
 }
 
-bool gfx_pixelbuffer_create(uint8_t segment_id,gfx_pixelbuffer_t* initial_data)
+void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 {
-	assert(initial_data->mem.data==NULL && "gfx_create_pixelbuffer: pixelbuffer already initialized!");
+	assert(initial_data->obj_id==0 && "object-id already set!");
+	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > sizeof(ng_mem_datablock_t) && "gfx_create_pixelbuffer: create size");
+	ng_mem_datablock_t* block = ng_mem_allocate(SEGMENT_GFX_DATA, sizeof(ng_mem_datablock_t));
+	block->info = initial_data;
 
 	uint32_t size = initial_data->width * initial_data->height;
-	assert(ng_mem_segment_space_left(segment_id) > size && "gfx_create_pixelbuffer: create size");
+	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > size && "gfx_create_pixelbuffer: create size");
 	
-	bool success = ng_mem_allocate_block(segment_id, size, MEM_USAGE_PIXELBUFFER, &initial_data->mem );
-	return success;
+	bool success = ng_mem_allocate_block(SEGMENT_GFX_DATA, size, MEM_USAGE_PIXELBUFFER, &block->mem );
+	if (success){
+		initial_data->obj_id = id_store(block);
+	}
 }
 
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)
 {
+	assert(pxbuffer->obj_id!=0 && "pixelbuffer not initialized");
+	ng_mem_datablock_t* px_datablock = id_get_ptr(pxbuffer->obj_id);
+	active_pixelbuffer_data = px_datablock;
 	active_pixelbuffer = pxbuffer;
 }
 
-gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void)
-{
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void) {
+	assert(active_pixelbuffer!=NULL && "Active Pixelbuffer not set!");
 	return active_pixelbuffer;
+}
+
+
+void gfx_renderqueue_add_id(uint8_t id) {
+	ng_mem_datablock_t* datablock = (ng_mem_datablock_t*)id_get_ptr(id);
+	assert(datablock!=NULL && "renderqueue element is NULL");
+	gfx_renderqueue_add(&datablock->mem);
 }
 
 void gfx_renderqueue_add(ng_mem_block_t* renderblock)

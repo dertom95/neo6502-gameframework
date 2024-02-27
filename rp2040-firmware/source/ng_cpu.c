@@ -13,7 +13,7 @@ void ng_cpu_start(void) {
 
 void ng_cpu_before_tick(void)
 {
-    mm_cycle_ticks++;
+    *mm_cycle_ticks++;
     tickscpu+=1;
 }
 void ng_cpu_after_tick(void)

@@ -11,9 +11,9 @@
 #include "../ng_utils.h"
 #include <assert.h>
 
-#define INCLUDE_DATA
-#include "../../mod/export/assets.h"
-#include "../../mod/export/assets.c"
+// #define INCLUDE_DATA
+// #include "../../mod/export/assets.h"
+// #include "../../mod/export/assets.c"
 
 // assets
 // #include "../../mod/export/font.h"
@@ -67,6 +67,8 @@ void game_init()
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
 
+/*
+
     bool success = gfx_pixelbuffer_create(SEGMENT_GFX_DATA, &second_pixel_buffer);
     assert(success);
 
@@ -94,6 +96,8 @@ void game_init()
     sprite_oldguy = gfx_sprite_create_from_tilesheet(&sprite_buffer,150,150,ts_old_guy);
     // ts_old_guy = *ts;
     // ts_old_guy.tilesheet_data_flash = (uint8_t*)&ts->tilesheet_data_flash + sizeof(uint8_t*);
+
+*/    
 }
 
 

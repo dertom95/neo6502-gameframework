@@ -3,7 +3,8 @@
 #include "ng_utils.h"
 #include "ng_io.h"
 #include "ng_cpu.h"
-#include "game/game.h"
+#include "ng_assets.h"
+//#include "game/game.h"
 
 
 //#include <pico/stdlib.h>
@@ -13,6 +14,13 @@
 #include "core/memory.h"
 #include "core/roms.h"
 #include "core/backend/cpu/wdc65C02cpu.h"
+
+
+// LOADER! Move this somewhere else! Once we can load from usb
+#define INCLUDE_DATA
+#include "../mod/export/assets.h"
+#include "../mod/export/assets.c"
+//--------------------------------------
 
 
 #ifdef __KINC__
@@ -51,6 +59,9 @@ extern long long diff;
 extern uint32_t ns_timer;
 #endif
 
+
+
+
 const uint32_t frame_len = 1000 / 30;
 
 int32_t last_millis = 0;
@@ -66,8 +77,10 @@ void main_init(){
     
     memory_init();
     gfx_init();  
-    game_init();
-    
+   // game_init();
+    assets_set_current_pack((void*)assets_data,sizeof(assets_data));
+
+
 	loadROMS();
 
 
@@ -110,11 +123,11 @@ void main_loop(void* data)
             msCount=-1000;
             fps = frame;
             frame = 0;
-            gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
+//             gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
             
-#ifdef __KINC__            
-            gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
-#endif            
+// #ifdef __KINC__            
+//             gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
+// #endif            
             
             
             //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
@@ -133,7 +146,7 @@ void main_loop(void* data)
 
         io_before_tick();
     // gfx_draw();
-        game_tick(tick_counter);
+      //  game_tick(tick_counter);
 
 
         io_after_tick();
