@@ -15,14 +15,16 @@ uint8_t current_back=0;
 uint8_t current_x=0;
 uint8_t current_y=0;
 
-#define KEY_COL_DOWN (1 << 7)
-#define KEY_COL_UP   (1 << 6)
+#define KEY_COL_DOWN    (1 << 7)
+#define KEY_COL_UP      (1 << 6)
+#define KEY_LEFT    (1 << 5)
+#define KEY_UP      (1 << 4)
+#define KEY_DOWN   (1 << 3)
+#define KEY_RIGHT    (1 << 2)
 
-keyboard_mapping_t kbm[]={
-    {
-        .keycodes = {HID_KEY_0,HID_KEY_1,0,0,0,0,0,0},
-        .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED
-    }
+keyboard_mapping_t kbm={
+    .keycodes = {HID_KEY_0,HID_KEY_1,HID_KEY_A,HID_KEY_W,HID_KEY_S,HID_KEY_D,0,0},
+    .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
@@ -38,7 +40,7 @@ uint8_t kX=0,kY=0;
 uint16_t* ms_delta = (uint16_t*)MM_MS_DELTA;
 
 int main(){
-    io_keyboardmapping_register(kbm,1);
+    io_keyboardmapping_register(&kbm,1);
 
 
     // while(1){
@@ -62,14 +64,27 @@ int main(){
         }
         *ms_delta=0;
 
-        uint8_t x = *mx / 8;
-        uint8_t y = *my / 8;
+        int8_t x = (*mx-pixelbuffer.x) / 8;
+        int8_t y = (*my-pixelbuffer.y) / 8;
 
-        if ((kbm[0].key_pressed & KEY_COL_DOWN)>0){
+        if ((kbm.key_pressed & KEY_COL_DOWN)>0){
             col--;
         }
-        if ((kbm[0].key_pressed & KEY_COL_UP)>0){
+        if ((kbm.key_pressed & KEY_COL_UP)>0){
             col++;
+        }
+
+        if ((kbm.key_down & KEY_LEFT)>0){
+            pixelbuffer.x--;           
+        }
+        if ((kbm.key_down & KEY_RIGHT)>0){
+            pixelbuffer.x++;           
+        }
+        if ((kbm.key_down & KEY_DOWN)>0){
+            pixelbuffer.y++;
+        }
+        if ((kbm.key_down & KEY_UP)>0){
+            pixelbuffer.y--;           
         }
 
         if (current_x!=x || current_y!=y){
@@ -84,7 +99,7 @@ int main(){
             uint8_t btn_left = *mbtn;
             if ((btn_left&MOUSE_BUTTON_LEFT)>0){
                 *(tile_map+y*40+x)=COL_RED;
-                current_back=COL_RED;        
+                current_back=col;        
             } else {
                 *(tile_map+y*40+x)=col;        
             }

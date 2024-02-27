@@ -114,7 +114,6 @@ void gfx_renderqueue_wipe(void);
 /*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
 /*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 
-
 bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer);
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts);
 void          gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id);
