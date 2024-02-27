@@ -33,7 +33,7 @@ typedef struct ng_mem_block_t {
 
 // █▀▀ █▀▀ ▀▄▀
 // █▄█ █▀░ █░█
-typedef struct gfx_pixelbuffer_t {
+typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t {
   uint8_t obj_id;
 	uint8_t user_value;
 

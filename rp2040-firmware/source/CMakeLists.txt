@@ -51,8 +51,8 @@ endif()
 
 
 
-#target_compile_options(neo6502firmware PRIVATE -Wall -g)
-target_compile_options(neo6502firmware PRIVATE -Wall -O2)
+target_compile_options(neo6502firmware PRIVATE -Wall -g)
+#target_compile_options(neo6502firmware PRIVATE -Wall -O2)
 
 target_compile_definitions(neo6502firmware PRIVATE
 #	DVI_DEFAULT_SERIAL_CONFIG=${DVI_DEFAULT_SERIAL_CONFIG}
