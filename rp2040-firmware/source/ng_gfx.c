@@ -52,8 +52,6 @@ const uint8_t* font=NULL; 		  // 1bpp
 ng_mem_datablock_t* active_pixelbuffer_data = NULL;
 gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
-game_state_t state;
-
 uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
 	return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
 }
@@ -150,7 +148,7 @@ void __not_in_flash_func(gfx_render_scanline)(uint16_t *pixbuf, uint8_t y)
 void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 #endif
 {
-	memset(pixbuf,0,SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
+	memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
 
 	for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++){
 		ng_mem_block_t* current_render_block = renderqueue_current[idx];
@@ -173,15 +171,20 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
 				int16_t pixel_y = y - pixelbuffer->y;
 
-				bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height;
+                uint8_t px_width;
+                uint8_t px_height;
+                flags_unpack_4_4(pixelbuffer->stretch,px_width,px_height);
+
+				bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height * px_height;
 
 				// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
 				// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
 
+
 				if (is_visible){
 					//uint8_t* buffer = &pixelbuffer[y*320];
 					uint16_t count;
-					uint8_t* buffer = db->mem.data + pixel_y*pixelbuffer->width;
+					uint8_t* buffer = db->mem.data + (pixel_y/px_height)*pixelbuffer->width;
 					
 					if (pixelbuffer->x>0){
 						write_buf+=pixelbuffer->x; 
@@ -191,10 +194,24 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 						buffer+=-pixelbuffer->x;
 						count = pixelbuffer->width + pixelbuffer->x; 
 					}
-					while (count--){
-						uint8_t data = *(buffer++);
-						*(write_buf++)=color_palette[data];
-					}
+
+                    if (px_width==1){
+                        // don't do the overhead for px_width>1
+                        while (count--){
+                            uint8_t data = *(buffer++);
+                            *(write_buf++)=color_palette[data];
+                        }
+                    } else {
+                        //count*=px_width;
+                        uint8_t px_count;
+                        while (count--){
+                            uint8_t data = *(buffer++);
+                            px_count = px_width;
+                            while(px_count--){
+                                *(write_buf++)=color_palette[data];
+                            }
+                        }
+                    }
 				}
 				break;
 			}
@@ -539,4 +556,9 @@ gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
 	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+5;
 
 	return tilesheet;
+}
+
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
+	ng_mem_datablock_t* px_datablock = (ng_mem_datablock_t*)id_get_ptr(pxb->obj_id);
+    ng_mem_mount_block(px_datablock,destination);         
 }

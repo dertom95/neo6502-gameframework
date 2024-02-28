@@ -138,5 +138,6 @@
         "ng_api_shared.h": "c",
         "ng_mem.h": "c"
     },
-    "cmake.configureArgs": ["-DPICO_=1"]    
+    "cmake.configureArgs": ["-DPICO_=1"],
+    "editor.detectIndentation": false    
 }

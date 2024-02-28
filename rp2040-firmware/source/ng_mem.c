@@ -8,6 +8,9 @@
 uint8_t          mem_segments_amount=0;
 ng_mem_segment_t mem_segments[MEM_MAX_SEGMENTS]={0};
 
+uint8_t datamount_amount=0;
+ng_mem_datamount_t* datamounts[MAX_DATAMOUNTS]={0};
+
 // create a segment (see MEM_MAX_SEEGMENTS for the max amount). return the segment-id. max-size: 131056
 uint8_t ng_mem_segment_create(void* start, uint32_t size)
 {
@@ -84,7 +87,8 @@ bool ng_mem_allocate_block(uint8_t segment_id,uint32_t size, uint8_t usage_type,
     void* data = ng_mem_allocate_with_alignment(segment_id,size,16);
     block->data = data;
     block->flags =  usage_type | (segment_id << 4);
-    block->size = size >> 1;
+//    block->size = size >> 1;
+    block->size = size;
 
     return true;
 }
@@ -114,6 +118,24 @@ void ng_memblock_wipe(ng_mem_block_t* mem_block)
 {
     uint32_t size = ng_memblock_get_size(mem_block);
     memset(mem_block->data,0,size);
+}
+
+
+
+
+void ng_mem_add_datamount(ng_mem_datamount_t* data_mount)
+{
+    assert(datamount_amount<MAX_DATAMOUNTS&&"exceeded max amount of datamounts");
+    datamounts[datamount_amount++]=data_mount;
+}
+
+void ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination) {
+    ng_mem_block_t save = *data_block;
+    ng_mem_datamount_t* mount = ng_mem_allocate(SEGMENT_GFX_DATA,sizeof(ng_mem_datamount_t));
+    mount->destination = destination;
+    mount->size = save.size;
+    mount->source = save.data;
+    ng_mem_add_datamount(mount);
 }
 
 #if defined(TESTING)

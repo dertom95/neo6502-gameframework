@@ -28,6 +28,8 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
  // returns: gfx_pixelbuffer_t* f-grp: f-id:11;
 gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
+ // returns: void f-grp: f-id:13;
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -66,6 +68,12 @@ typedef struct call_gfx_pixelbuffer_set_active_t {
 typedef struct call_gfx_pixelbuffer_get_current_t {
     call_header_t hdr;
 } call_gfx_pixelbuffer_get_current_t;
+// returns: void f-grp: f-id:13
+typedef struct call_gfx_pixelbuffer_mount_t {
+    call_header_t hdr;
+    uint16_t pxb;
+    uint16_t destination;
+} call_gfx_pixelbuffer_mount_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;

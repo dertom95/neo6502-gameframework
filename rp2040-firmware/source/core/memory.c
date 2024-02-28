@@ -11,6 +11,7 @@ extern "C" {
 #include "../api/gen/ng_api.h"
 #include "../ng_io.h"
 #include "../ng_gfx.h"
+#include "../ng_mem.h"
 #include "../api/gen/memory_call_function.c"
 #include "../ng_utils.h"
 #include <assert.h>
@@ -83,23 +84,33 @@ void memory_init() {
   // }
 }
 
-void __not_in_flash_func(memory_write_data)(uint32_t address,uint8_t data) {
+void __not_in_flash_func(memory_write_data)(uint16_t address,uint8_t data) {
   last_address=address;
   if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
-    // memory map
+    // memory map functions
+    int a=0;
   }
-  if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
-      // simple blocky tilemap
-      uint16_t addressTilemapSpace = address - MEMORY_TILEAREA_BEGIN;
-      gfx_tile_set_color(addressTilemapSpace % MEMORY_TILES_WIDTH, addressTilemapSpace / MEMORY_TILES_WIDTH, data);
-  }
+//   if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
+//       // simple blocky tilemap
+//       uint16_t addressTilemapSpace = address - MEMORY_TILEAREA_BEGIN;
+//       gfx_tile_set_color(addressTilemapSpace % MEMORY_TILES_WIDTH, addressTilemapSpace / MEMORY_TILES_WIDTH, data);
+//   }
+  else if (datamount_amount>0){
+    for (int i=0;i<datamount_amount;i++){
+      ng_mem_datamount_t* mount = datamounts[i];
+      if (address>=mount->destination && address<=mount->destination+mount->size){
+        uint16_t offset = address - mount->destination;
+        *(mount->source+offset)=data;
+      }    
+    }
+  }   
   else {
     mem[address]=data;
   } 
 }
 
 
-uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
+uint8_t __not_in_flash_func(memory_read_data)(uint16_t address) {
   last_address = address;
   // memory map
   if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
@@ -111,11 +122,20 @@ uint8_t __not_in_flash_func(memory_read_data)(uint32_t address) {
           ASSERT_STRICT(false && "ACCESSING MEMORYMAPPED AREA-");
           return mem[address];  
     }
-  } 
-  else if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
-    // TILEMAP-Reader
-    return 0x95;
   }
+  else if (datamount_amount>0){
+    for (int i=0;i<datamount_amount;i++){
+      ng_mem_datamount_t* mount = datamounts[i];
+      if (address>=mount->destination && address<=mount->destination+mount->size){
+        uint16_t offset = address - mount->destination;
+        return *(mount->source+offset);
+      }    
+    }
+  } 
+//   else if (address >= MEMORY_TILEAREA_BEGIN && address <= MEMORY_TILEAREA_END){
+//     // TILEMAP-Reader
+//     return 0x95;
+//   }
   
   else {
     return last_data = mem[address];

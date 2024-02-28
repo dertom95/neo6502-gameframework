@@ -39,8 +39,8 @@ extern char*    mm_keyboard_last_pressed_char;
 
 //extern uint8_t write_data;
 
-void memory_write_data(uint32_t address,uint8_t data);
-uint8_t memory_read_data(uint32_t address);
+void memory_write_data(uint16_t address,uint8_t data);
+uint8_t memory_read_data(uint16_t address);
 void memory_init();
 uint8_t call_function(); // generated
 

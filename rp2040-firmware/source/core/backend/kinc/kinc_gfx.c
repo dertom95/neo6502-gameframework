@@ -66,6 +66,11 @@ void gfx_backend_init()
     kinc_framebuffer_options_t framebuffer_opts;
     kinc_framebuffer_options_set_defaults(&framebuffer_opts);
     framebuffer_opts.frequency=60;
+    kinc_window_options_t win_defaults;
+    kinc_window_options_set_defaults(&win_defaults);
+    win_defaults.width=SCREEN_WIDTH;
+    win_defaults.height=SCREEN_HEIGHT;
+    
     // framebuffer_opts.vertical_sync=tru;
     // framebuffer_opts.frequency=10000;
     int win = kinc_init("n6502", SCREEN_WIDTH, SCREEN_HEIGHT, NULL, &framebuffer_opts);

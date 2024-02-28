@@ -84,6 +84,23 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
         return call_result;
     }
 }   
+// returns: void f-grp:1 f-id:13
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_mount_t* func_data;
+    func_data = (call_gfx_pixelbuffer_mount_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 13;
+    func_data->pxb=(uint16_t) pxb;
+    func_data->destination= destination;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: void f-grp:1 f-id:2
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565){
     uint8_t result_code;

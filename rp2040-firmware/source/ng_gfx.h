@@ -19,26 +19,6 @@
 
 #define MAX_SPRITES 64
 
-typedef struct {
-	int16_t pos_x;
-	int16_t pos_y;
-	uint8_t tile;
-	uint8_t tilestride;
-	uint8_t ntiles;
-
-	int16_t xmin, ymin;
-	int16_t xmax, ymax;
-	uint8_t dir;
-	uint8_t anim_frame;
-} character_t;
-
-typedef struct {
-	int16_t cam_x;
-	int16_t cam_y;
-	uint32_t frame_ctr;
-	character_t chars[N_CHARACTERS];
-} game_state_t;
-
 typedef struct data_header_t {
 	uint8_t type;
 	uint8_t free;
@@ -71,8 +51,6 @@ typedef struct gfx_sprite_t {
 	gfx_tilesheet_t* tilesheet;
 	void* tile_ptr; // direct link to the current tiledata
 } gfx_sprite_t;
-
-
 
 
 typedef struct gfx_palette_t {
@@ -113,6 +91,8 @@ void gfx_renderqueue_wipe(void);
 /*api:1:9*/void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
 /*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
 /*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
+/*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
+
 
 bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer);
 gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts);
@@ -140,6 +120,7 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:11
+
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:13
 
 #endif 

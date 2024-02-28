@@ -10,11 +10,14 @@
 #define MEM_USAGE_SPRITEBUFFER  2
 #define MEM_USAGE_TILESHEET     3
 
+#define MAX_DATAMOUNTS 3
 
 #define flags_set(FLAGS,MASK) FLAGS |= MASK;
 #define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;
 #define flags_isset(FLAGS,MASK) ((FLAGS & MASK)==MASK)
 #define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
+
+
 
 #define MEM_MAX_SEGMENTS 3
 #define MEMBLOCK_USAGE_MASK   (15 << 0) // bits 0-3 usage
@@ -30,7 +33,19 @@ typedef struct ng_mem_segment_t {
 typedef struct ng_mem_datablock_t {
     ng_mem_block_t mem;
     void* info;
-} ng_mem_datablock_t;
+} __attribute__((aligned(4))) ng_mem_datablock_t;
+
+
+typedef struct ng_mem_datamount_t {
+    uint8_t* source;
+    uint16_t size;
+    uint16_t destination;
+    uint8_t page;
+    uint8_t flags;
+} __attribute__((aligned(4)))  ng_mem_datamount_t;
+
+extern uint8_t datamount_amount;
+extern ng_mem_datamount_t* datamounts[MAX_DATAMOUNTS];
 
 // create a segment (see MEM_MAX_SEEGMENTS for the max amount). return the segment-id. max-size: 131056
 uint8_t ng_mem_segment_create(void* start, uint32_t size);
@@ -57,6 +72,13 @@ void* ng_mem_allocate_with_alignment(uint8_t segment_id,uint32_t size,uint8_t al
 //       
 // returns: true if allocation was successful. false if not
 bool ng_mem_allocate_block(uint8_t segment_id,uint32_t size, uint8_t usage_type, ng_mem_block_t* block); 
+
+/// @brief Mount the specified area in the 6502-mem
+/// @param data_mount 
+void ng_mem_add_datamount(ng_mem_datamount_t* data_mount);
+
+//void ng_mem_mount_block(ng_mem_datablock_t* dtb, uint16_t destination);
+void ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination);
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block); 
 uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block); 
