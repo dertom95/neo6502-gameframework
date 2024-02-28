@@ -10,7 +10,7 @@ volatile uint16_t* my =  (uint16_t*)MM_MOUSE_Y;
 volatile uint8_t* mbtn = (uint8_t*)MM_MOUSE_BTN;
 
 //volatile uint8_t* tile_map = (uint8_t*)(0xd000);
-volatile uint8_t* tile_map = (uint8_t*)(0xd00);
+volatile uint8_t* tile_map = (uint8_t*)(0x5000);
 uint8_t col = 0;
 uint8_t current_back=0;
 uint8_t current_x=0;
@@ -33,7 +33,7 @@ gfx_pixelbuffer_t pixelbuffer = {
     .height=30,
     .x=0,
     .y=0,
-    .stretch=flags_pack_4_4(1,1)
+    .stretch=flags_pack_4_4(8,8)
 };
 
 uint8_t kX=0,kY=0;
@@ -60,7 +60,7 @@ int main(){
     gfx_renderqueue_apply();
 
 
-   // gfx_pixelbuffer_mount(&pixelbuffer,0xd000);
+    gfx_pixelbuffer_mount(&pixelbuffer,0x5000);
     
 
 
@@ -84,8 +84,8 @@ int main(){
         seed++;
         for (uint8_t i=0;i<40;i++){
             for (uint8_t j=0;j<30;j++){
-                gfx_draw_pixel(i,j,seed+(i+1)*(j+1));
-                //*(tile_map+i*100+j)=COL_RED;
+                gfx_draw_pixel(i,j,seed+(i+1)*(j+1)); 
+              //  *(tile_map+j*40+i)=seed+(i+1)*(j+1);
             }
         }
 
