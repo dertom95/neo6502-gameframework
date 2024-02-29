@@ -19,12 +19,12 @@ uint8_t current_y=0;
 #define KEY_COL_DOWN    (1 << 7)
 #define KEY_COL_UP      (1 << 6)
 #define KEY_LEFT    (1 << 5)
-#define KEY_UP      (1 << 4)
-#define KEY_DOWN   (1 << 3)
+#define KEY_LEFT2      (1 << 4)
+#define KEY_RIGHT2   (1 << 3)
 #define KEY_RIGHT    (1 << 2)
 
 keyboard_mapping_t kbm={
-    .keycodes = {HID_KEY_0,HID_KEY_1,HID_KEY_A,HID_KEY_W,HID_KEY_S,HID_KEY_D,0,0},
+    .keycodes = {HID_KEY_0,HID_KEY_1,HID_KEY_A,HID_KEY_Q,HID_KEY_E,HID_KEY_D,0,0},
     .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN
 };
 
@@ -33,7 +33,11 @@ gfx_pixelbuffer_t pixelbuffer = {
     .height=30,
     .x=0,
     .y=0,
-    .stretch=flags_pack_4_4(8,8)
+    .canvas_x=2,
+    .canvas_y=0,
+    .canvas_width=140,
+    .canvas_height=140,
+    .pixel_size=flags_pack_4_4(8,8)
 };
 
 uint8_t kX=0,kY=0;
@@ -66,7 +70,7 @@ int main(){
 
     uint8_t px_width;
     uint8_t px_height;
-    flags_unpack_4_4(pixelbuffer.stretch,px_width,px_height);
+    flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
 
     while(1){
         // TODO: implement some kind of sleep
@@ -84,43 +88,34 @@ int main(){
         seed++;
         for (uint8_t i=0;i<40;i++){
             for (uint8_t j=0;j<30;j++){
-                gfx_draw_pixel(i,j,seed+(i+1)*(j+1)); 
-              //  *(tile_map+j*40+i)=seed+(i+1)*(j+1);
+              //  gfx_draw_pixel(i,j,seed+(i+1)*(j+1)); 
+                *(tile_map+j*40+i)=seed+(i+1)*(j+1);
             }
         }
 
         bool changed = false;
 
         if ((kbm.key_pressed & KEY_LEFT)>0){
-            if (px_width>0) {
-                px_width--;
-                changed=true;
-            }
-            gfx_draw_pixel(0,0,1);
+            pixelbuffer.x--;
+            changed=true;
         }
         if ((kbm.key_pressed & KEY_RIGHT)>0){
-            if (px_width<8) {
-                px_width++;
-                changed=true;
-            }
+            pixelbuffer.x++;
+            changed=true;
         }
-        if ((kbm.key_pressed & KEY_DOWN)>0){
-            if (px_height<8) {
-                px_height++;
-                changed=true;
-            }
+        if ((kbm.key_pressed & KEY_LEFT2)>0){
+            pixelbuffer.canvas_x--;
+            changed=true;
         }
-        if ((kbm.key_pressed & KEY_UP)>0){
-            if (px_height>0) {
-                px_height--;
-                changed=true;
-            }
+        if ((kbm.key_pressed & KEY_RIGHT2)>0){
+            pixelbuffer.canvas_x++;
+            changed=true;
         }
         kbm.key_down=0;
         kbm.key_pressed=0;
 
         if (changed){
-            pixelbuffer.stretch=flags_pack_4_4(px_width,px_height);
+            pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
             gfx_pixelbuffer_set_active(&pixelbuffer);            
         }
     }

@@ -173,44 +173,61 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
                 uint8_t px_width;
                 uint8_t px_height;
-                flags_unpack_4_4(pixelbuffer->stretch,px_width,px_height);
+                flags_unpack_4_4(pixelbuffer->pixel_size,px_width,px_height);
 
-				bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height * px_height;
+				bool is_visible = pixel_y >= 0 && pixel_y < min(pixelbuffer->height * px_height, pixelbuffer->canvas_height);
 
 				// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
 				// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
 
 
 				if (is_visible){
+                    uint16_t full_width = pixelbuffer->width*px_width;
 					//uint8_t* buffer = &pixelbuffer[y*320];
 					uint16_t count;
 					uint8_t* buffer = db->mem.data + (pixel_y/px_height)*pixelbuffer->width;
 					
-					if (pixelbuffer->x>0){
+					if (pixelbuffer->x>=0){
 						write_buf+=pixelbuffer->x; 
-						count = min(SCREEN_WIDTH-pixelbuffer->x, pixelbuffer->width);
+						count = min(SCREEN_WIDTH-pixelbuffer->x*px_width, pixelbuffer->width);
 					} else {
+                        //TODO
 						// pixelbuffer->x is negative!
 						buffer+=-pixelbuffer->x;
 						count = pixelbuffer->width + pixelbuffer->x; 
 					}
 
+                    uint16_t pixels_to_write = min(pixelbuffer->canvas_width, full_width-pixelbuffer->canvas_x);
+
+                    buffer+=(pixelbuffer->canvas_x / px_width); // move input-pointer to canvas-x
+
                     if (px_width==1){
-                        // don't do the overhead for px_width>1
-                        while (count--){
+                        // no stretch!
+                        while (pixels_to_write--){
                             uint8_t data = *(buffer++);
                             *(write_buf++)=color_palette[data];
                         }
                     } else {
+                        // there is a stretch
+
                         //count*=px_width;
                         uint8_t px_count;
+                        // start here with the rest of the amount to be put to fulfil the canvas-position (mid strechted pixel)
+                        px_count = px_width - (pixelbuffer->canvas_x % px_width);
                         while (count--){
                             uint8_t data = *(buffer++);
-                            px_count = px_width;
                             while(px_count--){
                                 *(write_buf++)=color_palette[data];
+                                if (pixels_to_write--==0){
+                                    // sorry for the goto. But I don't want to waste power checking for some flags just to break out of the loops
+                                    goto exit_loop; 
+                                }
                             }
+                            px_count=px_width;
+                            
                         }
+                        exit_loop:
+
                     }
 				}
 				break;
@@ -479,8 +496,12 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 {
 	assert(initial_data->obj_id==0 && "object-id already set!");
 	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > sizeof(ng_mem_datablock_t) && "gfx_create_pixelbuffer: create size");
-	ng_mem_datablock_t* block = ng_mem_allocate(SEGMENT_GFX_DATA, sizeof(ng_mem_datablock_t));
+	
+    
+    ng_mem_datablock_t* block = ng_mem_allocate(SEGMENT_GFX_DATA, sizeof(ng_mem_datablock_t));
 	block->info = initial_data;
+    initial_data->canvas_height = initial_data->canvas_height==0 ? initial_data->height : initial_data->canvas_height;
+    initial_data->canvas_width = initial_data->canvas_width==0 ? initial_data->width : initial_data->canvas_width;
 
 	uint32_t size = initial_data->width * initial_data->height;
 	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > size && "gfx_create_pixelbuffer: create size");

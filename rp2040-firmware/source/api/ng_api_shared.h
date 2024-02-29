@@ -44,7 +44,12 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint16_t width;
     uint16_t height;
 
-    uint8_t stretch;
+    uint16_t canvas_width;
+    uint16_t canvas_height;
+    uint16_t canvas_x;
+    uint16_t canvas_y;
+
+    uint8_t pixel_size;
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
