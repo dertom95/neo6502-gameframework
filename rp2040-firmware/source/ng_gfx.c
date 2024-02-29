@@ -226,10 +226,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                             px_count=px_width;
                             
                         }
-                        exit_loop:
-
-                    }
+                   }
 				}
+                exit_loop:
 				break;
 			}
 

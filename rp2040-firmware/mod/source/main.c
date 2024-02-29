@@ -95,19 +95,19 @@ int main(){
 
         bool changed = false;
 
-        if ((kbm.key_pressed & KEY_LEFT)>0){
+        if ((kbm.key_down & KEY_LEFT)>0){
             pixelbuffer.x--;
             changed=true;
         }
-        if ((kbm.key_pressed & KEY_RIGHT)>0){
+        if ((kbm.key_down & KEY_RIGHT)>0){
             pixelbuffer.x++;
             changed=true;
         }
-        if ((kbm.key_pressed & KEY_LEFT2)>0){
+        if ((kbm.key_down & KEY_LEFT2)>0){
             pixelbuffer.canvas_x--;
             changed=true;
         }
-        if ((kbm.key_pressed & KEY_RIGHT2)>0){
+        if ((kbm.key_down & KEY_RIGHT2)>0){
             pixelbuffer.canvas_x++;
             changed=true;
         }
