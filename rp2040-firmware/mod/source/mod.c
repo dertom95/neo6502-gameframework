@@ -39,15 +39,16 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=40,
-    .height=30,
+    .width=100,
+    .height=20,
     .x=-2,
     .y=0,
-    .pixel_size=flags_pack_4_4(3,3),
+    .pixel_size=flags_pack_4_4(1,1),
     .flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
 uint8_t kX=0,kY=0;
+char text_bf[30];
 
 #define TICK_RATE (1000/30)
 volatile uint16_t* ms_delta = NULL;
@@ -86,8 +87,12 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
+
+
     flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
 }
+
+
 
 void mod_update() {
     // TODO: implement some kind of sleep
@@ -121,8 +126,13 @@ void mod_update() {
 
     bool changed = false;
 
-    // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
-    // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
+    pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
+    pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
+
+    ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
+
+    gfx_draw_text(4,2,text_bf,COL_ORANGE);
+
 
     if ((kbm.key_pressed & KEY_LEFT)>0){
         if (px_width>0){

@@ -11,7 +11,10 @@
 #include "kinc_ng.h"
 #define UNDOCUMENTED
 
-#include "../../../../mod/source/mod.c"
+extern void mod_init();
+extern void mod_update();
+
+//#include "../../../../mod/source/mod.c"
 
 #define RATE (1000/30)
 

@@ -421,7 +421,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 	}
 }
 
-void gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx)
+void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx)
 {
 	uint16_t initial_x = x;
 	uint8_t initial_color = color_idx;

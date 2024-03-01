@@ -112,7 +112,7 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 /*api:1:8*/void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
 
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)
-void     gfx_draw_text(uint16_t x, uint16_t y, const char* txt, uint8_t color_idx);
+/*api:1:14*/void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
@@ -121,6 +121,6 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
 
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:13
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:14
 
 #endif 

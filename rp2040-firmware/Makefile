@@ -36,6 +36,8 @@ mod-assets-create:
 mod-assets-create-only-code:
 	cd mod && make assets-pack-only-compile
 
+mc: mod-assets-create-only-code
+
 mod-source-compile:
 	cd mod && make source-compile
 

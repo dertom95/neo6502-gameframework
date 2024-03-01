@@ -106,6 +106,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 14: {
+                call_gfx_draw_text_t* call = (call_gfx_draw_text_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 

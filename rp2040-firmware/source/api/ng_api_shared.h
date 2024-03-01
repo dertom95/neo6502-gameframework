@@ -1,5 +1,10 @@
-#ifndef __NG_API_MAPPING_H_
-#define __NG_API_MAPPING_H_
+#ifndef __NG_API_SHARED_H_
+#define __NG_API_SHARED_H_
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include "ng_config.h"
 
 // the key was just pressed
 #define KEYBMAP_FLAG_SCAN_KEY_PRESSED (1 << 0)
@@ -62,6 +67,8 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 #else
     #define MEMPTR(ADDRESS) ((uint8_t*)ADDRESS)
 #endif
+
+int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 
 #define flags_set(FLAGS,MASK) FLAGS |= MASK;
 #define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;

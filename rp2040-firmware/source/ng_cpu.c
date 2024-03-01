@@ -18,7 +18,6 @@ void ng_cpu_before_tick(void)
 }
 void ng_cpu_after_tick(void)
 {
-
 }
 
 #endif

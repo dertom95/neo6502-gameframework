@@ -5,6 +5,8 @@ import subprocess
 import xml.dom.minidom
 import re
 
+import re
+
 def simple_glue(input_paths,output_file):
     filepaths = []
     for path in input_paths:
@@ -43,7 +45,7 @@ def simple_glue(input_paths,output_file):
                     xfunction_group = function_groups[function_group]
 
                 # use regex to match the return type, function name and parameters
-                match = re.match(r"(\w+\s*\*?)\s+(\w+)\((.*)\);", line)
+                match = re.match(r"(\w+\s*\*?|\bconst\s+\w+\s*\*?)\s+(\w+)\((.*)\);", line)
                 if match:
                     # get the return type, function name and parameters
                     return_type = match.group(1).strip()
@@ -62,7 +64,7 @@ def simple_glue(input_paths,output_file):
                     # loop through the parameters
                     for parameter in parameters:
                         # use regex to match the parameter type and name
-                        match = re.match(r"(\w+\s*\*?)\s+(\w+)", parameter.strip())                        
+                        match = re.match(r"(\w+\s*\*?|\bconst\s+\w+\s*\*?)\s+(\w+)", parameter.strip())                        
                         #match = re.match(r"(\w+)\s+(\w+)", parameter.strip())
                         if match:
                             # get the parameter type and name
@@ -73,6 +75,7 @@ def simple_glue(input_paths,output_file):
                             # set the name and type attributes
                             parameter_element.set("name", parameter_name)
                             parameter_element.set("type", parameter_type)
+
 
 
     # write the xml to a file

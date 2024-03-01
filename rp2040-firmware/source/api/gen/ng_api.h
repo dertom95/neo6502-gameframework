@@ -44,6 +44,8 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
  // returns: void f-grp: f-id:8;
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
+ // returns: void f-grp: f-id:14;
+void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -117,6 +119,14 @@ typedef struct call_gfx_draw_char_t {
     char ch;
     uint8_t color_idx;
 } call_gfx_draw_char_t;
+// returns: void f-grp: f-id:14
+typedef struct call_gfx_draw_text_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t txt;
+    uint8_t color_idx;
+} call_gfx_draw_text_t;
 
 // function grp: 2
 
