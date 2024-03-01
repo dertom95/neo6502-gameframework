@@ -78,6 +78,7 @@ void main_init(){
     memory_init();
     gfx_init();  
    // game_init();
+    // TODO: this have to be done by the loader! once it is established
     assets_set_current_pack((void*)assets_data,sizeof(assets_data));
 
 
@@ -168,8 +169,6 @@ void main_loop(void* data)
 
         tick_counter = 0;
     }
-
-    int a = 0;
 }
 
 

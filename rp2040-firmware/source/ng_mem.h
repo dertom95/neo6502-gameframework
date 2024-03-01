@@ -12,10 +12,7 @@
 
 #define MAX_DATAMOUNTS 3
 
-#define flags_set(FLAGS,MASK) FLAGS |= MASK;
-#define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;
-#define flags_isset(FLAGS,MASK) ((FLAGS & MASK)==MASK)
-#define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
+
 
 
 

@@ -110,6 +110,23 @@ void __not_in_flash_func(memory_write_data)(uint16_t address,uint8_t data) {
   mem[address]=data;
 }
 
+uint8_t* memory_resolve_address(uint16_t address){
+  if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
+    return NULL;
+  }
+  else if (datamount_amount>0){
+    for (int i=0;i<datamount_amount;i++){
+      ng_mem_datamount_t* mount = datamounts[i];
+      if (address>=mount->destination && address<=mount->destination+mount->size){
+        uint16_t offset = address - mount->destination;
+        return (uint8_t*)(mount->source+offset);
+      }    
+    }
+  }
+  else {
+    return (uint8_t*)&mem[address];
+  }
+}
 
 uint8_t __not_in_flash_func(memory_read_data)(uint16_t address) {
   last_address = address;

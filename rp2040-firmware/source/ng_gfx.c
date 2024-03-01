@@ -166,69 +166,55 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 				// █▀█ █ ▀▄▀ █▀▀ █░░ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
 				// █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
 
+                // TODO: MEMO to myself. This is just a first version, just finish and iterate over it. 
 				ng_mem_datablock_t* db = (ng_mem_datablock_t*)current_render_block;
 				gfx_pixelbuffer_t* pixelbuffer = db->info;
-
-				int16_t pixel_y = y - pixelbuffer->y;
 
                 uint8_t px_width;
                 uint8_t px_height;
                 flags_unpack_4_4(pixelbuffer->pixel_size,px_width,px_height);
 
-				bool is_visible = pixel_y >= 0 && pixel_y < min(pixelbuffer->height * px_height, pixelbuffer->canvas_height);
+				int16_t pixel_y = y - pixelbuffer->y;
+				bool is_visible = pixel_y >= 0 && pixel_y < pixelbuffer->height * px_height;
+                if (!is_visible) {
+                    break;
+                }    
 
-				// bool has_no_pixelbuffer_intersection = (pixelbuffer->y > 0 &&  (y < pixelbuffer->y || y > pixelbuffer->y+pixelbuffer->height))
-				// 									   || (pixelbuffer->y < 0 && ( pixelbuffer->y+y < 0 || pixelbuffer->y+y > pixelbuffer->height));
+                uint16_t full_width = pixelbuffer->width*px_width;
+                
+                uint16_t output_pixels_to_write;
+                uint8_t  output_subpixels_left;
 
+                uint16_t input_pixels_to_read;
+                // point to the beginning of the pixelbuffer
+                uint8_t* read_buffer = db->mem.data + (pixel_y/px_height)*pixelbuffer->width;
+                
+                if (pixelbuffer->x>=0){
+                    output_pixels_to_write = min(full_width, SCREEN_WIDTH-full_width)-1;
+                    output_subpixels_left = px_width;
+                    write_buf += pixelbuffer->x; 
+                } else {
+                    // the pixelbuffer.x is negative
+                    output_pixels_to_write = full_width+pixelbuffer->x-1; 
+                    output_subpixels_left = px_width - output_pixels_to_write%px_width; // start inbetween a subpixel
+                    read_buffer-= pixelbuffer->x/px_width; // move forward(!) to the start-pixel (right side is negative)
+                }
+                input_pixels_to_read = (output_pixels_to_write / px_width)+1;
 
-				if (is_visible){
-                    uint16_t full_width = pixelbuffer->width*px_width;
-					//uint8_t* buffer = &pixelbuffer[y*320];
-					uint16_t count;
-					uint8_t* buffer = db->mem.data + (pixel_y/px_height)*pixelbuffer->width;
-					
-					if (pixelbuffer->x>=0){
-						write_buf+=pixelbuffer->x; 
-						count = min(SCREEN_WIDTH-pixelbuffer->x*px_width, pixelbuffer->width);
-					} else {
-                        //TODO
-						// pixelbuffer->x is negative!
-						buffer+=-pixelbuffer->x;
-						count = pixelbuffer->width + pixelbuffer->x; 
-					}
+                while (input_pixels_to_read--){
+                    uint8_t  data  = *(read_buffer++);
+                    uint16_t color = color_palette[data];
 
-                    uint16_t pixels_to_write = min(pixelbuffer->canvas_width, full_width-pixelbuffer->canvas_x);
-
-                    buffer+=(pixelbuffer->canvas_x / px_width); // move input-pointer to canvas-x
-
-                    if (px_width==1){
-                        // no stretch!
-                        while (pixels_to_write--){
-                            uint8_t data = *(buffer++);
-                            *(write_buf++)=color_palette[data];
+                    while(output_subpixels_left--){
+                        *(write_buf++)=color;
+                        if (output_pixels_to_write--==0){
+                            goto exit_all_loops;
                         }
-                    } else {
-                        // there is a stretch
-
-                        //count*=px_width;
-                        uint8_t px_count;
-                        // start here with the rest of the amount to be put to fulfil the canvas-position (mid strechted pixel)
-                        px_count = px_width - (pixelbuffer->canvas_x % px_width);
-                        while (count--){
-                            uint8_t data = *(buffer++);
-                            while(px_count--){
-                                *(write_buf++)=color_palette[data];
-                                if (pixels_to_write--==0){
-                                    // sorry for the goto. But I don't want to waste power checking for some flags just to break out of the loops
-                                    goto exit_loop; 
-                                }
-                            }
-                            px_count=px_width;
-                            
-                        }
-                   }
-				}
-                exit_loop:
+                    }
+                    output_subpixels_left=px_width;
+                }
+                
+exit_all_loops:
 				break;
 			}
 
@@ -248,11 +234,11 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 							continue;
 						}
 
-						uint8_t count = min(sprite->tilesheet->tile_width,SCREEN_WIDTH-sprite->x);
+						uint8_t input_pixels_to_read = min(sprite->tilesheet->tile_width,SCREEN_WIDTH-sprite->x);
 						uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
 						write_buf = pixbuf+sprite->x;
 						uint8_t idx;
-						while (count--){
+						while (input_pixels_to_read--){
 							idx = *(data++);
 							if (idx==255){
 								write_buf++;
@@ -499,8 +485,6 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
     
     ng_mem_datablock_t* block = ng_mem_allocate(SEGMENT_GFX_DATA, sizeof(ng_mem_datablock_t));
 	block->info = initial_data;
-    initial_data->canvas_height = initial_data->canvas_height==0 ? initial_data->height : initial_data->canvas_height;
-    initial_data->canvas_width = initial_data->canvas_width==0 ? initial_data->width : initial_data->canvas_width;
 
 	uint32_t size = initial_data->width * initial_data->height;
 	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > size && "gfx_create_pixelbuffer: create size");

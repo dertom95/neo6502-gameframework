@@ -14,10 +14,10 @@ initialize:
 	mkdir -p $(ASSET_FOLDER)/palette
 
 source-compile:
-	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -lexit-loop -linit-stack -I.. -I../../source/api main.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map
+	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -lexit-loop -linit-stack -I.. -I../../source/api mod.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map
 	
 # source-compile-cc65:	
-# 	cc65 -Osir source/main.c --add-source -I../source/api -I. -o temp/main.s --standard c99
+# 	cc65 -Osir source/mod.c --add-source -I../source/api -I. -o temp/main.s --standard c99
 # 	ca65 -g -l basic.lst --feature labels_without_colons temp/main.s
 # 	ld65 -C $(MOD_DIR)/../tools/cc65/cc65-mem-usercode.cfg -o temp/code.bin temp/main.o none.lib
 

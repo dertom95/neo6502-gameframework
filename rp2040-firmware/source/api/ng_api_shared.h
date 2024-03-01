@@ -33,6 +33,15 @@ typedef struct ng_mem_block_t
 // █▀▀ █▀▀ ▀▄▀
 // █▄█ █▀░ █░█
 
+#define PXB_WRAPMODE_MASK (3 << 0)
+#define PXB_WRAPMODE_NONE      0
+#define PXB_WRAPMODE_WRAP      1
+#define PXB_WRAPMODE_MIRROR    2
+//TODO: What was the name if the last color is just repeated? :thinking:
+#define PXB_WRAPMODE_LASTCOLOR 3 
+#define PXB_WRAPMODE(PXB_FLAG,MODE) \
+    ((PXB_FLAG&~PXB_WRAPMODE_MASK)|MODE)
+
 typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 {
     uint8_t obj_id;
@@ -44,15 +53,20 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint16_t width;
     uint16_t height;
 
-    uint16_t canvas_width;
-    uint16_t canvas_height;
-    uint16_t canvas_x;
-    uint16_t canvas_y;
-
     uint8_t pixel_size;
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
+#if _MOD_NATIVE_
+    #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))
+#else
+    #define MEMPTR(ADDRESS) ((uint8_t*)ADDRESS)
+#endif
+
+#define flags_set(FLAGS,MASK) FLAGS |= MASK;
+#define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;
+#define flags_isset(FLAGS,MASK) ((FLAGS & MASK)==MASK)
+#define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
 #define flags_pack_4_4(HIGH,LOW) (HIGH<<4)|(LOW)
 #define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15);
 

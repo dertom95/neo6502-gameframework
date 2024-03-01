@@ -136,7 +136,8 @@
         "templ_ng_api.h": "c",
         "ng_defines.h": "c",
         "ng_api_shared.h": "c",
-        "ng_mem.h": "c"
+        "ng_mem.h": "c",
+        "fake65c02.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"],
     "editor.detectIndentation": false    

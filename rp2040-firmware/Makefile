@@ -24,8 +24,10 @@ kinc_get:
 		mkdir -p build-scripts/kinc/tmp && cd build-scripts/kinc/tmp && git clone https://github.com/Kode/Kinc.git; \
 	fi
 
-kinc-build: kinc_get
-	cd build-scripts/kinc && tmp/Kinc/make  --to ../../build-kinc --target linux --graphics opengl --compile		
+kinc-build: kinc_get mod-assets-create
+	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --compile		
+kinc-modnative-build: kinc_get
+	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-modnative.js --to ../../build-kinc --target linux --graphics opengl --compile		
 
 mod-assets-create:
 	# todo: get rid of intermediate step to pack assets twice (once without code and once with code compiled)

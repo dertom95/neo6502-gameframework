@@ -43,11 +43,8 @@ gfx_pixelbuffer_t pixelbuffer = {
     .height=30,
     .x=0,
     .y=0,
-    .canvas_x=2,
-    .canvas_y=0,
-    .canvas_width=140,
-    .canvas_height=140,
-    .pixel_size=flags_pack_4_4(8,8)
+    .pixel_size=flags_pack_4_4(1,1),
+    .flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
 uint8_t kX=0,kY=0;
@@ -67,7 +64,6 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 
     io_keyboardmapping_register(&kbm,1);
-
 
     // while(1){
     //     *(tile_map)=1;
@@ -107,12 +103,21 @@ void mod_update() {
 
     static uint8_t seed = 0;
     seed++;
-    for (uint8_t i=0;i<40;i++){
-        for (uint8_t j=0;j<30;j++){
-            //  gfx_draw_pixel(i,j,seed+(i+1)*(j+1)); 
-            *(tile_map+j*40+i)=seed+(i+1)*(j+1);
-        }
-    }
+
+    *(tile_map)=COL_RED;
+    *(tile_map+39)=COL_GREEN;
+    *(tile_map+39+29*40)=COL_ORANGE;
+    *(tile_map+29*40)=COL_VIOLETTE;
+    
+
+    // for (uint8_t i=0;i<4;i++){
+    //     for (uint8_t j=0;j<4;j++){
+    //         *(tile_map+j*40+i)=COL_RED;
+    //         *(tile_map+j*40+i+20)=COL_GREEN;
+    //         *(tile_map+(j+25)*40+i+25)=COL_ORANGE;
+    //         *(tile_map+(j+20)*40+i)=COL_VIOLETTE;
+    //     }
+    // }
 
     bool changed = false;
 
@@ -125,11 +130,11 @@ void mod_update() {
         changed=true;
     }
     if ((kbm.key_down & KEY_LEFT2)>0){
-        pixelbuffer.canvas_x--;
+        // pixelbuffer.canvas_x--;
         changed=true;
     }
     if ((kbm.key_down & KEY_RIGHT2)>0){
-        pixelbuffer.canvas_x++;
+        // pixelbuffer.canvas_x++;
         changed=true;
     }
     kbm.key_down=0;
