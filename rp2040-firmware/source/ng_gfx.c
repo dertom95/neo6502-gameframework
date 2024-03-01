@@ -190,13 +190,13 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                 uint8_t* read_buffer = db->mem.data + (pixel_y/px_height)*pixelbuffer->width;
                 
                 if (pixelbuffer->x>=0){
-                    output_pixels_to_write = min(full_width, SCREEN_WIDTH-full_width)-1;
+                    output_pixels_to_write = min(full_width, SCREEN_WIDTH-pixelbuffer->x)-1;
                     output_subpixels_left = px_width;
                     write_buf += pixelbuffer->x; 
                 } else {
                     // the pixelbuffer.x is negative
                     output_pixels_to_write = full_width+pixelbuffer->x-1; 
-                    output_subpixels_left = px_width - output_pixels_to_write%px_width; // start inbetween a subpixel
+                    output_subpixels_left = px_width + pixelbuffer->x%px_width; // start inbetween a subpixel
                     read_buffer-= pixelbuffer->x/px_width; // move forward(!) to the start-pixel (right side is negative)
                 }
                 input_pixels_to_read = (output_pixels_to_write / px_width)+1;

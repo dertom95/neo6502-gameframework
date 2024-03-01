@@ -41,9 +41,9 @@ keyboard_mapping_t kbm={
 gfx_pixelbuffer_t pixelbuffer = {
     .width=40,
     .height=30,
-    .x=0,
+    .x=-2,
     .y=0,
-    .pixel_size=flags_pack_4_4(1,1),
+    .pixel_size=flags_pack_4_4(3,3),
     .flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -58,7 +58,7 @@ uint8_t px_height;
 
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
-    mx =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
+    mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     tile_map = (uint8_t*)MEMPTR(0x5000);
@@ -121,20 +121,33 @@ void mod_update() {
 
     bool changed = false;
 
-    if ((kbm.key_down & KEY_LEFT)>0){
+    // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
+    // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
+
+    if ((kbm.key_pressed & KEY_LEFT)>0){
+        if (px_width>0){
+            px_width--;
+        }
+        changed=true;
+    }
+    if ((kbm.key_pressed & KEY_RIGHT)>0){
+        if (px_width<15){
+            px_width++;
+        }
+        changed=true;
+    }
+    if ((kbm.key_pressed & KEY_LEFT2)>0){
+        // if (px_height>0){
+        //     px_height--;
+        // }
         pixelbuffer.x--;
         changed=true;
     }
-    if ((kbm.key_down & KEY_RIGHT)>0){
+    if ((kbm.key_pressed & KEY_RIGHT2)>0){
+        // if (px_height<15){
+        //     px_height++;
+        // }
         pixelbuffer.x++;
-        changed=true;
-    }
-    if ((kbm.key_down & KEY_LEFT2)>0){
-        // pixelbuffer.canvas_x--;
-        changed=true;
-    }
-    if ((kbm.key_down & KEY_RIGHT2)>0){
-        // pixelbuffer.canvas_x++;
         changed=true;
     }
     kbm.key_down=0;
