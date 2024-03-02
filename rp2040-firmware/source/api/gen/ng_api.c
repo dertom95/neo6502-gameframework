@@ -101,33 +101,16 @@ void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
 
     }
 }   
-// returns: bool f-grp:1 f-id:16
-bool    gfx_spritebuffer_create(gfx_sprite_buffer_t* spritebuffer){
+// returns: uint8_t f-grp:1 f-id:16
+uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, bool set_current){
     uint8_t result_code;
     call_gfx_spritebuffer_create_t* func_data;
     func_data = (call_gfx_spritebuffer_create_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 16;
-    func_data->spritebuffer=(uint16_t) spritebuffer;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-        bool call_result = (bool)*mem_call_result;
-        return call_result;
-    }
-}   
-// returns: uint8_t f-grp:1 f-id:17
-uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint8_t ts, uint8_t tile_id){
-    uint8_t result_code;
-    call_gfx_sprite_create_from_tilesheet_t* func_data;
-    func_data = (call_gfx_sprite_create_from_tilesheet_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 17;
-    func_data->spritebuffer=(uint16_t) spritebuffer;
-    func_data->ts= ts;
-    func_data->tile_id= tile_id;
+    func_data->spritedata=(uint16_t) spritedata;
+    func_data->spriteamount= spriteamount;
+    func_data->set_current= set_current;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -137,16 +120,14 @@ uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint
         return call_result;
     }
 }   
-// returns: void f-grp:1 f-id:18
-void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id){
+// returns: void f-grp:1 f-id:20
+void gfx_spritebuffer_set_current(uint8_t spritebuffer_id){
     uint8_t result_code;
-    call_gfx_sprite_set_position_t* func_data;
-    func_data = (call_gfx_sprite_set_position_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_gfx_spritebuffer_set_current_t* func_data;
+    func_data = (call_gfx_spritebuffer_set_current_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 18;
-    func_data->x= x;
-    func_data->y= y;
-    func_data->sprite_id= sprite_id;
+    func_data->hdr.func_id = 20;
+    func_data->spritebuffer_id= spritebuffer_id;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -155,49 +136,34 @@ void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id){
 
     }
 }   
+// returns: uint8_t f-grp:1 f-id:17
+uint8_t gfx_sprite_set_tileset(uint8_t sprite_idx, uint8_t tileset_id, uint8_t initial_tile_idx){
+    uint8_t result_code;
+    call_gfx_sprite_set_tileset_t* func_data;
+    func_data = (call_gfx_sprite_set_tileset_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 17;
+    func_data->sprite_idx= sprite_idx;
+    func_data->tileset_id= tileset_id;
+    func_data->initial_tile_idx= initial_tile_idx;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+        return call_result;
+    }
+}   
 // returns: void f-grp:1 f-id:19
-void gfx_sprite_set_tileid(uint8_t sprite_id,uint8_t tile_id){
+void gfx_sprite_set_tileid(uint8_t sprite_idx,uint8_t tile_idx){
     uint8_t result_code;
     call_gfx_sprite_set_tileid_t* func_data;
     func_data = (call_gfx_sprite_set_tileid_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 19;
-    func_data->sprite_id= sprite_id;
-    func_data->tile_id= tile_id;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: uint8_t f-grp:1 f-id:20
-uint8_t gfx_sprite_get_tileid(uint8_t sprite_id){
-    uint8_t result_code;
-    call_gfx_sprite_get_tileid_t* func_data;
-    func_data = (call_gfx_sprite_get_tileid_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 20;
-    func_data->sprite_id= sprite_id;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-        uint8_t call_result = (uint8_t)*mem_call_result;
-        return call_result;
-    }
-}   
-// returns: void f-grp:1 f-id:21
-void gfx_tilesheet_query_data(uint8_t ts_id,gfx_tilesheet_data_t* data){
-    uint8_t result_code;
-    call_gfx_tilesheet_query_data_t* func_data;
-    func_data = (call_gfx_tilesheet_query_data_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 21;
-    func_data->ts_id= ts_id;
-    func_data->data=(uint16_t) data;
+    func_data->sprite_idx= sprite_idx;
+    func_data->tile_idx= tile_idx;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -347,21 +313,21 @@ void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx){
 
     }
 }   
-// returns: uint8_t f-grp:1 f-id:15
-uint8_t  asset_get_tilesheet(uint8_t asset_id){
+// returns: void f-grp:1 f-id:15
+void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
     uint8_t result_code;
     call_asset_get_tilesheet_t* func_data;
     func_data = (call_asset_get_tilesheet_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 15;
+    func_data->ts_data=(uint16_t) ts_data;
     func_data->asset_id= asset_id;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
 
     {
-        uint8_t call_result = (uint8_t)*mem_call_result;
-        return call_result;
+
     }
 }   
 

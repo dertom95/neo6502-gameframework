@@ -35,17 +35,14 @@ typedef struct gfx_tilesheet_t {
 
 #define SPRITE_FLAG_INUSE (1 << 0)
 
-typedef struct gfx_sprite_t {
-	int16_t x;
-	int16_t y;
-	
-    uint8_t tile_id;
-    uint8_t sprite_id; // the id within the spritebuffer;
-	uint16_t flags; // flags = 0 => free to use
 
+
+typedef struct gfx_internal_sprite_t {
 	gfx_tilesheet_t* tilesheet;
 	void* tile_ptr; // direct link to the current tiledata
-} gfx_sprite_t;
+} gfx_internal_sprite_t;
+
+
 
 
 typedef struct gfx_palette_t {
@@ -53,6 +50,15 @@ typedef struct gfx_palette_t {
     uint16_t colors[];
 } gfx_palette_t;
 
+typedef struct __attribute__((aligned(4))) gfx_internal_spritebuffer_t {
+    ng_mem_block_t mem;
+    uint8_t obj_id;
+    uint8_t amount_sprites;
+    uint16_t flags;
+
+    gfx_sprite_t* sprites;
+    gfx_internal_sprite_t* sprite_internals;
+} gfx_internal_spritebuffer_t;
 
 
 #define TILESHEET_FORMAT_INDEXED = 1
@@ -85,15 +91,15 @@ void gfx_renderqueue_wipe(void);
 /*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
 
 
-/*api:1:16*/bool    gfx_spritebuffer_create(gfx_sprite_buffer_t* spritebuffer);
-/*api:1:17*/uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint8_t ts, uint8_t tile_id);
-/*api:1:18*/void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id);
-/*api:1:19*/void gfx_sprite_set_tileid(uint8_t sprite_id,uint8_t tile_id);
-/*api:1:20*/uint8_t gfx_sprite_get_tileid(uint8_t sprite_id);
+// create a spritebuffer that can manage the specified sprites that are created in usermemory
+/*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, bool set_current);
+/*api:1:20*/void gfx_spritebuffer_set_current(uint8_t spritebuffer_id);
+
+/*api:1:17*/uint8_t gfx_sprite_set_tileset(uint8_t sprite_idx, uint8_t tileset_id, uint8_t initial_tile_idx);
+/*api:1:19*/void gfx_sprite_set_tileid(uint8_t sprite_idx,uint8_t tile_idx);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
-/*api:1:21*/void gfx_tilesheet_query_data(uint8_t ts_id,gfx_tilesheet_data_t* data);
 
 /*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
 /*api:1:3*/uint16_t gfx_get_palettecolor(uint8_t color_idx);
@@ -114,8 +120,8 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 
-/*api:1:15*/uint8_t  asset_get_tilesheet(uint8_t asset_id);
+/*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:21
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:22
 
 #endif 

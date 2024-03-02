@@ -130,8 +130,8 @@ void game_tick(int dt)
         gfx_set_palette_from_assset(pal_small ? ASSET_COLOR_PALETTE_SMALL : ASSET_COLOR_PALETTE ,0);
     }
     if (io_keyboard_is_pressed(HID_KEY_ENTER)){
-        if (sprite->tile_id<7){
-            gfx_sprite_set_tileid(sprite,sprite->tile_id+1);
+        if (sprite->tile_idx<7){
+            gfx_sprite_set_tileid(sprite,sprite->tile_idx+1);
         } else {
             gfx_sprite_set_tileid(sprite,0);
         }

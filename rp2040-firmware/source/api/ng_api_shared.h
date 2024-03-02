@@ -38,14 +38,15 @@ typedef struct ng_mem_block_t
 // █▀▀ █▀▀ ▀▄▀
 // █▄█ █▀░ █░█
 
-#define PXB_WRAPMODE_MASK (3 << 0)
-#define PXB_WRAPMODE_NONE      0
-#define PXB_WRAPMODE_WRAP      1
-#define PXB_WRAPMODE_MIRROR    2
-//TODO: What was the name if the last color is just repeated? :thinking:
-#define PXB_WRAPMODE_LASTCOLOR 3 
-#define PXB_WRAPMODE(PXB_FLAG,MODE) \
-    ((PXB_FLAG&~PXB_WRAPMODE_MASK)|MODE)
+// TODO: someday
+// #define PXB_WRAPMODE_MASK (3 << 0)
+// #define PXB_WRAPMODE_NONE      0
+// #define PXB_WRAPMODE_WRAP      1
+// #define PXB_WRAPMODE_MIRROR    2
+// //TODO: What was the name if the last color is just repeated? :thinking:
+// #define PXB_WRAPMODE_LASTCOLOR 3 
+// #define PXB_WRAPMODE(PXB_FLAG,MODE) \
+//     ((PXB_FLAG&~PXB_WRAPMODE_MASK)|MODE)
 
 typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 {
@@ -62,23 +63,29 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
-typedef struct __attribute__((aligned(4))) gfx_sprite_buffer_t {
-    uint8_t max_sprites;
-    uint8_t obj_id;
-    uint8_t flags;
-    uint8_t free; // pad
-} gfx_sprite_buffer_t;
+typedef struct gfx_sprite_t {
+	int16_t x;
+	int16_t y;
+	uint16_t flags; // unused(yet)
+    
+    uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
+    uint8_t spritebuffer_id; // the spritebuffer this sprite belongs to
+    uint8_t sprite_idx; 
+} gfx_sprite_t;
 
+// CAUTIOUS: DO NOT CHANGE THE ORDER AND DO NOT ADD FIELDS.
+//           The data for the tilesheets is created by the exporter. 
+//           If you change this struct you also have to modify the exporter (ng_tool_tilesheet.py: encode_tiles(..) )
 typedef struct gfx_tilesheet_data_t{
 	uint8_t type;
 	uint8_t tile_width;
 	uint8_t tile_height;
 	uint8_t cols;
-	uint8_t rows;
-
+    uint8_t rows;
 	uint8_t tile_amount;
 
-	uint16_t flags;
+	uint8_t flags;
+    uint8_t ts_id;
 } gfx_tilesheet_data_t;
 
 #if _MOD_NATIVE_

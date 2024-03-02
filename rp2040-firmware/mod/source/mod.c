@@ -45,12 +45,10 @@ gfx_pixelbuffer_t pixelbuffer = {
     .x=-2,
     .y=0,
     .pixel_size=flags_pack_4_4(1,1),
-    .flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
+    //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
-gfx_sprite_buffer_t spritebuffer = {
-    .max_sprites=16,
-};
+uint8_t spritebuffer;
 
 uint8_t kX=0,kY=0;
 char text_bf[30];
@@ -61,11 +59,16 @@ volatile uint16_t* ms_delta = NULL;
 uint8_t px_width;
 uint8_t px_height;
 
-uint8_t ts_oldman;
-gfx_tilesheet_data_t ts_data;
+gfx_tilesheet_data_t ts_misc;
+gfx_tilesheet_data_t ts_oldguy;
 
 
-int sprite_oldguy;
+#define SPRITE_AMOUNT 16
+gfx_sprite_t sprites[SPRITE_AMOUNT];
+
+gfx_sprite_t* sprite_oldguy=&sprites[0];
+gfx_sprite_t* sprite_strawberry=&sprites[1];
+gfx_sprite_t* sprite_potion=&sprites[2];
 
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
@@ -74,15 +77,14 @@ int mod_init(){
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     tile_map = (uint8_t*)MEMPTR(0x5000);
 
-    ts_oldman = asset_get_tilesheet(ASSET_SPRITES_MISC);
-    gfx_tilesheet_query_data(ts_oldman,&ts_data);
+    asset_get_tilesheet(&ts_oldguy,ASSET_OLD_GUY);
+    asset_get_tilesheet(&ts_misc,ASSET_SPRITES_MISC);
 
     io_keyboardmapping_register(&kbm,1);
 
     // while(1){
     //     *(tile_map)=1;
     // }
-
 
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
@@ -96,11 +98,19 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
-    bool success = gfx_spritebuffer_create(&spritebuffer);
+    spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT,true);
 
-    sprite_oldguy = gfx_sprite_create_from_tilesheet(&spritebuffer, ts_oldman, 0);
+    gfx_sprite_set_tileset(sprite_oldguy->sprite_idx,ts_oldguy.ts_id,0);
+    gfx_sprite_set_tileset(sprite_strawberry->sprite_idx,ts_misc.ts_id,0);
+    gfx_sprite_set_tileset(sprite_potion->sprite_idx,ts_misc.ts_id,4);
 
-    gfx_renderqueue_add_id(spritebuffer.obj_id);
+    sprite_strawberry->x=50;
+    sprite_strawberry->y=40;
+
+    sprite_potion->x=70;
+    sprite_potion->y=40;
+
+    gfx_renderqueue_add_id(spritebuffer);
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
 
     gfx_renderqueue_apply();
@@ -108,7 +118,6 @@ int mod_init(){
 
     flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
 }
-
 
 
 void mod_update() {
@@ -146,7 +155,8 @@ void mod_update() {
     // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
-    gfx_sprite_set_position(*mx,*my,sprite_oldguy);
+    sprite_oldguy->x=*mx;
+    sprite_oldguy->y=*my;
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
@@ -181,20 +191,21 @@ void mod_update() {
     kbm.key_pressed=0;
 
     if ((*mbtn&1)>0){
-        uint8_t current_tile = gfx_sprite_get_tileid(sprite_oldguy);
-        if (current_tile < ts_data.tile_amount-1){
+        uint8_t current_tile = sprite_oldguy->tile_idx;
+        if (current_tile < ts_oldguy.tile_amount-1){
             current_tile++;
-            gfx_sprite_set_tileid(sprite_oldguy,current_tile);
+            gfx_sprite_set_tileid(sprite_oldguy->sprite_idx,current_tile);
         }
     }
 
-    if ((*mbtn&2)>0){
-        uint8_t current_tile = gfx_sprite_get_tileid(sprite_oldguy);
+    if ((*mbtn&1)>0){
+        uint8_t current_tile = sprite_oldguy->tile_idx;
         if (current_tile > 0){
             current_tile--;
-            gfx_sprite_set_tileid(sprite_oldguy,current_tile);
+            gfx_sprite_set_tileid(sprite_oldguy->sprite_idx,current_tile);
         }
     }
+
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);

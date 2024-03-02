@@ -56,6 +56,6 @@ void     id_release(uint8_t id) {
 
 void* id_get_ptr(uint8_t id){
     assert(id < idstore.pointer_amount && "idstore: idx out of bounds");
-    ASSERT_STRICT(idstore.pointers[id]!=NULL && "id-store prt is not set!");
+    assert(idstore.pointers[id]!=NULL && "id-store prt is not set!");
     return idstore.pointers[id];
 }
