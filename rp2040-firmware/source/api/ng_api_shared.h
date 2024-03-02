@@ -63,7 +63,7 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
-typedef struct gfx_sprite_t {
+typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 	int16_t x;
 	int16_t y;
 	uint16_t flags; // unused(yet)
@@ -76,7 +76,7 @@ typedef struct gfx_sprite_t {
 // CAUTIOUS: DO NOT CHANGE THE ORDER AND DO NOT ADD FIELDS.
 //           The data for the tilesheets is created by the exporter. 
 //           If you change this struct you also have to modify the exporter (ng_tool_tilesheet.py: encode_tiles(..) )
-typedef struct gfx_tilesheet_data_t{
+typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
 	uint8_t type;
 	uint8_t tile_width;
 	uint8_t tile_height;
