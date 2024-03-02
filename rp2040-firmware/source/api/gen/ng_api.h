@@ -30,6 +30,18 @@ void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
 gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
  // returns: void f-grp: f-id:13;
 void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
+ // returns: bool f-grp: f-id:16;
+bool    gfx_spritebuffer_create(gfx_sprite_buffer_t* spritebuffer);
+ // returns: uint8_t f-grp: f-id:17;
+uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint8_t ts, uint8_t tile_id);
+ // returns: void f-grp: f-id:18;
+void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id);
+ // returns: void f-grp: f-id:19;
+void gfx_sprite_set_tileid(uint8_t sprite_id,uint8_t tile_id);
+ // returns: uint8_t f-grp: f-id:20;
+uint8_t gfx_sprite_get_tileid(uint8_t sprite_id);
+ // returns: void f-grp: f-id:21;
+void gfx_tilesheet_query_data(uint8_t ts_id,gfx_tilesheet_data_t* data);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -46,6 +58,8 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
  // returns: void f-grp: f-id:14;
 void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
+ // returns: uint8_t f-grp: f-id:15;
+uint8_t  asset_get_tilesheet(uint8_t asset_id);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -76,6 +90,42 @@ typedef struct call_gfx_pixelbuffer_mount_t {
     uint16_t pxb;
     uint16_t destination;
 } call_gfx_pixelbuffer_mount_t;
+// returns: bool f-grp: f-id:16
+typedef struct call_gfx_spritebuffer_create_t {
+    call_header_t hdr;
+    uint16_t spritebuffer;
+} call_gfx_spritebuffer_create_t;
+// returns: uint8_t f-grp: f-id:17
+typedef struct call_gfx_sprite_create_from_tilesheet_t {
+    call_header_t hdr;
+    uint16_t spritebuffer;
+    uint8_t ts;
+    uint8_t tile_id;
+} call_gfx_sprite_create_from_tilesheet_t;
+// returns: void f-grp: f-id:18
+typedef struct call_gfx_sprite_set_position_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint8_t sprite_id;
+} call_gfx_sprite_set_position_t;
+// returns: void f-grp: f-id:19
+typedef struct call_gfx_sprite_set_tileid_t {
+    call_header_t hdr;
+    uint8_t sprite_id;
+    uint8_t tile_id;
+} call_gfx_sprite_set_tileid_t;
+// returns: uint8_t f-grp: f-id:20
+typedef struct call_gfx_sprite_get_tileid_t {
+    call_header_t hdr;
+    uint8_t sprite_id;
+} call_gfx_sprite_get_tileid_t;
+// returns: void f-grp: f-id:21
+typedef struct call_gfx_tilesheet_query_data_t {
+    call_header_t hdr;
+    uint8_t ts_id;
+    uint16_t data;
+} call_gfx_tilesheet_query_data_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;
@@ -127,6 +177,11 @@ typedef struct call_gfx_draw_text_t {
     uint16_t txt;
     uint8_t color_idx;
 } call_gfx_draw_text_t;
+// returns: uint8_t f-grp: f-id:15
+typedef struct call_asset_get_tilesheet_t {
+    call_header_t hdr;
+    uint8_t asset_id;
+} call_asset_get_tilesheet_t;
 
 // function grp: 2
 

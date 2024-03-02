@@ -54,6 +54,53 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 16: {
+                call_gfx_spritebuffer_create_t* call = (call_gfx_spritebuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  gfx_spritebuffer_create( (gfx_sprite_buffer_t*)(&mem[ call->spritebuffer ])   );
+
+                *call_buffer_return=(uint8_t)call_result;
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 17: {
+                call_gfx_sprite_create_from_tilesheet_t* call = (call_gfx_sprite_create_from_tilesheet_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  gfx_sprite_create_from_tilesheet( (gfx_sprite_buffer_t*)(&mem[ call->spritebuffer ]) ,    call->ts  ,    call->tile_id    );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 18: {
+                call_gfx_sprite_set_position_t* call = (call_gfx_sprite_set_position_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_sprite_set_position(  swap16(call->x)  ,    swap16(call->y)  ,    call->sprite_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 19: {
+                call_gfx_sprite_set_tileid_t* call = (call_gfx_sprite_set_tileid_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_sprite_set_tileid(  call->sprite_id  ,    call->tile_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 20: {
+                call_gfx_sprite_get_tileid_t* call = (call_gfx_sprite_get_tileid_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  gfx_sprite_get_tileid(  call->sprite_id    );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 21: {
+                call_gfx_tilesheet_query_data_t* call = (call_gfx_tilesheet_query_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_tilesheet_query_data(  call->ts_id  ,   (gfx_tilesheet_data_t*)(&mem[ call->data ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 2: {
                 call_gfx_set_palettecolor_t* call = (call_gfx_set_palettecolor_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_set_palettecolor(  call->color_idx  ,    swap16(call->color565)    );
@@ -109,6 +156,15 @@ uint8_t call_function()
             case 14: {
                 call_gfx_draw_text_t* call = (call_gfx_draw_text_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 15: {
+                call_asset_get_tilesheet_t* call = (call_asset_get_tilesheet_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  asset_get_tilesheet(  call->asset_id    );
+
+                *call_buffer_return=call_result;
 
                 return FUNCTION_RETURN_OK;
             }

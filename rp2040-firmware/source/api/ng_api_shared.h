@@ -62,6 +62,25 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
+typedef struct __attribute__((aligned(4))) gfx_sprite_buffer_t {
+    uint8_t max_sprites;
+    uint8_t obj_id;
+    uint8_t flags;
+    uint8_t free; // pad
+} gfx_sprite_buffer_t;
+
+typedef struct gfx_tilesheet_data_t{
+	uint8_t type;
+	uint8_t tile_width;
+	uint8_t tile_height;
+	uint8_t cols;
+	uint8_t rows;
+
+	uint8_t tile_amount;
+
+	uint16_t flags;
+} gfx_tilesheet_data_t;
+
 #if _MOD_NATIVE_
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))
 #else

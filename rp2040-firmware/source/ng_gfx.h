@@ -28,15 +28,7 @@ typedef struct data_header_t {
 } data_header_t;
 
 typedef struct gfx_tilesheet_t {
-	uint8_t type;
-	uint8_t tile_width;
-	uint8_t tile_height;
-	uint8_t cols;
-	uint8_t rows;
-
-	uint8_t tile_amount;
-
-	uint16_t flags;
+    gfx_tilesheet_data_t data;
 	uint8_t** cached_tile_ptrs; // array of pointers to the 'cached' tiles. in pico these should be in RAM in x86 we can just point to the raw data
 	uint8_t* tilesheet_data_raw;
 } gfx_tilesheet_t;
@@ -46,8 +38,11 @@ typedef struct gfx_tilesheet_t {
 typedef struct gfx_sprite_t {
 	int16_t x;
 	int16_t y;
-	uint8_t tile_id;
+	
+    uint8_t tile_id;
+    uint8_t sprite_id; // the id within the spritebuffer;
 	uint16_t flags; // flags = 0 => free to use
+
 	gfx_tilesheet_t* tilesheet;
 	void* tile_ptr; // direct link to the current tiledata
 } gfx_sprite_t;
@@ -58,11 +53,7 @@ typedef struct gfx_palette_t {
     uint16_t colors[];
 } gfx_palette_t;
 
-typedef struct gfx_sprite_buffer_t {
-	ng_mem_block_t mem;
-	uint8_t max_sprites;
-	uint8_t flags;
-} gfx_sprite_buffer_t;
+
 
 #define TILESHEET_FORMAT_INDEXED = 1
 
@@ -94,11 +85,15 @@ void gfx_renderqueue_wipe(void);
 /*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
 
 
-bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer);
-gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts);
-void          gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id);
+/*api:1:16*/bool    gfx_spritebuffer_create(gfx_sprite_buffer_t* spritebuffer);
+/*api:1:17*/uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint8_t ts, uint8_t tile_id);
+/*api:1:18*/void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id);
+/*api:1:19*/void gfx_sprite_set_tileid(uint8_t sprite_id,uint8_t tile_id);
+/*api:1:20*/uint8_t gfx_sprite_get_tileid(uint8_t sprite_id);
+
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
+/*api:1:21*/void gfx_tilesheet_query_data(uint8_t ts_id,gfx_tilesheet_data_t* data);
 
 /*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
 /*api:1:3*/uint16_t gfx_get_palettecolor(uint8_t color_idx);
@@ -118,9 +113,9 @@ void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *for
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
-gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id);
 
+/*api:1:15*/uint8_t  asset_get_tilesheet(uint8_t asset_id);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:14
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:21
 
 #endif 

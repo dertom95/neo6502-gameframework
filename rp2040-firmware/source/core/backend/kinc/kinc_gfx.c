@@ -112,7 +112,7 @@ void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
 		return data; 
 	}
 	
-	uint16_t size_per_tile = (ts->tile_width*ts->tile_height);
+	uint16_t size_per_tile = (ts->data.tile_width*ts->data.tile_height);
 	uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
 	
 	ts->cached_tile_ptrs[tile_id]=tile_ptr;

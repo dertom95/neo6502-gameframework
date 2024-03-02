@@ -65,27 +65,35 @@ uint16_t* sp16 = NULL;
 
 
 
-bool gfx_spritebuffer_create(uint8_t segment_id, gfx_sprite_buffer_t* spritebuffer)
+bool gfx_spritebuffer_create(gfx_sprite_buffer_t* spritebuffer)
 {
-	assert(spritebuffer->mem.data == NULL);
+	assert(spritebuffer->obj_id==0 && "object-id already set!");
+	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > sizeof(ng_mem_datablock_t) && "gfx_create_pixelbuffer: create size");
+    ng_mem_datablock_t* block = ng_mem_allocate(SEGMENT_GFX_DATA, sizeof(ng_mem_datablock_t));
+	block->info = spritebuffer;
 
 	uint8_t sprite_amount = spritebuffer -> max_sprites;
 
 	uint16_t size = sizeof(gfx_sprite_t) * sprite_amount;
 
-	bool success = ng_mem_allocate_block(segment_id, size, MEM_USAGE_SPRITEBUFFER, &spritebuffer->mem);
+	bool success = ng_mem_allocate_block(SEGMENT_GFX_DATA, size, MEM_USAGE_SPRITEBUFFER, &block->mem);
 	assert(success);
-	ng_memblock_wipe(&spritebuffer->mem);
+	ng_memblock_wipe(&block->mem);
+    spritebuffer->obj_id = id_store(block);
 
 	return success;
 }
 
 gfx_sprite_t* _gfx_sprite_find_free(gfx_sprite_buffer_t* spritebuffer)
 {
-	uint8_t max_count = spritebuffer->max_sprites;
-	gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->mem.data;
+    assert(spritebuffer->obj_id!=0 && "spritebuffer needs to be created!");
+	
+    uint8_t max_count = spritebuffer->max_sprites;
+    ng_mem_datablock_t* db = id_get_ptr(spritebuffer->obj_id);
+	gfx_sprite_t* sprite = (gfx_sprite_t*)db->mem.data;
 	while (max_count--){
 		if (sprite->flags==0){
+            sprite->sprite_id = spritebuffer->max_sprites-max_count-1;
 			return sprite;
 		}
 		sprite++;
@@ -94,33 +102,52 @@ gfx_sprite_t* _gfx_sprite_find_free(gfx_sprite_buffer_t* spritebuffer)
 }
 
 
-gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts)
-{
-	gfx_sprite_t* sprite = _gfx_sprite_find_free(spritebuffer);
-	if (sprite == NULL){
-		return NULL;
-	}
-	sprite->tilesheet = ts;
-	sprite->x=x;
-	sprite->y=y;
-	sprite->flags = 1; // TODO
-	sprite->tile_id = 255; // add value != 0 for the set_tileid to actually work
-	gfx_sprite_set_tileid(sprite,0);
-
-	return sprite;
-}
-
-void    gfx_sprite_set_tileid(gfx_sprite_t* sprite, uint8_t tile_id)
-{
-	if (tile_id == sprite->tile_id){
-		return;
-	}
-	assert(tile_id < sprite->tilesheet->tile_amount && "exceeded tile-id");
+void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_id){
+	assert(tile_id < sprite->tilesheet->data.tile_amount && "exceeded tile-id");
 	assert(sprite->tilesheet!=NULL && "no tilesheet set for sprite");
 	
 	sprite->tile_ptr = gfx_tilesheet_get_chached_tile(sprite->tilesheet, tile_id);
 	sprite->tile_id = tile_id;
 }
+
+void gfx_sprite_set_tileid(uint8_t sprite_id,uint8_t tile_id){
+    gfx_sprite_t* sprite = id_get_ptr(sprite_id);
+	if (tile_id == sprite->tile_id){
+		return;
+	}
+    _gfx_sprite_set_tileid(sprite,tile_id);
+}
+
+uint8_t gfx_sprite_get_tileid(uint8_t sprite_id) {
+    gfx_sprite_t* sprite = id_get_ptr(sprite_id);
+    return sprite->tile_id;
+}
+
+uint8_t gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, uint8_t ts_id, uint8_t tile_id)
+//gfx_sprite_t* gfx_sprite_create_from_tilesheet(gfx_sprite_buffer_t* spritebuffer, int16_t x,int16_t y, gfx_tilesheet_t* ts)
+{
+	gfx_sprite_t* sprite = _gfx_sprite_find_free(spritebuffer);
+	if (sprite == NULL){
+		return NULL;
+	}
+	sprite->tilesheet = id_get_ptr(ts_id);
+	sprite->x=0;
+	sprite->y=0;
+	sprite->flags = 1; // TODO
+	sprite->tile_id = 255; // add value != 0 for the set_tileid to actually work
+	_gfx_sprite_set_tileid(sprite,tile_id);
+    
+    uint8_t id = id_store(sprite);
+	return id;
+}
+
+void gfx_sprite_set_position(uint16_t x,uint16_t y,uint8_t sprite_id){
+    gfx_sprite_t* sprite = id_get_ptr(sprite_id);
+    sprite->x=x;
+    sprite->y=y;
+}
+
+
 
 void gfx_tile_set_color(uint8_t tX,uint8_t tY,uint8_t col)
 {
@@ -160,6 +187,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
 
 		uint16_t* write_buf = pixbuf;
+		ng_mem_datablock_t* db = (ng_mem_datablock_t*)current_render_block;
 
 		switch(usage){
 			case MEM_USAGE_PIXELBUFFER:{
@@ -167,7 +195,6 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 				// █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
 
                 // TODO: MEMO to myself. This is just a first version, just finish and iterate over it. 
-				ng_mem_datablock_t* db = (ng_mem_datablock_t*)current_render_block;
 				gfx_pixelbuffer_t* pixelbuffer = db->info;
 
                 uint8_t px_width;
@@ -221,21 +248,22 @@ exit_all_loops:
 			case MEM_USAGE_SPRITEBUFFER: {
 				// █▀ █▀█ █▀█ █ ▀█▀ █▀▀ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
 				// ▄█ █▀▀ █▀▄ █ ░█░ ██▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄				
+				gfx_sprite_buffer_t* spritebuffer = db->info;
 
 				uint16_t* write_buf = pixbuf;
-				gfx_sprite_buffer_t* spritebuffer = (gfx_sprite_buffer_t*)current_render_block;
+
 				uint8_t max_sprites = spritebuffer->max_sprites;
-				gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->mem.data;
+				gfx_sprite_t* sprite = (gfx_sprite_t*)db->mem.data;
 				while(max_sprites--){
 					if (sprite->flags>0){
 						gfx_tilesheet_t* ts = sprite->tilesheet;
-						if (sprite->y > y || (sprite->y+ts->tile_height)<y){
+						if (sprite->y > y || (sprite->y+ts->data.tile_height)<y){
 							sprite++;
 							continue;
 						}
 
-						uint8_t input_pixels_to_read = min(sprite->tilesheet->tile_width,SCREEN_WIDTH-sprite->x);
-						uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->tile_width;
+						uint8_t input_pixels_to_read = min(sprite->tilesheet->data.tile_width,SCREEN_WIDTH-sprite->x);
+						uint8_t* data = sprite->tile_ptr + (y - sprite->y)*ts->data.tile_width;
 						write_buf = pixbuf+sprite->x;
 						uint8_t idx;
 						while (input_pixels_to_read--){
@@ -536,9 +564,9 @@ void gfx_renderqueue_apply(void)
 	renderqueue_request_amount=0;
 }
 
-gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
+uint8_t asset_get_tilesheet(uint8_t asset_id){
 	const gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
-	assert(assetdata->type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
+	assert(assetdata->data.type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
 
 	gfx_tilesheet_t* tilesheet = ng_mem_allocate(default_allocation_segment,sizeof(gfx_tilesheet_t));
 	
@@ -550,19 +578,26 @@ gfx_tilesheet_t* asset_get_tilesheet(uint8_t asset_id){
 	// tilesheet->rows = assetdata->rows;
 	// tilesheet->cols = assetdata->cols;
 
-	tilesheet->tile_amount = assetdata->rows*assetdata->cols;
-	tilesheet->flags=0;
+	tilesheet->data.tile_amount = assetdata->data.rows*assetdata->data.cols;
+	tilesheet->data.flags=0;
 	
-	uint32_t data_size = sizeof(uint8_t*)*tilesheet->tile_amount;
+	uint32_t data_size = sizeof(uint8_t*)*tilesheet->data.tile_amount;
 	tilesheet->cached_tile_ptrs = ng_mem_allocate(default_allocation_segment,data_size);
 	memset(tilesheet->cached_tile_ptrs,0,data_size);
 
 	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+5;
 
-	return tilesheet;
+	uint8_t tilesheet_id = id_store(tilesheet);
+    
+    return tilesheet_id;
 }
 
 void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
 	ng_mem_datablock_t* px_datablock = (ng_mem_datablock_t*)id_get_ptr(pxb->obj_id);
-    ng_mem_mount_block(px_datablock,destination);         
+    ng_mem_mount_block((ng_mem_block_t*)px_datablock,destination);         
+}
+
+void gfx_tilesheet_query_data(uint8_t ts_id,gfx_tilesheet_data_t* data) {
+    gfx_tilesheet_data_t* ts = id_get_ptr(ts_id);
+    *data=*ts;
 }

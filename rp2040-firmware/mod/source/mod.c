@@ -1,5 +1,6 @@
 
 #include <stdint.h>
+#include <stdio.h>
 
 
 #ifdef _MOD_NATIVE_
@@ -47,6 +48,10 @@ gfx_pixelbuffer_t pixelbuffer = {
     .flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
+gfx_sprite_buffer_t spritebuffer = {
+    .max_sprites=16,
+};
+
 uint8_t kX=0,kY=0;
 char text_bf[30];
 
@@ -56,6 +61,11 @@ volatile uint16_t* ms_delta = NULL;
 uint8_t px_width;
 uint8_t px_height;
 
+uint8_t ts_oldman;
+gfx_tilesheet_data_t ts_data;
+
+
+int sprite_oldguy;
 
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
@@ -63,6 +73,9 @@ int mod_init(){
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     tile_map = (uint8_t*)MEMPTR(0x5000);
+
+    ts_oldman = asset_get_tilesheet(ASSET_SPRITES_MISC);
+    gfx_tilesheet_query_data(ts_oldman,&ts_data);
 
     io_keyboardmapping_register(&kbm,1);
 
@@ -77,16 +90,20 @@ int mod_init(){
     gfx_pixelbuffer_create(&pixelbuffer);
     gfx_pixelbuffer_set_active(&pixelbuffer);
 
-    gfx_renderqueue_add_id(pixelbuffer.obj_id);
-    gfx_renderqueue_apply();
-
-
     gfx_pixelbuffer_mount(&pixelbuffer,0x5000);
 #ifdef _MOD_NATIVE_    
     // memory mappings needs to be queried after they are mounted in _MOD_NATIVE_
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
+    bool success = gfx_spritebuffer_create(&spritebuffer);
+
+    sprite_oldguy = gfx_sprite_create_from_tilesheet(&spritebuffer, ts_oldman, 0);
+
+    gfx_renderqueue_add_id(spritebuffer.obj_id);
+    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+
+    gfx_renderqueue_apply();
 
 
     flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
@@ -126,13 +143,13 @@ void mod_update() {
 
     bool changed = false;
 
-    pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
-    pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
+    // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
+    // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
+    //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
+    gfx_sprite_set_position(*mx,*my,sprite_oldguy);
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
-
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
-
 
     if ((kbm.key_pressed & KEY_LEFT)>0){
         if (px_width>0){
@@ -162,6 +179,22 @@ void mod_update() {
     }
     kbm.key_down=0;
     kbm.key_pressed=0;
+
+    if ((*mbtn&1)>0){
+        uint8_t current_tile = gfx_sprite_get_tileid(sprite_oldguy);
+        if (current_tile < ts_data.tile_amount-1){
+            current_tile++;
+            gfx_sprite_set_tileid(sprite_oldguy,current_tile);
+        }
+    }
+
+    if ((*mbtn&2)>0){
+        uint8_t current_tile = gfx_sprite_get_tileid(sprite_oldguy);
+        if (current_tile > 0){
+            current_tile--;
+            gfx_sprite_set_tileid(sprite_oldguy,current_tile);
+        }
+    }
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
