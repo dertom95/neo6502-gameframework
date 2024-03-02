@@ -92,11 +92,10 @@ void gfx_renderqueue_wipe(void);
 
 
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
-/*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, bool set_current);
-/*api:1:20*/void gfx_spritebuffer_set_current(uint8_t spritebuffer_id);
+/*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
 
-/*api:1:17*/uint8_t gfx_sprite_set_tileset(uint8_t sprite_idx, uint8_t tileset_id, uint8_t initial_tile_idx);
-/*api:1:19*/void gfx_sprite_set_tileid(uint8_t sprite_idx,uint8_t tile_idx);
+/*api:1:17*/void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
+/*api:1:18*/void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
@@ -122,6 +121,6 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 
 /*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:22
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:19
 
 #endif 

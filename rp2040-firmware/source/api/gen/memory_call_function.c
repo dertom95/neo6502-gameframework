@@ -56,32 +56,23 @@ uint8_t call_function()
 
             case 16: {
                 call_gfx_spritebuffer_create_t* call = (call_gfx_spritebuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                uint8_t call_result =  gfx_spritebuffer_create( (gfx_sprite_t*)(&mem[ call->spritedata ]) ,    call->spriteamount  ,    call->set_current    );
+                uint8_t call_result =  gfx_spritebuffer_create( (gfx_sprite_t*)(&mem[ call->spritedata ]) ,    call->spriteamount    );
 
                 *call_buffer_return=call_result;
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 20: {
-                call_gfx_spritebuffer_set_current_t* call = (call_gfx_spritebuffer_set_current_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_spritebuffer_set_current(  call->spritebuffer_id    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 17: {
                 call_gfx_sprite_set_tileset_t* call = (call_gfx_sprite_set_tileset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                uint8_t call_result =  gfx_sprite_set_tileset(  call->sprite_idx  ,    call->tileset_id  ,    call->initial_tile_idx    );
-
-                *call_buffer_return=call_result;
+                  gfx_sprite_set_tileset( (gfx_sprite_t*)(&mem[ call->sprite ]) ,   (gfx_tilesheet_data_t*)(&mem[ call->tsdata ]) ,    call->initial_tile_idx    );
 
                 return FUNCTION_RETURN_OK;
             }
 
-            case 19: {
+            case 18: {
                 call_gfx_sprite_set_tileid_t* call = (call_gfx_sprite_set_tileid_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_sprite_set_tileid(  call->sprite_idx  ,    call->tile_idx    );
+                  gfx_sprite_set_tileid( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->tile_idx    );
 
                 return FUNCTION_RETURN_OK;
             }

@@ -51,7 +51,6 @@ ng_mem_block_t** renderqueue_request = renderqueue_2;
 const uint8_t* font=NULL; 		  // 1bpp
 ng_mem_datablock_t* active_pixelbuffer_data = NULL;
 gfx_pixelbuffer_t* active_pixelbuffer = NULL;
-gfx_internal_spritebuffer_t* current_spritebuffer = NULL;
 
 uint16_t gfx_color565(uint8_t red, uint8_t green, uint8_t blue) {
 	return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
@@ -66,7 +65,7 @@ uint16_t* sp16 = NULL;
 
 
 
-uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, bool set_current) {
+uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
 	assert(spritedata!=NULL && "spritedata must not be null");
     assert(spriteamount>0 && "you cannot create spritebuffer with amount 0");
 
@@ -80,9 +79,6 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, b
     spritebuffer->sprite_internals=(gfx_internal_sprite_t*)spritebuffer->mem.data;
 
     uint8_t spritebuffer_id = id_store(spritebuffer);
-    if (set_current){
-        gfx_spritebuffer_set_current(spritebuffer_id);
-    }
 
     uint8_t count = spriteamount;
     for (int idx=0;idx<spriteamount;idx++){
@@ -95,10 +91,6 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, b
 }
 
 
-void gfx_spritebuffer_set_current(uint8_t spritebuffer_id) {
-    current_spritebuffer = id_get_ptr(spritebuffer_id);
-}
-
 void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_internal, uint8_t tile_idx){
 	assert(sprite_internal->tilesheet!=NULL && "no tilesheet set for sprite!");
     assert(tile_idx < sprite_internal->tilesheet->data.tile_amount && "exceeded tile-id");
@@ -107,29 +99,27 @@ void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_i
 	sprite->tile_idx = tile_idx;
 }
 
-uint8_t gfx_sprite_set_tileset(uint8_t sprite_idx, uint8_t tileset_id, uint8_t initial_tile_idx) {
-    assert(current_spritebuffer!=NULL && "no spritebuffer set! use gfx_spritebuffer_set_current(..)");
-    assert(sprite_idx < current_spritebuffer->amount_sprites && "exceeded sprite-bounds!");
+void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx) {
+    assert(sprite!=NULL);
 
-    gfx_tilesheet_t* ts = id_get_ptr(tileset_id);
+    gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
+    gfx_tilesheet_t* ts = id_get_ptr(tsdata->ts_id);
 
-    gfx_sprite_t* sprite = &current_spritebuffer->sprites[sprite_idx];
-    gfx_internal_sprite_t* sprite_internal = &current_spritebuffer->sprite_internals[sprite_idx];
+    gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];
 
     sprite_internal->tilesheet = ts;
     sprite->flags = 1;
     _gfx_sprite_set_tileid(sprite, sprite_internal, initial_tile_idx);
 }
 
-void gfx_sprite_set_tileid(uint8_t sprite_idx,uint8_t tile_idx){
-    assert(current_spritebuffer!=NULL && "no spritebuffer set! use gfx_spritebuffer_set_current(..)");
-    assert(sprite_idx < current_spritebuffer->amount_sprites && "exceeded sprite-bounds!");
+void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx){
+    assert(sprite!=NULL);
+    gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
 
-    gfx_sprite_t* sprite = &current_spritebuffer->sprites[sprite_idx];
 	if (sprite->tile_idx == tile_idx){
 		return;
 	}
-    gfx_internal_sprite_t* sprite_internal = &current_spritebuffer->sprite_internals[sprite_idx];
+    gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];
 
     _gfx_sprite_set_tileid(sprite,sprite_internal,tile_idx);
 }
@@ -244,7 +234,7 @@ exit_all_loops:
 				while(max_sprites--){
 					if (sprite->flags>0){
 						gfx_tilesheet_t* ts =  sprite_internals->tilesheet;
-						if (sprite->y > y || (sprite->y+ts->data.tile_height)<y){
+						if (sprite->y > y || (sprite->y+ts->data.tile_height)<=y){
 							sprite++;
                             sprite_internals++;
 							continue;
@@ -257,6 +247,9 @@ exit_all_loops:
 						while (input_pixels_to_read--){
 							idx = *(data++);
 							if (idx==255){
+                                //-- DEBUG-TRANSPARENCY---------------
+                                //*(write_buf++)=color_palette[COL_RED];
+                                //------------------------------------
 								write_buf++;
 								continue;
 							}

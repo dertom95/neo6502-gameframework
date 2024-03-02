@@ -31,13 +31,11 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
  // returns: void f-grp: f-id:13;
 void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: uint8_t f-grp: f-id:16;
-uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount, bool set_current);
- // returns: void f-grp: f-id:20;
-void gfx_spritebuffer_set_current(uint8_t spritebuffer_id);
- // returns: uint8_t f-grp: f-id:17;
-uint8_t gfx_sprite_set_tileset(uint8_t sprite_idx, uint8_t tileset_id, uint8_t initial_tile_idx);
- // returns: void f-grp: f-id:19;
-void gfx_sprite_set_tileid(uint8_t sprite_idx,uint8_t tile_idx);
+uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
+ // returns: void f-grp: f-id:17;
+void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
+ // returns: void f-grp: f-id:18;
+void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -91,24 +89,18 @@ typedef struct call_gfx_spritebuffer_create_t {
     call_header_t hdr;
     uint16_t spritedata;
     uint8_t spriteamount;
-    bool set_current;
 } call_gfx_spritebuffer_create_t;
-// returns: void f-grp: f-id:20
-typedef struct call_gfx_spritebuffer_set_current_t {
-    call_header_t hdr;
-    uint8_t spritebuffer_id;
-} call_gfx_spritebuffer_set_current_t;
-// returns: uint8_t f-grp: f-id:17
+// returns: void f-grp: f-id:17
 typedef struct call_gfx_sprite_set_tileset_t {
     call_header_t hdr;
-    uint8_t sprite_idx;
-    uint8_t tileset_id;
+    uint16_t sprite;
+    uint16_t tsdata;
     uint8_t initial_tile_idx;
 } call_gfx_sprite_set_tileset_t;
-// returns: void f-grp: f-id:19
+// returns: void f-grp: f-id:18
 typedef struct call_gfx_sprite_set_tileid_t {
     call_header_t hdr;
-    uint8_t sprite_idx;
+    uint16_t sprite;
     uint8_t tile_idx;
 } call_gfx_sprite_set_tileid_t;
 // returns: void f-grp: f-id:2

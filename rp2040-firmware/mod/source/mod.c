@@ -98,11 +98,14 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
-    spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT,true);
+    spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
-    gfx_sprite_set_tileset(sprite_oldguy->sprite_idx,ts_oldguy.ts_id,0);
-    gfx_sprite_set_tileset(sprite_strawberry->sprite_idx,ts_misc.ts_id,0);
-    gfx_sprite_set_tileset(sprite_potion->sprite_idx,ts_misc.ts_id,4);
+    gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
+    // gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,0);
+    // gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
+
+    sprite_oldguy->x=0;
+    sprite_oldguy->y=0;
 
     sprite_strawberry->x=50;
     sprite_strawberry->y=40;
@@ -110,8 +113,8 @@ int mod_init(){
     sprite_potion->x=70;
     sprite_potion->y=40;
 
-    gfx_renderqueue_add_id(spritebuffer);
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -155,21 +158,21 @@ void mod_update() {
     // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
-    sprite_oldguy->x=*mx;
-    sprite_oldguy->y=*my;
+    // sprite_oldguy->x=*mx;
+    // sprite_oldguy->y=*my;
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
 
     if ((kbm.key_pressed & KEY_LEFT)>0){
-        if (px_width>0){
-            px_width--;
+        if (sprite_oldguy->tile_idx-1 >= 0){
+            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
         }
         changed=true;
     }
     if ((kbm.key_pressed & KEY_RIGHT)>0){
-        if (px_width<15){
-            px_width++;
+        if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
+            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
         }
         changed=true;
     }
@@ -189,23 +192,6 @@ void mod_update() {
     }
     kbm.key_down=0;
     kbm.key_pressed=0;
-
-    if ((*mbtn&1)>0){
-        uint8_t current_tile = sprite_oldguy->tile_idx;
-        if (current_tile < ts_oldguy.tile_amount-1){
-            current_tile++;
-            gfx_sprite_set_tileid(sprite_oldguy->sprite_idx,current_tile);
-        }
-    }
-
-    if ((*mbtn&1)>0){
-        uint8_t current_tile = sprite_oldguy->tile_idx;
-        if (current_tile > 0){
-            current_tile--;
-            gfx_sprite_set_tileid(sprite_oldguy->sprite_idx,current_tile);
-        }
-    }
-
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
