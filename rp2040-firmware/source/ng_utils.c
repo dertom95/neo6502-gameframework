@@ -49,7 +49,7 @@ uint8_t id_store(void* ptr) {
     return idx;
 }
 
-void     id_release(uint8_t id) {
+void id_release(uint8_t id) {
     idstore.recycled[idstore.recycled_amount++]=id;
     idstore.pointers[id]=NULL;
 }
@@ -58,4 +58,51 @@ void* id_get_ptr(uint8_t id){
     assert(id < idstore.pointer_amount && "idstore: idx out of bounds");
     assert(idstore.pointers[id]!=NULL && "id-store prt is not set!");
     return idstore.pointers[id];
+}
+
+void ll_add(linked_list_t** start, linked_list_t* element) {
+    assert(start != NULL);
+
+    // If the list is empty, make the new element as the start
+    if (*start == NULL) {
+        *start = element;
+        element->next = NULL;
+        return;
+    }
+
+    // Traverse to the end of the list
+    linked_list_t* current = *start;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    // Append the new element to the end of the list
+    current->next = element;
+    element->next = NULL;
+}
+
+void ll_remove(linked_list_t** start, linked_list_t* element) {
+    assert(start != NULL);
+    assert(*start != NULL);
+
+    // If the element to be removed is at the start
+    if (*start == element) {
+        *start = element->next;
+        element->next = NULL;
+        return;
+    }
+
+    // Traverse the list to find the element to be removed
+    linked_list_t* current = *start;
+    linked_list_t* prev = NULL;
+    while (current != NULL && current != element) {
+        prev = current;
+        current = current->next;
+    }
+
+    // If the element is found, remove it from the list
+    if (current != NULL) {
+        prev->next = current->next;
+        current->next = NULL;
+    }
 }

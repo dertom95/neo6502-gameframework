@@ -32,10 +32,18 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: uint8_t f-grp: f-id:16;
 uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
+ // returns: void f-grp: f-id:21;
+void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
  // returns: void f-grp: f-id:17;
 void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
  // returns: void f-grp: f-id:18;
 void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
+ // returns: uint8_t f-grp: f-id:19;
+uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* animator);
+ // returns: bool f-grp: f-id:20;
+bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type);
+ // returns: void f-grp: f-id:22;
+void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -90,6 +98,12 @@ typedef struct call_gfx_spritebuffer_create_t {
     uint16_t spritedata;
     uint8_t spriteamount;
 } call_gfx_spritebuffer_create_t;
+// returns: void f-grp: f-id:21
+typedef struct call_gfx_spritebuffer_update_t {
+    call_header_t hdr;
+    int16_t dt;
+    uint8_t spritebuffer_id;
+} call_gfx_spritebuffer_update_t;
 // returns: void f-grp: f-id:17
 typedef struct call_gfx_sprite_set_tileset_t {
     call_header_t hdr;
@@ -103,6 +117,24 @@ typedef struct call_gfx_sprite_set_tileid_t {
     uint16_t sprite;
     uint8_t tile_idx;
 } call_gfx_sprite_set_tileid_t;
+// returns: uint8_t f-grp: f-id:19
+typedef struct call_gfx_sprite_add_animator_t {
+    call_header_t hdr;
+    uint16_t sprite;
+    uint16_t animator;
+} call_gfx_sprite_add_animator_t;
+// returns: bool f-grp: f-id:20
+typedef struct call_gfx_sprite_remove_extension_t {
+    call_header_t hdr;
+    uint16_t sprite;
+    uint8_t extension_type;
+} call_gfx_sprite_remove_extension_t;
+// returns: void f-grp: f-id:22
+typedef struct call_gfx_spriteanimator_set_animation_t {
+    call_header_t hdr;
+    uint8_t sprite_animator;
+    uint8_t anim_idx;
+} call_gfx_spriteanimator_set_animation_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;

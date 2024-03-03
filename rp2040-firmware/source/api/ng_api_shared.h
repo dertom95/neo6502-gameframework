@@ -63,6 +63,20 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
+typedef struct __attribute__((aligned(4))) sprite_animation_t {
+    uint8_t start_tile;
+    uint8_t end_tile;
+    uint8_t delay_ms;
+    uint8_t flags;
+} gfx_sprite_animation_t;
+
+typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
+    uint8_t animation_amount;
+    uint8_t flags;
+    uint16_t free;
+    gfx_sprite_animation_t animations[];
+} gfx_sprite_animator_t;
+
 typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 	int16_t x;
 	int16_t y;

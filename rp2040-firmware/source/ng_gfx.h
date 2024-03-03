@@ -9,15 +9,7 @@
 #include "ng_mem.h"
 #include "ng_defines.h"
 #include "api/ng_api_shared.h"
-
-#define MAP_WIDTH  512
-#define MAP_HEIGHT 256
-
-
-
-#define N_CHARACTERS 0
-
-#define MAX_SPRITES 64
+#include "ng_utils.h"
 
 typedef struct data_header_t {
 	uint8_t type;
@@ -33,16 +25,22 @@ typedef struct gfx_tilesheet_t {
 	uint8_t* tilesheet_data_raw;
 } gfx_tilesheet_t;
 
+
+#define GFX_EXTENSION_SPRITEANIMATOR 1
+
+typedef struct gfx_extension_header_t {
+    linked_list_t* next;
+    uint8_t extension_type; // 
+} gfx_extension_header_t;
+
+
 #define SPRITE_FLAG_INUSE (1 << 0)
-
-
 
 typedef struct gfx_internal_sprite_t {
 	gfx_tilesheet_t* tilesheet;
 	void* tile_ptr; // direct link to the current tiledata
+    gfx_extension_header_t* extensions; // manipualtors on this sprite
 } gfx_internal_sprite_t;
-
-
 
 
 typedef struct gfx_palette_t {
@@ -59,6 +57,15 @@ typedef struct __attribute__((aligned(4))) gfx_internal_spritebuffer_t {
     gfx_sprite_t* sprites;
     gfx_internal_sprite_t* sprite_internals;
 } gfx_internal_spritebuffer_t;
+
+typedef struct gfx_internal_sprite_animator_t {
+    gfx_extension_header_t header;
+    int16_t timer;
+    uint8_t runtime_flags;
+    uint8_t current_anim_idx;
+    gfx_sprite_animator_t* sprite_animator;
+    gfx_sprite_animation_t* current_animation;
+} gfx_internal_sprite_animator_t;
 
 
 #define TILESHEET_FORMAT_INDEXED = 1
@@ -93,9 +100,13 @@ void gfx_renderqueue_wipe(void);
 
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
+/*api:1:21*/void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
 
 /*api:1:17*/void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
 /*api:1:18*/void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
+/*api:1:19*/uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* animator);
+/*api:1:20*/bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type);
+/*api:1:22*/ void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
@@ -121,6 +132,6 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 
 /*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:19
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:22
 
 #endif 

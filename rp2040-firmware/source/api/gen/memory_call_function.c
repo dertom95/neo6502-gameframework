@@ -63,6 +63,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 21: {
+                call_gfx_spritebuffer_update_t* call = (call_gfx_spritebuffer_update_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_spritebuffer_update(  call->dt  ,    call->spritebuffer_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 17: {
                 call_gfx_sprite_set_tileset_t* call = (call_gfx_sprite_set_tileset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_sprite_set_tileset( (gfx_sprite_t*)(&mem[ call->sprite ]) ,   (gfx_tilesheet_data_t*)(&mem[ call->tsdata ]) ,    call->initial_tile_idx    );
@@ -73,6 +80,30 @@ uint8_t call_function()
             case 18: {
                 call_gfx_sprite_set_tileid_t* call = (call_gfx_sprite_set_tileid_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_sprite_set_tileid( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->tile_idx    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 19: {
+                call_gfx_sprite_add_animator_t* call = (call_gfx_sprite_add_animator_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  gfx_sprite_add_animator( (gfx_sprite_t*)(&mem[ call->sprite ]) ,   (gfx_sprite_animator_t*)(&mem[ call->animator ])   );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 20: {
+                call_gfx_sprite_remove_extension_t* call = (call_gfx_sprite_remove_extension_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  gfx_sprite_remove_extension( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->extension_type    );
+
+                *call_buffer_return=(uint8_t)call_result;
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 22: {
+                call_gfx_spriteanimator_set_animation_t* call = (call_gfx_spriteanimator_set_animation_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_spriteanimator_set_animation(  call->sprite_animator  ,    call->anim_idx    );
 
                 return FUNCTION_RETURN_OK;
             }

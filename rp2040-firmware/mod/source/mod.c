@@ -35,7 +35,15 @@ uint8_t current_y=0;
 #define KEY_RIGHT    (1 << 2)
 
 keyboard_mapping_t kbm={
-    .keycodes = {HID_KEY_0,HID_KEY_1,HID_KEY_A,HID_KEY_Q,HID_KEY_E,HID_KEY_D,0,0},
+    .keycodes = {
+        HID_KEY_0,
+        HID_KEY_1,
+        HID_KEY_A,
+        HID_KEY_Q,
+        HID_KEY_E,
+        HID_KEY_D,
+        0,
+        0},
     .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN
 };
 
@@ -47,6 +55,33 @@ gfx_pixelbuffer_t pixelbuffer = {
     .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
+
+gfx_sprite_animator_t anim4x3={
+    .animation_amount=4,
+    .animations={
+        {
+            .start_tile=0,
+            .end_tile=2,
+            .delay_ms=125,
+        },
+        {
+            .start_tile=3,
+            .end_tile=5,
+            .delay_ms=125,
+        },
+        {
+            .start_tile=6,
+            .end_tile=8,
+            .delay_ms=125,
+        },
+        {
+            .start_tile=9,
+            .end_tile=11,
+            .delay_ms=125,
+        },
+    }
+};
+
 
 uint8_t spritebuffer;
 
@@ -69,6 +104,10 @@ gfx_sprite_t sprites[SPRITE_AMOUNT];
 gfx_sprite_t* sprite_oldguy=&sprites[0];
 gfx_sprite_t* sprite_strawberry=&sprites[1];
 gfx_sprite_t* sprite_potion=&sprites[2];
+
+uint8_t sprite_oldguy_anim;
+int8_t anim=0;
+
 
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
@@ -101,6 +140,8 @@ int mod_init(){
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
+    sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
+
     // gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,0);
     // gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
 
@@ -131,9 +172,10 @@ void mod_update() {
     {
         return;
     }
+
+    int16_t dt = *ms_delta;
+    gfx_spritebuffer_update(dt,spritebuffer);
     *ms_delta=0;
-
-
 
     static uint8_t seed = 0;
     seed++;
@@ -158,8 +200,8 @@ void mod_update() {
     // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
-    // sprite_oldguy->x=*mx;
-    // sprite_oldguy->y=*my;
+    sprite_oldguy->x=*mx;
+    sprite_oldguy->y=*my;
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
@@ -190,6 +232,21 @@ void mod_update() {
         pixelbuffer.x++;
         changed=true;
     }
+
+    if (flags_isset(kbm.key_pressed,KEY_COL_UP)){
+        anim++;
+        if (anim>3){
+            anim=0;
+        }
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim);
+    }
+    else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
+        if (anim>0){
+            anim--;
+        }
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim);
+    }
+
     kbm.key_down=0;
     kbm.key_pressed=0;
 
