@@ -54,6 +54,7 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
         gfx_sprite_t* sprite_current = &spritebuffer->sprites[idx];
         sprite_current->spritebuffer_id = spritebuffer_id;
         sprite_current->sprite_idx=idx;
+        sprite_current->pixel_size=flags_pack_4_4(1,1);
 
         //gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[idx];
         // nothing to do with internals,yet
