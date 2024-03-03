@@ -11,6 +11,8 @@
 #include "api/ng_api_shared.h"
 #include "ng_utils.h"
 
+#define TILESHEET_FORMAT_INDEXED = 1
+
 typedef struct data_header_t {
 	uint8_t type;
 	uint8_t free;
@@ -67,9 +69,7 @@ typedef struct gfx_internal_sprite_animator_t {
     gfx_sprite_animation_t* current_animation;
 } gfx_internal_sprite_animator_t;
 
-
-#define TILESHEET_FORMAT_INDEXED = 1
-
+extern const uint8_t* font;
 
 void 	 gfx_init();
 void     gfx_backend_init();
