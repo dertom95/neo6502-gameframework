@@ -66,7 +66,7 @@ gfx_sprite_animator_t anim4x3={
         },
         {
             .start_tile=3,
-            .end_tile=5,
+            .end_tile=4,
             .delay_ms=125,
         },
         {
@@ -76,7 +76,7 @@ gfx_sprite_animator_t anim4x3={
         },
         {
             .start_tile=9,
-            .end_tile=11,
+            .end_tile=10,
             .delay_ms=125,
         },
     }
@@ -158,7 +158,7 @@ int mod_init(){
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,0);
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
-    // sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
+    sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
 
     sprite_oldguy->x=0;
     sprite_oldguy->y=0;

@@ -54,12 +54,15 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
         gfx_sprite_t* sprite_current = &spritebuffer->sprites[idx];
         sprite_current->spritebuffer_id = spritebuffer_id;
         sprite_current->sprite_idx=idx;
+
+        //gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[idx];
+        // nothing to do with internals,yet
     }
 
     return spritebuffer_id;
 }
 
-void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
+void  gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(spritebuffer_id);
     
     uint8_t amount = spritebuffer->amount_sprites;
@@ -70,7 +73,7 @@ void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
             _internal_gfx_sprite_update(current_sprite,current_internal_sprite,dt);
         }
         current_sprite++;
-        current_internal_sprite;
+        current_internal_sprite++;
     }
 }
 
