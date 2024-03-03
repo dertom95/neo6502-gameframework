@@ -216,6 +216,11 @@ exit_all_loops:
 
                     int16_t output_pixels_to_write;
                     int8_t subpixel_left_to_write;
+
+                    if (flipped_h){
+                        data += ts->data.tile_width - 1;
+                    }
+
                     if (sprite_x >= 0){
                         subpixel_left_to_write = px_width;
                         write_buf = pixbuf+sprite_x;
@@ -224,13 +229,7 @@ exit_all_loops:
                         subpixel_left_to_write = px_width + sprite_x % px_width;
                         write_buf = pixbuf;
                         output_pixels_to_write = sprite_width + sprite_x - 1;
-                        data += -sprite_x/px_width;
-                    }
-
-
-                    if (flipped_h){
-                        // TODO: fix this
-                        data += ts->data.tile_width - 1;
+                        data += sprite_x/px_width;
                     }
 
                     uint8_t idx;

@@ -158,7 +158,7 @@ int mod_init(){
     //flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
-    flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_V | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
+    flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
     flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);

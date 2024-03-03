@@ -104,9 +104,9 @@ typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 #define ANIMATIONFLAG_BACKWARDS (1 << 2)
 
 typedef struct __attribute__((aligned(4))) sprite_animation_t {
+    uint16_t delay_ms;
     uint8_t start_tile;
     uint8_t end_tile;
-    uint8_t delay_ms;
 } gfx_sprite_animation_t;
 
 typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
