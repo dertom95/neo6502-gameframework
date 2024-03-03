@@ -12,6 +12,7 @@
 #endif
 
 #include "export/assets.h"
+#include <ng_api_shared.h>
 
 volatile uint16_t* mx = NULL;
 volatile uint16_t* my = NULL;
@@ -154,9 +155,12 @@ int mod_init(){
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
+    //flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
+
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
     
-    gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,0);
+    gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
+    flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
 

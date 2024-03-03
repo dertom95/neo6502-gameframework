@@ -156,7 +156,12 @@ exit_all_loops:
 				uint8_t max_sprites = spritebuffer->amount_sprites;
 				gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->sprites;
                 gfx_internal_sprite_t* sprite_internals = spritebuffer->sprite_internals;
+                
 				while(max_sprites--){
+                    bool flipped_h = flags_isset(sprite->flags,SPRITEFLAG_FLIP_H);
+                    bool flipped_v = flags_isset(sprite->flags,SPRITEFLAG_FLIP_V);
+                    int8_t read_direction= flipped_h ? -1 : 1;
+
 					if (sprite->flags>0){
 						gfx_tilesheet_t* ts =  sprite_internals->tilesheet;
 						if (sprite->y > y || (sprite->y+ts->data.tile_height)<=y){
@@ -165,17 +170,26 @@ exit_all_loops:
 							continue;
 						}
 
-						uint8_t input_pixels_to_read = min(sprite_internals->tilesheet->data.tile_width,SCREEN_WIDTH-sprite->x);
-						uint8_t* data = sprite_internals->tile_ptr + (y - sprite->y)*ts->data.tile_width;
+                        uint8_t line = flipped_v ? ts->data.tile_height - (y - sprite->y)-1
+                                                 : (y - sprite->y);
+
+						uint8_t input_pixels_to_read = min(ts->data.tile_width,SCREEN_WIDTH-sprite->x);
+						uint8_t* data = sprite_internals->tile_ptr + line * ts->data.tile_width;
+
+                        if (flipped_h){
+                            data += ts->data.tile_width - 1;
+                        }
+
 						write_buf = pixbuf+sprite->x;
 						uint8_t idx;
 						while (input_pixels_to_read--){
-							idx = *(data++);
+							idx = *(data);
+                            data += read_direction;
 							if (idx==255){
                                 //-- DEBUG-TRANSPARENCY---------------
-                                //*(write_buf++)=color_palette[COL_RED];
+                                *(write_buf++)=color_palette[COL_RED];
                                 //------------------------------------
-								write_buf++;
+								//write_buf++;
 								continue;
 							}
 							*(write_buf++)=color_palette[idx];

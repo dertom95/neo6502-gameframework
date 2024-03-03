@@ -36,7 +36,6 @@ typedef struct gfx_extension_header_t {
 } gfx_extension_header_t;
 
 
-#define SPRITE_FLAG_INUSE (1 << 0)
 
 typedef struct gfx_internal_sprite_t {
 	gfx_tilesheet_t* tilesheet;
@@ -90,14 +89,11 @@ void gfx_renderqueue_wipe(void);
 /// @brief tell's the renderer to render this queue from now on
 /// @param  
 /*api:1:1*/void gfx_renderqueue_apply(void);
+void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 
-// TODO: how to handle this id-framentation?
-/*api:1:9*/void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
-/*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
-/*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
-/*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
+/*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
-
+// 🇸​​​​​🇵​​​​​🇷​​​​​🇮​​​​​🇹​​​​​🇪​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
 /*api:1:21*/void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
@@ -111,6 +107,14 @@ void gfx_renderqueue_wipe(void);
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 
+// 🇵​​​​​🇮​​​​​🇽​​​​​🇪​​​​​🇱​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​
+// TODO: how to handle this id-framentation?
+/*api:1:9*/void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
+/*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
+/*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
+/*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
+
+// 🇵​​​​​🇽​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​ - 🇨​​​​​🇦​​​​​🇳​​​​​🇻​​​​​🇦​​​​​🇸​​​​​ 🇴​​​​​🇵​​​​​🇪​​​​​🇷​​​​​🇦​​​​​🇹​​​​​🇮​​​​​🇴​​​​​🇳​​​​​
 /*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
 /*api:1:3*/uint16_t gfx_get_palettecolor(uint8_t color_idx);
 /*api:1:4*/void     gfx_set_palette_from_assset(uint8_t asset_id, uint8_t fill_unused_with_idx);
@@ -128,9 +132,6 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
-void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
-
-/*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 1:22
 

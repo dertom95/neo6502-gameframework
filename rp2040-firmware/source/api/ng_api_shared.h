@@ -63,6 +63,20 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t flags;
 } gfx_pixelbuffer_t;
 
+#define SPRITEFLAG_INUSE  (1 << 0)
+#define SPRITEFLAG_FLIP_H (1 << 1)
+#define SPRITEFLAG_FLIP_V (1 << 2)
+
+typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
+	int16_t x;
+	int16_t y;
+	uint16_t flags; // unused(yet)
+    
+    uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
+    uint8_t spritebuffer_id; // the spritebuffer this sprite belongs to
+    uint8_t sprite_idx; 
+} gfx_sprite_t;
+
 typedef struct __attribute__((aligned(4))) sprite_animation_t {
     uint8_t start_tile;
     uint8_t end_tile;
@@ -76,16 +90,6 @@ typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
     uint16_t free;
     gfx_sprite_animation_t animations[];
 } gfx_sprite_animator_t;
-
-typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
-	int16_t x;
-	int16_t y;
-	uint16_t flags; // unused(yet)
-    
-    uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
-    uint8_t spritebuffer_id; // the spritebuffer this sprite belongs to
-    uint8_t sprite_idx; 
-} gfx_sprite_t;
 
 // CAUTIOUS: DO NOT CHANGE THE ORDER AND DO NOT ADD FIELDS.
 //           The data for the tilesheets is created by the exporter. 
