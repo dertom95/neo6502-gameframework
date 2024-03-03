@@ -91,8 +91,6 @@ void gfx_renderqueue_wipe(void);
 /*api:1:1*/void gfx_renderqueue_apply(void);
 void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 
-/*api:1:15*/void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
-
 // 🇸​​​​​🇵​​​​​🇷​​​​​🇮​​​​​🇹​​​​​🇪​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);

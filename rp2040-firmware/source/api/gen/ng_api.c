@@ -5,6 +5,24 @@
 const volatile uint8_t* mem_call_function = (uint8_t*)MM_FUNC_CALL;
 const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFFER_BEGIN;
 
+// returns: void f-grp:1 f-id:1
+void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
+    uint8_t result_code;
+    call_asset_get_tilesheet_t* func_data;
+    func_data = (call_asset_get_tilesheet_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 4;
+    func_data->hdr.func_id = 1;
+    func_data->ts_data=(uint16_t) ts_data;
+    func_data->asset_id= asset_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
 // returns: void f-grp:1 f-id:12
 void gfx_renderqueue_add_id(uint8_t id){
     uint8_t result_code;
@@ -28,71 +46,6 @@ void gfx_renderqueue_apply(void){
     func_data = (call_gfx_renderqueue_apply_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 1;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: void f-grp:1 f-id:9
-void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data){
-    uint8_t result_code;
-    call_gfx_pixelbuffer_create_t* func_data;
-    func_data = (call_gfx_pixelbuffer_create_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 9;
-    func_data->initial_data=(uint16_t) initial_data;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: void f-grp:1 f-id:10
-void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer){
-    uint8_t result_code;
-    call_gfx_pixelbuffer_set_active_t* func_data;
-    func_data = (call_gfx_pixelbuffer_set_active_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 10;
-    func_data->pxbuffer=(uint16_t) pxbuffer;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: gfx_pixelbuffer_t* f-grp:1 f-id:11
-gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
-    uint8_t result_code;
-    call_gfx_pixelbuffer_get_current_t* func_data;
-    func_data = (call_gfx_pixelbuffer_get_current_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 11;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-        gfx_pixelbuffer_t* call_result = (gfx_pixelbuffer_t*)*mem_call_result;
-        return call_result;
-    }
-}   
-// returns: void f-grp:1 f-id:13
-void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
-    uint8_t result_code;
-    call_gfx_pixelbuffer_mount_t* func_data;
-    func_data = (call_gfx_pixelbuffer_mount_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 13;
-    func_data->pxb=(uint16_t) pxb;
-    func_data->destination= destination;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -216,6 +169,71 @@ void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx)
     func_data->hdr.func_id = 22;
     func_data->sprite_animator= sprite_animator;
     func_data->anim_idx= anim_idx;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:9
+void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_create_t* func_data;
+    func_data = (call_gfx_pixelbuffer_create_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 9;
+    func_data->initial_data=(uint16_t) initial_data;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:10
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_set_active_t* func_data;
+    func_data = (call_gfx_pixelbuffer_set_active_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 10;
+    func_data->pxbuffer=(uint16_t) pxbuffer;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: gfx_pixelbuffer_t* f-grp:1 f-id:11
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_get_current_t* func_data;
+    func_data = (call_gfx_pixelbuffer_get_current_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 11;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        gfx_pixelbuffer_t* call_result = (gfx_pixelbuffer_t*)*mem_call_result;
+        return call_result;
+    }
+}   
+// returns: void f-grp:1 f-id:13
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_mount_t* func_data;
+    func_data = (call_gfx_pixelbuffer_mount_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 13;
+    func_data->pxb=(uint16_t) pxb;
+    func_data->destination= destination;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -357,23 +375,6 @@ void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx){
     func_data->y= y;
     func_data->txt=(uint16_t) txt;
     func_data->color_idx= color_idx;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: void f-grp:1 f-id:15
-void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
-    uint8_t result_code;
-    call_asset_get_tilesheet_t* func_data;
-    func_data = (call_asset_get_tilesheet_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 15;
-    func_data->ts_data=(uint16_t) ts_data;
-    func_data->asset_id= asset_id;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

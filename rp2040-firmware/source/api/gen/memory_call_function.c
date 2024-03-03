@@ -9,6 +9,19 @@ uint8_t call_function()
 {
     call_header_t* header = (call_header_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
 
+    if (header->func_type==4){
+        switch (header->func_id) {
+
+            case 1: {
+                call_asset_get_tilesheet_t* call = (call_asset_get_tilesheet_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  asset_get_tilesheet( (gfx_tilesheet_data_t*)(&mem[ call->ts_data ]) ,    call->asset_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+        }
+    }
+
     if (header->func_type==1){
         switch (header->func_id) {
 
@@ -22,34 +35,6 @@ uint8_t call_function()
             case 1: {
                 call_gfx_renderqueue_apply_t* call = (call_gfx_renderqueue_apply_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_renderqueue_apply();
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 9: {
-                call_gfx_pixelbuffer_create_t* call = (call_gfx_pixelbuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_pixelbuffer_create( (gfx_pixelbuffer_t*)(&mem[ call->initial_data ])   );
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 10: {
-                call_gfx_pixelbuffer_set_active_t* call = (call_gfx_pixelbuffer_set_active_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_pixelbuffer_set_active( (gfx_pixelbuffer_t*)(&mem[ call->pxbuffer ])   );
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 11: {
-                call_gfx_pixelbuffer_get_current_t* call = (call_gfx_pixelbuffer_get_current_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                gfx_pixelbuffer_t* call_result =  gfx_pixelbuffer_get_current();
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 13: {
-                call_gfx_pixelbuffer_mount_t* call = (call_gfx_pixelbuffer_mount_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -104,6 +89,34 @@ uint8_t call_function()
             case 22: {
                 call_gfx_spriteanimator_set_animation_t* call = (call_gfx_spriteanimator_set_animation_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_spriteanimator_set_animation(  call->sprite_animator  ,    call->anim_idx    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 9: {
+                call_gfx_pixelbuffer_create_t* call = (call_gfx_pixelbuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_create( (gfx_pixelbuffer_t*)(&mem[ call->initial_data ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 10: {
+                call_gfx_pixelbuffer_set_active_t* call = (call_gfx_pixelbuffer_set_active_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_set_active( (gfx_pixelbuffer_t*)(&mem[ call->pxbuffer ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 11: {
+                call_gfx_pixelbuffer_get_current_t* call = (call_gfx_pixelbuffer_get_current_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                gfx_pixelbuffer_t* call_result =  gfx_pixelbuffer_get_current();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 13: {
+                call_gfx_pixelbuffer_mount_t* call = (call_gfx_pixelbuffer_mount_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -163,13 +176,6 @@ uint8_t call_function()
             case 14: {
                 call_gfx_draw_text_t* call = (call_gfx_draw_text_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx    );
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 15: {
-                call_asset_get_tilesheet_t* call = (call_asset_get_tilesheet_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  asset_get_tilesheet( (gfx_tilesheet_data_t*)(&mem[ call->ts_data ]) ,    call->asset_id    );
 
                 return FUNCTION_RETURN_OK;
             }

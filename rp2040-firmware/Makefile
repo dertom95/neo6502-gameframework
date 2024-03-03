@@ -24,7 +24,7 @@ kinc_get:
 		mkdir -p build-scripts/kinc/tmp && cd build-scripts/kinc/tmp && git clone https://github.com/Kode/Kinc.git; \
 	fi
 
-kinc-build: kinc_get mod-assets-create
+kinc-6502-build: kinc_get mod-assets-create gluecode-create
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --compile		
 kinc-modnative-build: kinc_get
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-modnative.js --to ../../build-kinc --target linux --graphics opengl --compile		
@@ -42,7 +42,7 @@ mod-source-compile:
 	cd mod && make source-compile
 
 gluecode-create:
-	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_gfx.h source/ng_io.h --output tools/generator/input/glue.xml
+	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_*.h --output tools/generator/input/glue.xml
 	python3 tools/ngtool/gen.py --config-file tools/generator/generate_gluecode.json
 
 gluecode-test-compile: 

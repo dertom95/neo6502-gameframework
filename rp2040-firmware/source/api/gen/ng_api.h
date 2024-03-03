@@ -16,20 +16,24 @@ typedef struct call_header_t {
 #define MOUSE_BUTTON_BACKWARD  (1 << 3) /* Backward button, */
 #define MOUSE_BUTTON_FORWARD   (1 << 4) /* Forward button */
 
+// function grp: 4
+
+ // returns: void f-grp: f-id:1;
+void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
+
+// returns: void f-grp: f-id:1
+typedef struct call_asset_get_tilesheet_t {
+    call_header_t hdr;
+    uint16_t ts_data;
+    uint8_t asset_id;
+} call_asset_get_tilesheet_t;
+
 // function grp: 1
 
  // returns: void f-grp: f-id:12;
 void gfx_renderqueue_add_id(uint8_t id);
  // returns: void f-grp: f-id:1;
 void gfx_renderqueue_apply(void);
- // returns: void f-grp: f-id:9;
-void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
- // returns: void f-grp: f-id:10;
-void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
- // returns: gfx_pixelbuffer_t* f-grp: f-id:11;
-gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
- // returns: void f-grp: f-id:13;
-void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: uint8_t f-grp: f-id:16;
 uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
  // returns: void f-grp: f-id:21;
@@ -44,6 +48,14 @@ uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* ani
 bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type);
  // returns: void f-grp: f-id:22;
 void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx);
+ // returns: void f-grp: f-id:9;
+void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
+ // returns: void f-grp: f-id:10;
+void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
+ // returns: gfx_pixelbuffer_t* f-grp: f-id:11;
+gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
+ // returns: void f-grp: f-id:13;
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -60,8 +72,6 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
  // returns: void f-grp: f-id:14;
 void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
- // returns: void f-grp: f-id:15;
-void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -72,26 +82,6 @@ typedef struct call_gfx_renderqueue_add_id_t {
 typedef struct call_gfx_renderqueue_apply_t {
     call_header_t hdr;
 } call_gfx_renderqueue_apply_t;
-// returns: void f-grp: f-id:9
-typedef struct call_gfx_pixelbuffer_create_t {
-    call_header_t hdr;
-    uint16_t initial_data;
-} call_gfx_pixelbuffer_create_t;
-// returns: void f-grp: f-id:10
-typedef struct call_gfx_pixelbuffer_set_active_t {
-    call_header_t hdr;
-    uint16_t pxbuffer;
-} call_gfx_pixelbuffer_set_active_t;
-// returns: gfx_pixelbuffer_t* f-grp: f-id:11
-typedef struct call_gfx_pixelbuffer_get_current_t {
-    call_header_t hdr;
-} call_gfx_pixelbuffer_get_current_t;
-// returns: void f-grp: f-id:13
-typedef struct call_gfx_pixelbuffer_mount_t {
-    call_header_t hdr;
-    uint16_t pxb;
-    uint16_t destination;
-} call_gfx_pixelbuffer_mount_t;
 // returns: uint8_t f-grp: f-id:16
 typedef struct call_gfx_spritebuffer_create_t {
     call_header_t hdr;
@@ -135,6 +125,26 @@ typedef struct call_gfx_spriteanimator_set_animation_t {
     uint8_t sprite_animator;
     uint8_t anim_idx;
 } call_gfx_spriteanimator_set_animation_t;
+// returns: void f-grp: f-id:9
+typedef struct call_gfx_pixelbuffer_create_t {
+    call_header_t hdr;
+    uint16_t initial_data;
+} call_gfx_pixelbuffer_create_t;
+// returns: void f-grp: f-id:10
+typedef struct call_gfx_pixelbuffer_set_active_t {
+    call_header_t hdr;
+    uint16_t pxbuffer;
+} call_gfx_pixelbuffer_set_active_t;
+// returns: gfx_pixelbuffer_t* f-grp: f-id:11
+typedef struct call_gfx_pixelbuffer_get_current_t {
+    call_header_t hdr;
+} call_gfx_pixelbuffer_get_current_t;
+// returns: void f-grp: f-id:13
+typedef struct call_gfx_pixelbuffer_mount_t {
+    call_header_t hdr;
+    uint16_t pxb;
+    uint16_t destination;
+} call_gfx_pixelbuffer_mount_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;
@@ -186,12 +196,6 @@ typedef struct call_gfx_draw_text_t {
     uint16_t txt;
     uint8_t color_idx;
 } call_gfx_draw_text_t;
-// returns: void f-grp: f-id:15
-typedef struct call_asset_get_tilesheet_t {
-    call_header_t hdr;
-    uint16_t ts_data;
-    uint8_t asset_id;
-} call_asset_get_tilesheet_t;
 
 // function grp: 2
 

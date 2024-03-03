@@ -74,8 +74,13 @@ typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
     
     uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
     uint8_t spritebuffer_id; // the spritebuffer this sprite belongs to
+    
     uint8_t sprite_idx; 
+    uint8_t free;
 } gfx_sprite_t;
+
+
+#define ANIMATIONFLAG_LOOP (1 << 0)
 
 typedef struct __attribute__((aligned(4))) sprite_animation_t {
     uint8_t start_tile;
@@ -87,6 +92,7 @@ typedef struct __attribute__((aligned(4))) sprite_animation_t {
 typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
     uint8_t animation_amount;
     uint8_t flags;
+    
     uint16_t free;
     gfx_sprite_animation_t animations[];
 } gfx_sprite_animator_t;

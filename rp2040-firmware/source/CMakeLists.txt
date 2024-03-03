@@ -21,18 +21,15 @@ add_executable(neo6502firmware
 	core/backend/cpu/wdc65C02cpu.c
 	core/roms.c
 	
-
 	ng_gfx.c
+    ng_gfx_spritebuffer.c
+    ng_gfx_pixelbuffer.c
 	ng_cpu.c
 	ng_sound.c
 	ng_utils.c
 	ng_io.c
 	ng_mem.c
 	ng_assets.c
-
-	#api/gen/memory_call_function.c
-
-#	game/game.c
 
 	${BACKEND_SOURCE}
 

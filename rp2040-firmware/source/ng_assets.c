@@ -5,6 +5,8 @@
 #include "ng_cpu.h"
 #include <assert.h>
 #include "core/roms.h"
+#include "ng_gfx.h"
+#include <string.h>
 
 
 assetpack_t current_assetpack;
@@ -50,4 +52,27 @@ const void*  assets_get_pointer(uint8_t asset_id)
     assert(asset_id < current_assetpack.asset_amount && "exceeded assets amount");
     const void* tip = current_assetpack.data+current_assetpack.offsets[asset_id];
     return tip;
+}
+
+// ---------------------------
+// 🇦​​​​​🇸​​​​​🇸​​​​​🇪​​​​​🇹​​​​​ 🇱​​​​​🇴​​​​​🇦​​​​​🇩​​​​​🇮​​​​​🇳​​​​​🇬​​​​​
+// ---------------------------
+
+void asset_get_tilesheet(gfx_tilesheet_data_t* tilesheet_data,uint8_t asset_id){
+	const gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
+	assert(assetdata->data.type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
+
+	gfx_tilesheet_t* tilesheet = ng_mem_allocate(SEGMENT_GFX_DATA,sizeof(gfx_tilesheet_t));
+	
+	//*tilesheet = *assetdata;
+	memcpy(tilesheet,assetdata,sizeof(gfx_tilesheet_t));
+
+	uint32_t cached_tileptr_size = sizeof(uint8_t*)*tilesheet->data.tile_amount;
+	tilesheet->cached_tile_ptrs = ng_mem_allocate(SEGMENT_GFX_DATA,cached_tileptr_size);
+	memset(tilesheet->cached_tile_ptrs,0,cached_tileptr_size);
+
+	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+sizeof(gfx_tilesheet_data_t);
+
+    tilesheet->data.ts_id = id_store(tilesheet);
+    *tilesheet_data = tilesheet->data;
 }

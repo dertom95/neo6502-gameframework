@@ -233,25 +233,3 @@ void gfx_renderqueue_apply(void)
 	renderqueue_request_amount=0;
 }
 
-// ---------------------------
-// 🇦​​​​​🇸​​​​​🇸​​​​​🇪​​​​​🇹​​​​​ 🇱​​​​​🇴​​​​​🇦​​​​​🇩​​​​​🇮​​​​​🇳​​​​​🇬​​​​​
-// ---------------------------
-
-void asset_get_tilesheet(gfx_tilesheet_data_t* tilesheet_data,uint8_t asset_id){
-	const gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
-	assert(assetdata->data.type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
-
-	gfx_tilesheet_t* tilesheet = ng_mem_allocate(default_allocation_segment,sizeof(gfx_tilesheet_t));
-	
-	//*tilesheet = *assetdata;
-	memcpy(tilesheet,assetdata,sizeof(gfx_tilesheet_t));
-
-	uint32_t cached_tileptr_size = sizeof(uint8_t*)*tilesheet->data.tile_amount;
-	tilesheet->cached_tile_ptrs = ng_mem_allocate(default_allocation_segment,cached_tileptr_size);
-	memset(tilesheet->cached_tile_ptrs,0,cached_tileptr_size);
-
-	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+sizeof(gfx_tilesheet_data_t);
-
-    tilesheet->data.ts_id = id_store(tilesheet);
-    *tilesheet_data = tilesheet->data;
-}
