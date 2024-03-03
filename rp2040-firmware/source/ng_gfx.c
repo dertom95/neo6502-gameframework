@@ -205,8 +205,8 @@ exit_all_loops:
                     }
 
 
-                    uint8_t line = flipped_v ? sprite_height - (y - sprite_y) / px_height -1
-                                                : (y - sprite_y) / px_height;
+                    uint8_t line = flipped_v ? (sprite_height - (y - sprite_y)-1) / px_height
+                                            : (y - sprite_y) / px_height;
 
                     // apply pixel-height
 
@@ -241,12 +241,11 @@ exit_all_loops:
                         while (subpixel_left_to_write--){
                             if (idx==255){
                                 //-- DEBUG-TRANSPARENCY---------------
-                                //color = color_palette[COL_RED];
+                                color = color_palette[COL_RED];
                                 //------------------------------------
-                                write_buf++;
-                            } else {
-                                *(write_buf++)=color;
-                            }
+                            } 
+                            *(write_buf++)=color;
+                            
 
                             if (output_pixels_to_write--==0){
                                 goto break_out;
