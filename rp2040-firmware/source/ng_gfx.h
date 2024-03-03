@@ -62,10 +62,17 @@ typedef struct __attribute__((aligned(4))) gfx_internal_spritebuffer_t {
 typedef struct gfx_internal_sprite_animator_t {
     gfx_extension_header_t header;
     int16_t timer;
-    uint8_t runtime_flags;
     uint8_t current_anim_idx;
+    uint8_t flags;
+
+    uint8_t followup_anim_idx; // animation to be played if current animation is not looped
+    uint8_t followup_flags;    
+    uint8_t id;
+    uint8_t free2; //  padding
+
     gfx_sprite_animator_t* sprite_animator;
     gfx_sprite_animation_t* current_animation;
+    gfx_sprite_t* sprite;
 } gfx_internal_sprite_animator_t;
 
 extern const uint8_t* font;
@@ -94,13 +101,16 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 // 🇸​​​​​🇵​​​​​🇷​​​​​🇮​​​​​🇹​​​​​🇪​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
-/*api:1:21*/void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
+/*api:1:21*/void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
 
-/*api:1:17*/void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
-/*api:1:18*/void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
+/*api:1:17*/void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
+/*api:1:18*/void    gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
 /*api:1:19*/uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* animator);
 /*api:1:20*/bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type);
-/*api:1:22*/ void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx);
+/*api:1:22*/void    gfx_spriteanimator_set_animation(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags);
+/*api:1:23*/void    gfx_spriteanimator_set_animation_with_folowup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags);
+/*api:1:24*/void    gfx_spriteanimator_stop(uint8_t spriteanimator_id);
+/*api:1:25*/void    gfx_spriteanimator_resume(uint8_t spriteanimator_id);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
@@ -131,6 +141,6 @@ void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *for
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:22
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:25
 
 #endif 

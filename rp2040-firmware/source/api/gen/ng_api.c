@@ -73,7 +73,7 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount){
     }
 }   
 // returns: void f-grp:1 f-id:21
-void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
+void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
     uint8_t result_code;
     call_gfx_spritebuffer_update_t* func_data;
     func_data = (call_gfx_spritebuffer_update_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -90,7 +90,7 @@ void     gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
     }
 }   
 // returns: void f-grp:1 f-id:17
-void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx){
+void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx){
     uint8_t result_code;
     call_gfx_sprite_set_tileset_t* func_data;
     func_data = (call_gfx_sprite_set_tileset_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -108,7 +108,7 @@ void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, 
     }
 }   
 // returns: void f-grp:1 f-id:18
-void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx){
+void    gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx){
     uint8_t result_code;
     call_gfx_sprite_set_tileid_t* func_data;
     func_data = (call_gfx_sprite_set_tileid_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -161,14 +161,67 @@ bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type)
     }
 }   
 // returns: void f-grp:1 f-id:22
-void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx){
+void    gfx_spriteanimator_set_animation(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags){
     uint8_t result_code;
     call_gfx_spriteanimator_set_animation_t* func_data;
     func_data = (call_gfx_spriteanimator_set_animation_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 22;
-    func_data->sprite_animator= sprite_animator;
+    func_data->spriteanimator_id= spriteanimator_id;
     func_data->anim_idx= anim_idx;
+    func_data->flags= flags;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:23
+void    gfx_spriteanimator_set_animation_with_folowup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags){
+    uint8_t result_code;
+    call_gfx_spriteanimator_set_animation_with_folowup_t* func_data;
+    func_data = (call_gfx_spriteanimator_set_animation_with_folowup_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 23;
+    func_data->spriteanimator_id= spriteanimator_id;
+    func_data->anim_idx= anim_idx;
+    func_data->flags= flags;
+    func_data->followup_animation_idx= followup_animation_idx;
+    func_data->followup_animation_flags= followup_animation_flags;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:24
+void    gfx_spriteanimator_stop(uint8_t spriteanimator_id){
+    uint8_t result_code;
+    call_gfx_spriteanimator_stop_t* func_data;
+    func_data = (call_gfx_spriteanimator_stop_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 24;
+    func_data->spriteanimator_id= spriteanimator_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:25
+void    gfx_spriteanimator_resume(uint8_t spriteanimator_id){
+    uint8_t result_code;
+    call_gfx_spriteanimator_resume_t* func_data;
+    func_data = (call_gfx_spriteanimator_resume_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 25;
+    func_data->spriteanimator_id= spriteanimator_id;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

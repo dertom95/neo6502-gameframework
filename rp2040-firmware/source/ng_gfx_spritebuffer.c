@@ -169,39 +169,114 @@ uint8_t  gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* an
         },
         .sprite_animator = animator,
         .current_animation = &animator->animations[0],
-        .timer=animator->animations[0].delay_ms
+        .timer=animator->animations[0].delay_ms,
+        .sprite=sprite,
+        .flags=ANIMATIONFLAG_STOPPED
     };
     gfx_sprite_set_tileid(sprite, internal_animator->current_animation->start_tile);
 
     gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];
     ll_add((linked_list_t**)&sprite_internal->extensions, (linked_list_t*)internal_animator);
-    return id_store(internal_animator);
+    uint8_t id = id_store(internal_animator);
+    internal_animator->id = id;
+    return id;
 }
 
-void gfx_spriteanimator_set_animation(uint8_t sprite_animator_id, uint8_t anim_idx){
+void gfx_spriteanimator_set_animation_with_folowup(uint8_t sprite_animator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_flags){
     gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(sprite_animator_id);
-    if (anim_idx == internal_spriteanimatior->current_anim_idx){
-        // nothing todo! TODO: assert this?
-        return;
-    }
 
+    assert(anim_idx < internal_spriteanimatior->sprite_animator->animation_amount);
+    assert(followup_animation_idx==255 || followup_animation_idx < internal_spriteanimatior->sprite_animator->animation_amount);
+
+    
     gfx_sprite_animator_t* usr_animator = internal_spriteanimatior->sprite_animator;
     assert(anim_idx < usr_animator->animation_amount && "idx out of bounds!"); 
 
-    internal_spriteanimatior->current_anim_idx = anim_idx;
-    internal_spriteanimatior->current_animation = &usr_animator->animations[anim_idx];
-    internal_spriteanimatior->timer = internal_spriteanimatior->current_animation->delay_ms;
+    internal_spriteanimatior->flags = flags;
+    internal_spriteanimatior->followup_anim_idx = followup_animation_idx;
+    internal_spriteanimatior->followup_flags = followup_flags;
+
+    bool is_new_animation = anim_idx != internal_spriteanimatior->current_anim_idx;
+    if (is_new_animation){
+        internal_spriteanimatior->current_anim_idx = anim_idx;
+        internal_spriteanimatior->current_animation = &usr_animator->animations[anim_idx];
+        internal_spriteanimatior->timer = internal_spriteanimatior->current_animation->delay_ms;
+
+        bool play_backwards = flags_isset(flags,ANIMATIONFLAG_BACKWARDS);
+        if (play_backwards){
+            gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->end_tile);
+        } else {
+            gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
+        }
+    }    
+}
+
+void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx, uint8_t flags) {
+    gfx_spriteanimator_set_animation_with_folowup(sprite_animator,anim_idx,flags,255,0);
+}
+
+void gfx_spriteanimator_stop(uint8_t spriteanimator_id){
+    gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
+    flags_set(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);
+}
+
+void gfx_spriteanimator_resume(uint8_t spriteanimator_id){
+    gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
+    assert(internal_spriteanimatior->current_anim_idx!=255);
+    flags_unset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);
 }
 
 void _internal_gfx_ext_update_spriteanimator(gfx_internal_sprite_animator_t* animator, gfx_sprite_t* sprite, uint16_t dt){
+    bool is_stopped = flags_isset(animator->flags, ANIMATIONFLAG_STOPPED);
+    if (is_stopped) {
+        return;
+    }
+
     animator->timer -= dt;
+
     if (animator->timer<0) {
         animator->timer += animator->current_animation->delay_ms;
-        uint8_t next_tile = sprite->tile_idx+1;
-        if (next_tile > animator->current_animation->end_tile){
-            next_tile = animator->current_animation->start_tile;
+        
+        bool running_backwards = flags_isset(animator->flags,ANIMATIONFLAG_BACKWARDS);
+        bool is_looping = flags_isset(animator->flags,ANIMATIONFLAG_LOOP);
+
+        uint8_t next_tile;
+        
+        bool try_start_followup = false;
+
+        if (running_backwards){
+            next_tile = sprite->tile_idx-1;
+            if (next_tile < animator->current_animation->start_tile || next_tile==255){
+                if (is_looping){
+                    // startover
+                    next_tile = animator->current_animation->end_tile;
+                } else {
+                    try_start_followup = true;
+                }
+            }
+        } else {
+            next_tile = sprite->tile_idx+1;
+            if (next_tile > animator->current_animation->end_tile){
+                if (is_looping){
+                    next_tile = animator->current_animation->start_tile;
+                } else {
+                    try_start_followup = true;
+                }
+            } 
         }
-        gfx_sprite_set_tileid(sprite,next_tile);
+
+        if (try_start_followup){
+            // finish this animation
+            bool has_followup_animation = animator->followup_anim_idx!=255;
+            if (has_followup_animation){
+                gfx_spriteanimator_set_animation(animator->id, animator->followup_anim_idx, animator->followup_flags);
+            } else {
+                // stop animation
+                gfx_spriteanimator_stop(animator->id);
+            }
+        } else {
+            gfx_sprite_set_tileid(sprite,next_tile);
+        }
     }
 }
 

@@ -71,7 +71,7 @@ void asset_get_tilesheet(gfx_tilesheet_data_t* tilesheet_data,uint8_t asset_id){
 	tilesheet->cached_tile_ptrs = ng_mem_allocate(SEGMENT_GFX_DATA,cached_tileptr_size);
 	memset(tilesheet->cached_tile_ptrs,0,cached_tileptr_size);
 
-	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata)+sizeof(gfx_tilesheet_data_t);
+	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata) + 10;
 
     tilesheet->data.ts_id = id_store(tilesheet);
     *tilesheet_data = tilesheet->data;

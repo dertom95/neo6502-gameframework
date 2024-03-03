@@ -58,12 +58,14 @@ def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_id
     byte_array.extend(struct.pack('<B', ts_type)) #TODO
     byte_array.extend(struct.pack('<B', tile_width))
     byte_array.extend(struct.pack('<B', tile_height))
+    byte_array.extend(struct.pack('<B', int(tile_width/2)))
+    byte_array.extend(struct.pack('<B', int(tile_height/2)))
     byte_array.extend(struct.pack('<B', num_tiles_x))
     byte_array.extend(struct.pack('<B', num_tiles_y))
     byte_array.extend(struct.pack('<B', num_tiles_x*num_tiles_y))
     byte_array.extend(struct.pack('<B', ts_flags)) #TODO
     byte_array.extend(struct.pack('<B', 0)) # the tilesheet id (set at runtime)
-
+ 
     # Iterate over each tile
     for y in range(num_tiles_y):
         for x in range(num_tiles_x):

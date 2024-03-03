@@ -67,26 +67,46 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 #define SPRITEFLAG_FLIP_H (1 << 1)
 #define SPRITEFLAG_FLIP_V (1 << 2)
 
+//TODO: hmm, maybe alignment is the wrong term? (right<->left mixed up). :thinking: doesn't matter for now
+#define SPRITEFLAG_ALIGNH_MASK   (3 << 3)
+#define SPRITEFLAG_ALIGNH_LEFT   (0 << 3)
+#define SPRITEFLAG_ALIGNH_CENTER (1 << 3)
+#define SPRITEFLAG_ALIGNH_RIGHT  (2 << 3)
+
+#define SPRITEFLAG_ALIGNV_MASK   (3 << 5)
+#define SPRITEFLAG_ALIGNV_TOP    (0 << 5)
+#define SPRITEFLAG_ALIGNV_CENTER (1 << 5)
+#define SPRITEFLAG_ALIGNV_BOTTOM (2 << 5)
+
 typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 	int16_t x;
 	int16_t y;
-	uint16_t flags; // unused(yet)
+    // b[5-6] VERTICAL ALIGNMENT
+    // b[3-4] HORIZONTAL ALIGNMENT
+    // b[2]   FLIP_VERTICAL
+    // b[1]   FLIP_HORIZONTAL
+    // b[0]   INUSE
+	uint16_t flags; 
     
     uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
     uint8_t spritebuffer_id; // the spritebuffer this sprite belongs to
     
     uint8_t sprite_idx; 
-    uint8_t free;
+    uint8_t pixel_size;
 } gfx_sprite_t;
 
 
-#define ANIMATIONFLAG_LOOP (1 << 0)
+// animator is running but there is no animation at the moment
+#define ANIMATIONFLAG_STOPPED (1 << 0) 
+// loop the current animation
+#define ANIMATIONFLAG_LOOP (1 << 1)
+// play animation backwards
+#define ANIMATIONFLAG_BACKWARDS (1 << 2)
 
 typedef struct __attribute__((aligned(4))) sprite_animation_t {
     uint8_t start_tile;
     uint8_t end_tile;
     uint8_t delay_ms;
-    uint8_t flags;
 } gfx_sprite_animation_t;
 
 typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
@@ -100,10 +120,13 @@ typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
 // CAUTIOUS: DO NOT CHANGE THE ORDER AND DO NOT ADD FIELDS.
 //           The data for the tilesheets is created by the exporter. 
 //           If you change this struct you also have to modify the exporter (ng_tool_tilesheet.py: encode_tiles(..) )
+//           IMPORTANT: if add/removing to this struct you also need to maintain GFX_TILESHEET_DATA_SIZE-define (see below)
 typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
 	uint8_t type;
 	uint8_t tile_width;
 	uint8_t tile_height;
+	uint8_t tile_width_half;
+	uint8_t tile_height_half;    
 	uint8_t cols;
     uint8_t rows;
 	uint8_t tile_amount;
@@ -111,6 +134,11 @@ typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
 	uint8_t flags;
     uint8_t ts_id;
 } gfx_tilesheet_data_t;
+// if you add or remove data to gfx_tilesheet_data_t you need to count the bytes and maintain following define.
+// using sizeof(..) might result to inconsistent results due to alignment and padding!
+#define GFX_TILESHEET_DATA_SIZE 10
+
+
 
 #if _MOD_NATIVE_
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))
@@ -126,6 +154,8 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
 #define flags_pack_4_4(HIGH,LOW) (HIGH<<4)|(LOW)
 #define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15);
+#define flags_mask_value(INPUT,MASK) (INPUT&MASK)
+#define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&MASK)==VALUE)
 
 #define MM_SB MEMORY_MAP_VARS_START /* memory-location where the memory-mapping starts */
 #define MM_LAST_KB_CHAR (MM_SB + 0x00)

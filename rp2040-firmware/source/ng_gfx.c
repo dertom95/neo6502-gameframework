@@ -155,48 +155,74 @@ exit_all_loops:
 
 				uint8_t max_sprites = spritebuffer->amount_sprites;
 				gfx_sprite_t* sprite = (gfx_sprite_t*)spritebuffer->sprites;
-                gfx_internal_sprite_t* sprite_internals = spritebuffer->sprite_internals;
+                gfx_internal_sprite_t* sprite_internal = spritebuffer->sprite_internals;
                 
 				while(max_sprites--){
-                    bool flipped_h = flags_isset(sprite->flags,SPRITEFLAG_FLIP_H);
+                    if (sprite->flags==0){
+                        sprite++;
+                        sprite_internal++;
+                        continue;
+                    }
+
+                    int16_t sprite_y = sprite->y;
+                    gfx_tilesheet_t* ts =  sprite_internal->tilesheet;
+
+                    uint8_t alignment_v = flags_mask_value(sprite->flags,SPRITEFLAG_ALIGNV_MASK);
+                    if (alignment_v==SPRITEFLAG_ALIGNV_CENTER){
+                        sprite_y -= ts->data.tile_height_half;
+                    }
+                    else if(alignment_v==SPRITEFLAG_ALIGNV_BOTTOM){
+                        sprite_y -= ts->data.tile_height;
+                    }
+
+                    if (sprite_y > y || (sprite_y+ts->data.tile_height)<=y){
+                        sprite++;
+                        sprite_internal++;
+                        continue;
+                    }
+
                     bool flipped_v = flags_isset(sprite->flags,SPRITEFLAG_FLIP_V);
+                    bool flipped_h = flags_isset(sprite->flags,SPRITEFLAG_FLIP_H);
+
+                    uint8_t alignment_h = flags_mask_value(sprite->flags,SPRITEFLAG_ALIGNH_MASK);
+                    int16_t sprite_x = sprite->x;                    
                     int8_t read_direction= flipped_h ? -1 : 1;
 
-					if (sprite->flags>0){
-						gfx_tilesheet_t* ts =  sprite_internals->tilesheet;
-						if (sprite->y > y || (sprite->y+ts->data.tile_height)<=y){
-							sprite++;
-                            sprite_internals++;
-							continue;
-						}
+                    if (alignment_h==SPRITEFLAG_ALIGNH_CENTER){
+                        sprite_x -= ts->data.tile_width_half;
+                    }
+                    else if(alignment_h==SPRITEFLAG_ALIGNH_RIGHT){
+                        sprite_x -= ts->data.tile_width;
+                    }
 
-                        uint8_t line = flipped_v ? ts->data.tile_height - (y - sprite->y)-1
-                                                 : (y - sprite->y);
 
-						uint8_t input_pixels_to_read = min(ts->data.tile_width,SCREEN_WIDTH-sprite->x);
-						uint8_t* data = sprite_internals->tile_ptr + line * ts->data.tile_width;
+                    uint8_t line = flipped_v ? ts->data.tile_height - (y - sprite_y)-1
+                                                : (y - sprite_y);
 
-                        if (flipped_h){
-                            data += ts->data.tile_width - 1;
+                    uint8_t input_pixels_to_read = min(ts->data.tile_width,SCREEN_WIDTH-sprite_x);
+                    uint8_t* data = sprite_internal->tile_ptr + line * ts->data.tile_width;
+
+                    if (flipped_h){
+                        data += ts->data.tile_width - 1;
+                    }
+
+                    write_buf = pixbuf+sprite_x;
+                    uint8_t idx;
+                    while (input_pixels_to_read--){
+                        idx = *(data);
+                        data += read_direction;
+                        if (idx==255){
+                            //-- DEBUG-TRANSPARENCY---------------
+                            *(write_buf++)=color_palette[COL_RED];
+                            //------------------------------------
+                            //write_buf++;
+                            continue;
                         }
-
-						write_buf = pixbuf+sprite->x;
-						uint8_t idx;
-						while (input_pixels_to_read--){
-							idx = *(data);
-                            data += read_direction;
-							if (idx==255){
-                                //-- DEBUG-TRANSPARENCY---------------
-                                *(write_buf++)=color_palette[COL_RED];
-                                //------------------------------------
-								//write_buf++;
-								continue;
-							}
-							*(write_buf++)=color_palette[idx];
-						}		
-					}
+                        *(write_buf++)=color_palette[idx];
+                    }		
+					
 					sprite++;
-                    sprite_internals++;
+                    sprite_internal++;
 				}
 				break;
 			}

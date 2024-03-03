@@ -88,8 +88,8 @@ gfx_sprite_animator_t anim4={
     .animations={
         {
             .start_tile=4,
-            .end_tile=7,
-            .delay_ms=100
+            .end_tile=6,
+            .delay_ms=1000
         }
     }
 };
@@ -158,11 +158,14 @@ int mod_init(){
     //flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
+    flags_set(sprite_oldguy->flags, SPRITEFLAG_ALIGNH_RIGHT | SPRITEFLAG_ALIGNV_BOTTOM);
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
     flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
+    
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
+  //  gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
 
     sprite_oldguy->x=0;
     sprite_oldguy->y=0;
@@ -257,13 +260,14 @@ void mod_update() {
         if (anim>3){
             anim=0;
         }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim);
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,0);
     }
     else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
-        if (anim>0){
-            anim--;
+        anim--;
+        if (anim<0){
+            anim=3;
         }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim);
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,0);
     }
 
     kbm.key_down=0;
