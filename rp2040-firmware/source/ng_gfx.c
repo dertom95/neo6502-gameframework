@@ -182,11 +182,6 @@ exit_all_loops:
                         sprite_y -= sprite_height;
                     }
 
-                    if (sprite_y > y || (sprite_y+sprite_height)<=y){
-                        sprite++;
-                        sprite_internal++;
-                        continue;
-                    }
 
                     uint8_t* tile_ptr = sprite_internal->tile_ptr;
 
@@ -195,16 +190,24 @@ exit_all_loops:
                     uint8_t offset_top = 0;
                     uint8_t offset_right = 0;
                     uint8_t offset_bottom = 0;
+                    uint8_t offset_width = ts->data.tile_width;
+                    uint8_t offset_height = ts->data.tile_height;
                     if (format == ASSET_TYPE_FILEFORMAT_2){
                         uint8_t oX = *(tile_ptr++);
                         uint8_t oY = *tile_ptr++;
-                        uint8_t oW = *tile_ptr++;
-                        uint8_t oH = *tile_ptr++;
+                        offset_width = *tile_ptr++;
+                        offset_height = *tile_ptr++;
 
                         offset_left = oX;
                         offset_top = oY;
-                        offset_right = ts->data.tile_width - oX - oW;
-                        offset_bottom = ts->data.tile_height - oY - oH;
+                        offset_right = ts->data.tile_width - oX - offset_width;
+                        offset_bottom = ts->data.tile_height - oY - offset_height;
+                    }
+
+                    if ((sprite_y+offset_top) > y || (sprite_y+sprite_height-offset_bottom)<=y){
+                        sprite++;
+                        sprite_internal++;
+                        continue;
                     }
 
                     bool flipped_v = flags_isset(sprite->flags,SPRITEFLAG_FLIP_V);
@@ -223,15 +226,14 @@ exit_all_loops:
                         sprite_x -= sprite_width;
                     }
 
-
-                    uint8_t line = flipped_v ? (sprite_height - (y - sprite_y)-1) / px_height
-                                            : (y - sprite_y) / px_height;
+                    uint8_t line = flipped_v ? (sprite_height - (y - sprite_y)-1-offset_top) / px_height
+                                            : (y - sprite_y - offset_top) / px_height;
 
                     // apply pixel-height
 
-                    uint8_t input_pixels_to_read = min(ts->data.tile_width,SCREEN_WIDTH-sprite_x);
+                    uint8_t input_pixels_to_read = min(offset_width,SCREEN_WIDTH-sprite_x);
 
-                    uint8_t* data = sprite_internal->tile_ptr + line * ts->data.tile_width;
+                    uint8_t* data = tile_ptr + line * offset_width;
 
                     int16_t output_pixels_to_write;
                     int8_t subpixel_left_to_write;
@@ -242,12 +244,12 @@ exit_all_loops:
 
                     if (sprite_x >= 0){
                         subpixel_left_to_write = px_width;
-                        write_buf = pixbuf+sprite_x;
-                        output_pixels_to_write = min(sprite_width, SCREEN_WIDTH-sprite_x);
+                        write_buf = pixbuf+sprite_x+offset_left*px_width;
+                        output_pixels_to_write = min(offset_width*px_width, SCREEN_WIDTH-sprite_x); // TODO: Right-Border using offset-values
                     } else {
-                        subpixel_left_to_write = px_width + sprite_x % px_width;
+                        subpixel_left_to_write = px_width + sprite_x % px_width; // TODO: Left-Border using offset-values
                         write_buf = pixbuf;
-                        output_pixels_to_write = sprite_width + sprite_x - 1;
+                        output_pixels_to_write = offset_width + sprite_x - 1;
                         data += sprite_x/px_width;
                     }
 

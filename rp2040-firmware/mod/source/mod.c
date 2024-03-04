@@ -158,24 +158,27 @@ int mod_init(){
     //flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
-    flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
+    flags_set(sprite_oldguy->flags, /*SPRITEFLAG_FLIP_H |*/ SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
     flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
     
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
-  //  gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
+    gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
 
     sprite_oldguy->x=0;
     sprite_oldguy->y=0;
-    sprite_oldguy->pixel_size=flags_pack_4_4(3,3);
+    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
 
     sprite_strawberry->x=50;
     sprite_strawberry->y=40;
 
     sprite_potion->x=70;
     sprite_potion->y=40;
+
+    // sprite_strawberry->flags=0;
+    // sprite_potion->flags=0;
 
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
