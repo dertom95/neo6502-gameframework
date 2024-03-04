@@ -13,6 +13,7 @@
 #include "hardware/gpio.h"
 #include "hardware/vreg.h"
 #include "pico/sem.h"
+#include "pico/lock_core.h"
 
 #include "dvi.h"
 #include "dvi_serialiser.h"
@@ -92,8 +93,9 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 .invert_diffpairs = true
 };
 
-uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
-
+//uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
+// uint16_t  __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*4];
+uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH];
 
 void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8_t usage_type,void* data,uint32_t size){
 	bool success = ng_mem_allocate_block(segment_id,size,usage_type, block);
@@ -101,11 +103,80 @@ void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,ui
 	memcpy(block->data,data,size);
 }
 
+void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
+	uint pixwidth = dvi0.timing->h_active_pixels;
+	uint words_per_channel = pixwidth / DVI_SYMBOLS_PER_WORD;
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 0 * words_per_channel, pixwidth / 2, DVI_16BPP_BLUE_MSB,  DVI_16BPP_BLUE_LSB );
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 1 * words_per_channel, pixwidth / 2, DVI_16BPP_GREEN_MSB, DVI_16BPP_GREEN_LSB);
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 2 * words_per_channel, pixwidth / 2, DVI_16BPP_RED_MSB,   DVI_16BPP_RED_LSB  );
+}
+
+int a = 0;
+
+#define CACHE_SIZE 16
+uint16_t __attribute__((aligned(4))) scanbuf_cache[FRAME_WIDTH*CACHE_SIZE];
+queue_t cache_free;
+queue_t cache_filled;
+
 /// @brief render loop on core1
-void core1_main() {
+void __not_in_flash_func(core1_main()) {
 	dvi_register_irqs_this_core(&dvi0, DMA_IRQ_0);
+	// while (queue_is_empty(&dvi0.q_tmds_valid))
+	// 	__wfe();
+    queue_init(&cache_free,sizeof(uint16_t*),CACHE_SIZE);
+    queue_init(&cache_filled,sizeof(uint16_t*),CACHE_SIZE);
+    uint16_t* current_tip = scanbuf_cache;
+    for (int i=0;i<CACHE_SIZE;i++){
+        queue_add_blocking_u32(&cache_free,current_tip);
+        current_tip+=FRAME_WIDTH;
+    }
 	dvi_start(&dvi0);
-	dvi_scanbuf_main_16bpp(&dvi0);
+	//dvi_scanbuf_main_16bpp(&dvi0);
+    uint32_t *tmds0;
+    uint16_t *pixbuf;
+   	while (1) {
+		for (uint y = 0; y < FRAME_HEIGHT; y ++) {
+            // bool blocked = queue_try_remove_u32(&dvi0.q_tmds_free,&tmds0);
+            // if (blocked){
+            //     queue_remove_blocking_u32(&cache_free,&pixbuf);
+ 	        //     gfx_render_scanline(pixbuf, y);
+            //     queue_add_blocking_u32(&cache_filled,pixbuf);
+            //     continue;
+            // }
+            // //queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmds0);
+ 	
+            // if (requested_renderqueue_apply){
+            //     requested_renderqueue_apply = false;
+            //     ng_mem_block_t** save_current = renderqueue_current;
+            //     renderqueue_current = renderqueue_request;
+            //     renderqueue_request = save_current;
+            // }
+
+            // bool found = queue_try_remove_u32(&cache_filled,&pixbuf);
+            // if (found){
+    		// 	encode_scanline(pixbuf, tmds0);
+            // } else {
+     	    //     gfx_render_scanline(core1_scanbuf, y);
+            //     encode_scanline(core1_scanbuf, tmds0);
+            // }
+            // queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);
+
+            queue_remove_blocking_u32(&dvi0.q_tmds_free,&tmds0);
+ 	
+            if (requested_renderqueue_apply){
+                requested_renderqueue_apply = false;
+                ng_mem_block_t** save_current = renderqueue_current;
+                renderqueue_current = renderqueue_request;
+                renderqueue_request = save_current;
+            }
+
+            gfx_render_scanline(core1_scanbuf, y);
+            encode_scanline(core1_scanbuf, tmds0);
+            queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);
+
+		}
+	} 
+
 	__builtin_unreachable();
 }
 
@@ -115,8 +186,7 @@ void core1_main() {
 void __not_in_flash_func(core1_scanline_callback)() {
 	// Discard any scanline pointers passed back
 	uint16_t *bufptr;
-	while (queue_try_remove_u32(&dvi0.q_colour_free, &bufptr))
-		;
+	queue_try_remove_u32(&dvi0.q_colour_free, &bufptr);
 	// // Note first two scanlines are pushed before DVI start
 	static uint scanline = 2;
 	//bufptr = &framebuf[FRAME_WIDTH * scanline];
@@ -145,12 +215,8 @@ void gfx_backend_init()
 {
  	vreg_set_voltage(VREG_VSEL);
 	sleep_ms(10);
-#ifdef RUN_FROM_CRYSTAL
-	set_sys_clock_khz(12000, true);
-#else
 	// Run system at TMDS bit clock
 	set_sys_clock_khz(DVI_TIMING.bit_clk_khz, true);
-#endif
 
 	setup_default_uart();
 
@@ -161,19 +227,23 @@ void gfx_backend_init()
 
 	dvi0.timing = &DVI_TIMING;
 	dvi0.ser_cfg = _pico_neo6502_cfg;
-	dvi0.scanline_callback = core1_scanline_callback;
+	//dvi0.scanline_callback = core1_scanline_callback;
 	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
 
 	// Once we've given core 1 the framebuffer, it will just keep on displaying
 	// it without any intervention from core 0
 	//sprite_fill16(framebuf, 0xffff, FRAME_WIDTH * FRAME_HEIGHT);
 	
-	uint16_t *bufptr = &core1_scanbuf[0];
-	gfx_render_scanline(bufptr,0);
+	// uint16_t *bufptr = &core1_scanbuf[0];
+	// gfx_render_scanline(bufptr,0);
 	
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-	bufptr += FRAME_WIDTH;
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+	// queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+	// bufptr += FRAME_WIDTH;
+	// queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+	// bufptr += FRAME_WIDTH;
+	// queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
+	// bufptr += FRAME_WIDTH;
+	// queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
 
 	printf("Core 1 start\n");
 	multicore_launch_core1(core1_main);
