@@ -49,7 +49,7 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=100,
+    .width=200,
     .height=20,
     .x=-2,
     .y=0,

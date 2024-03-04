@@ -26,7 +26,7 @@ assets-create: initialize
 #	bin2c temp/font8.bin -H $(EXPORT_FOLDER)/font.h
 	../3rd/PicoDVI/software/scripts/packtiles --format r1 $(ASSET_FOLDER)/fonts/font_8x8.png $(EXPORT_FOLDER)/font8.bin 
 
-	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette.png --output $(EXPORT_FOLDER)/color_palette.bin --binary
+	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette.png --output $(EXPORT_FOLDER)/color_palette.bin --binary 
 	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette.png --output $(EXPORT_FOLDER)/color_palette.h --array-name palette
 
 	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette_small.png --output $(EXPORT_FOLDER)/color_palette_small.bin --binary
@@ -36,14 +36,16 @@ assets-create: initialize
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name sprites_misc \
 									--output $(EXPORT_FOLDER)/sprites_misc.bin \
-									--binary
+									--binary \
+									--format 2
 
 	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/old_guy.png \
 									--tile-size 16x16 \
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name gold_guy \
 									--output $(EXPORT_FOLDER)/old_guy.bin \
-									--binary
+									--binary \
+									--format 2
 
 
 check_code_bin:

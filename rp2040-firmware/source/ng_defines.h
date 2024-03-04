@@ -35,8 +35,14 @@ typedef uint8_t* US_ADDRESS;
 #define SEGMENT_GFX_DATA 0
 #define SEGMENT_6502_MEM 1
 
-#define ASSET_TYPE_TILESHEET 1
-#define ASSET_TYPE_PALETTE   2
+#define ASSET_TYPE_MASK (3 << 0)
+#define ASSET_TYPE_TILESHEET (0 << 0)
+#define ASSET_TYPE_PALETTE   (1 << 0)
+
+#define ASSET_TYPE_FILEFORMAT_MASK (3 << 2)
+#define ASSET_TYPE_FILEFORMAT_1    (0 << 2)
+#define ASSET_TYPE_FILEFORMAT_2    (1 << 2)
+
 
 
 

@@ -188,6 +188,25 @@ exit_all_loops:
                         continue;
                     }
 
+                    uint8_t* tile_ptr = sprite_internal->tile_ptr;
+
+                    uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
+                    uint8_t offset_left = 0;
+                    uint8_t offset_top = 0;
+                    uint8_t offset_right = 0;
+                    uint8_t offset_bottom = 0;
+                    if (format == ASSET_TYPE_FILEFORMAT_2){
+                        uint8_t oX = *(tile_ptr++);
+                        uint8_t oY = *tile_ptr++;
+                        uint8_t oW = *tile_ptr++;
+                        uint8_t oH = *tile_ptr++;
+
+                        offset_left = oX;
+                        offset_top = oY;
+                        offset_right = ts->data.tile_width - oX - oW;
+                        offset_bottom = ts->data.tile_height - oY - oH;
+                    }
+
                     bool flipped_v = flags_isset(sprite->flags,SPRITEFLAG_FLIP_V);
                     bool flipped_h = flags_isset(sprite->flags,SPRITEFLAG_FLIP_H);
 

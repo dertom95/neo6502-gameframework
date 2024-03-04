@@ -62,7 +62,10 @@
                 "--output",
                 "test/sprite_misc.h",
                 "--array-name",
-                "sprite_misc"
+                "sprite_misc",
+                "--binary",
+                "--format","2",
+                "--debug"
             ]
         }        
 

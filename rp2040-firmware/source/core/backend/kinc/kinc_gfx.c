@@ -112,11 +112,27 @@ void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
 		return data; 
 	}
 	
-	uint16_t size_per_tile = (ts->data.tile_width*ts->data.tile_height);
-	uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
-	
-	ts->cached_tile_ptrs[tile_id]=tile_ptr;
-    return tile_ptr;
+    uint8_t format = flags_mask_value(ts->data.type,ASSET_TYPE_FILEFORMAT_MASK);
+    if (format == ASSET_TYPE_FILEFORMAT_1){  
+        // format 1: raw data. all tiles have the same size
+        uint16_t size_per_tile = (ts->data.tile_width*ts->data.tile_height);
+        uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
+        
+        ts->cached_tile_ptrs[tile_id]=tile_ptr;
+        return tile_ptr;
+    }
+    else if (format == ASSET_TYPE_FILEFORMAT_2){
+        uint16_t* tile_offsets = (uint16_t*)ts->tilesheet_data_raw;
+        uint16_t tile_offset = tile_offsets[tile_id];
+
+        // format 2: raw data, transparent-border is stripped. additional info. offet(x|y) w|h
+        uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_offset;
+        ts->cached_tile_ptrs[tile_id]=tile_ptr;
+        // uint8_t oX = *tile_ptr++;
+        // uint8_t oY = *tile_ptr++;
+        // uint8_t oW = *tile_ptr++;
+        // uint8_t oH = *tile_ptr++;
+    }
 }
 
 

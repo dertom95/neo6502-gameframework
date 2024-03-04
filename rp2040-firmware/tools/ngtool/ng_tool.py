@@ -34,7 +34,9 @@ def main():
     parser_convert_tilesheet.add_argument('--array-name', help='Name of the C array variable')
     parser_convert_tilesheet.add_argument('--transparent-idx', help="idx to be used for transparent! (default:255)", default=255)
     parser_convert_tilesheet.add_argument('--binary',action='store_true', help='Export as binary')
-    
+    parser_convert_tilesheet.add_argument('--format', type=int, choices=[1, 2], default=1, help='Specify the output-format (default: 1, options: 2). Format1: raw-data no compression. Format2: raw-data with the transparent border cropped away')
+    parser_convert_tilesheet.add_argument('--debug',action='store_true', help='output intermediate images(if supported)')
+
     packfiles_parser = subparsers.add_parser("pack-files",description='Pack multiple files into one binary file, including h and c support files.')
     packfiles_parser.add_argument('filepaths', nargs='+', help='Filepaths to pack')
     packfiles_parser.add_argument('--output', help='Output file path')

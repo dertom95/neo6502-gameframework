@@ -60,7 +60,7 @@ const void*  assets_get_pointer(uint8_t asset_id)
 
 void asset_get_tilesheet(gfx_tilesheet_data_t* tilesheet_data,uint8_t asset_id){
 	const gfx_tilesheet_t* assetdata = assets_get_pointer(asset_id);
-	assert(assetdata->data.type==ASSET_TYPE_TILESHEET && "Tried to get wrong asset-type!");
+	assert(flags_mask_value_is(assetdata->data.type,ASSET_TYPE_MASK,ASSET_TYPE_TILESHEET) && "Tried to get wrong asset-type!");
 
 	gfx_tilesheet_t* tilesheet = ng_mem_allocate(SEGMENT_GFX_DATA,sizeof(gfx_tilesheet_t));
 	

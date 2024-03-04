@@ -13,20 +13,11 @@
 
 #define TILESHEET_FORMAT_INDEXED = 1
 
-typedef struct data_header_t {
-	uint8_t type;
-	uint8_t free;
-	uint8_t free1;
-	uint8_t free2;
-	uint32_t size;
-} data_header_t;
-
 typedef struct gfx_tilesheet_t {
     gfx_tilesheet_data_t data;
 	uint8_t** cached_tile_ptrs; // array of pointers to the 'cached' tiles. in pico these should be in RAM in x86 we can just point to the raw data
 	uint8_t* tilesheet_data_raw;
 } gfx_tilesheet_t;
-
 
 #define GFX_EXTENSION_SPRITEANIMATOR 1
 

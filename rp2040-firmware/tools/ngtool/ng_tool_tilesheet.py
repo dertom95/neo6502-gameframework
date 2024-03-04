@@ -16,6 +16,9 @@ def convert_tilesheet(args):
     print(f"Output file: {args.output}")
     print(f"Array name: {args.array_name}") 
     print(f"Transparent-Idx: {args.transparent_idx}")
+    print(f"Format: {args.format}")
+    print(f"Debug:{args.debug}")
+    print(f"Binary-Output:{args.binary}")
 
     if args.tile_size:
         if 'x' in args.tile_size:
@@ -27,7 +30,11 @@ def convert_tilesheet(args):
     
     palette_colors = read_palette_colors(args.palette_file)
     if args.binary:
-        data = encode_tiles(args.tilesheet_file, args.tile_width, args.tile_height, palette_colors, args.transparent_idx,args.output)
+        if args.format == 1:
+            data = encode_tiles_format1(args.tilesheet_file, args.tile_width, args.tile_height, palette_colors, args.transparent_idx,args.output, args.debug)
+        elif args.format == 2:
+            data = encode_tiles_format2(args.tilesheet_file, args.tile_width, args.tile_height, palette_colors, args.transparent_idx,args.output, args.debug)
+
     else:
         convert_image_to_array(args.tilesheet_file, args.tile_width, args.tile_height, args.array_name, palette_colors, args.output,args.transparent_idx)
     
@@ -40,8 +47,8 @@ def closest_color(rgb, colors):
 
     return closest_index
 
-
-def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_idx, output):
+#raw format: no compression
+def encode_tiles_format1(image_filename, tile_width, tile_height, colors, transparent_idx, output, debug):
     image = Image.open(image_filename)
 
     width, height = image.size
@@ -53,7 +60,7 @@ def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_id
     byte_array = bytearray()
     
     # Pack and append the values to the byte array with little endian byte order
-    ts_type=1 # tilesheet-type
+    ts_type=(0 << 0) + (0 << 2) # tilesheet-type
     ts_flags=8 #TODO
     byte_array.extend(struct.pack('<B', ts_type)) #TODO
     byte_array.extend(struct.pack('<B', tile_width))
@@ -65,7 +72,7 @@ def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_id
     byte_array.extend(struct.pack('<B', num_tiles_x*num_tiles_y))
     byte_array.extend(struct.pack('<B', ts_flags)) #TODO
     byte_array.extend(struct.pack('<B', 0)) # the tilesheet id (set at runtime)
- 
+
     # Iterate over each tile
     for y in range(num_tiles_y):
         for x in range(num_tiles_x):
@@ -89,6 +96,105 @@ def encode_tiles(image_filename, tile_width, tile_height, colors, transparent_id
 
     # Return the resulting byte array
     return byte_array
+
+#transparent border gets stripped away. 
+def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transparent_idx, output,debug):
+    image = Image.open(image_filename)
+
+    width, height = image.size
+    # Calculate the number of tiles in each dimension
+    num_tiles_x = width // tile_width
+    num_tiles_y = height // tile_height
+
+    # Create the byte array
+    byte_array = bytearray()
+
+    # Pack and append the values to the byte array with little endian byte order
+    ts_type = (0 << 0) + (1 << 2)  # format
+    ts_flags = 8  # TODO
+    byte_array.extend(struct.pack('<B', ts_type))  # TODO
+    byte_array.extend(struct.pack('<B', tile_width))
+    byte_array.extend(struct.pack('<B', tile_height))
+    byte_array.extend(struct.pack('<B', int(tile_width / 2)))
+    byte_array.extend(struct.pack('<B', int(tile_height / 2)))
+    byte_array.extend(struct.pack('<B', num_tiles_x))
+    byte_array.extend(struct.pack('<B', num_tiles_y))
+    byte_array.extend(struct.pack('<B', num_tiles_x * num_tiles_y))
+    byte_array.extend(struct.pack('<B', ts_flags))  # TODO
+    byte_array.extend(struct.pack('<B', 0))  # the tilesheet id (set at runtime)
+
+    image_data = bytearray()
+    sizes = []
+    # Iterate over each tile
+    for y in range(num_tiles_y):
+        for x in range(num_tiles_x):
+            # Get the tile pixels from the cropped image
+            tile_pixels = image.crop((x * tile_width, y * tile_height, (x + 1) * tile_width, (y + 1) * tile_height))
+
+            # Remove the transparent border from the tile
+            stripped_tile_pixels,bbox = remove_transparent_border(tile_pixels)
+
+            try:
+                os.makedirs("temp")
+            except:
+                pass
+
+            if debug:
+                # Save the tile to a file
+                tile_filename = f"temp/tile{y * num_tiles_x + x}.png"
+                stripped_tile_pixels.save(tile_filename)
+
+            assert(stripped_tile_pixels.width<256)
+            assert(stripped_tile_pixels.height<256)
+            image_data.append(bbox[0])
+            image_data.append(bbox[1])
+            image_data.append(stripped_tile_pixels.width & 0xFF)
+            image_data.append(stripped_tile_pixels.height & 0xFF)
+
+
+            size=4
+            # Iterate over each pixel in the tile
+            for pixel in stripped_tile_pixels.getdata():
+                if len(pixel) == 4 and pixel[3] < 128:
+                    # Transparent pixel, use a specific color index
+                    color_index = transparent_idx
+                else:
+                    # Convert the RGB value to the closest color index
+                    color_index = closest_color(pixel[:3], colors)
+
+                # Append the color index as a single byte to the byte array
+                image_data.append(color_index & 0xFF)
+                size+=1
+
+            print(f"tile:{y * num_tiles_x + x}: uncompressed:{tile_width*tile_height} format2-compressed:{size} Ratio:{tile_width*tile_height/size}")
+
+            sizes.append(size)
+
+    offset = len(sizes)*2
+    for size in sizes:
+        byte_array.extend(struct.pack('<H', offset))
+        offset+=size
+
+    byte_array.extend(image_data)
+
+    with open(output, 'wb') as file:
+        file.write(byte_array)
+
+    # Return the resulting byte array
+    return byte_array
+
+
+def remove_transparent_border(tile_image):
+    # Get the alpha channel from the tile image
+    alpha_channel = tile_image.split()[3]
+
+    # Get the bounding box of the non-transparent region of the tile
+    bbox = alpha_channel.getbbox()
+
+    # Crop the tile image to the non-transparent region
+    cropped_tile = tile_image.crop(bbox)
+
+    return cropped_tile,bbox
 
 
 
