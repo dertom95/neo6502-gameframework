@@ -226,7 +226,7 @@ exit_all_loops:
                         sprite_x -= sprite_width;
                     }
 
-                    uint8_t line = flipped_v ? (sprite_height - (y - sprite_y)-1-offset_top) / px_height
+                    uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top)-1) / px_height
                                             : (y - sprite_y - offset_top) / px_height;
 
                     // apply pixel-height
@@ -239,7 +239,7 @@ exit_all_loops:
                     int8_t subpixel_left_to_write;
 
                     if (flipped_h){
-                        data += ts->data.tile_width - 1;
+                        data += offset_width - 1;
                     }
 
                     if (sprite_x >= 0){

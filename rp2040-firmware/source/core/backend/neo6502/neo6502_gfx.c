@@ -193,12 +193,27 @@ void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
 		return data; 
 	}
 	
-	uint16_t size_per_tile = (ts->data.tile_width*ts->data.tile_height);
-	uint8_t* tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
-	
-	void* dest = ng_mem_allocate(default_allocation_segment, size_per_tile);
-	memcpy(dest, tile_ptr, size_per_tile);
-
-	ts->cached_tile_ptrs[tile_id]=dest;
-	return dest;
+    uint8_t format = flags_mask_value(ts->data.type,ASSET_TYPE_FILEFORMAT_MASK);
+    
+    uint16_t size_per_tile = 0;
+    uint8_t* tile_ptr = NULL;
+    if (format == ASSET_TYPE_FILEFORMAT_1){  
+        size_per_tile = (ts->data.tile_width*ts->data.tile_height);
+        tile_ptr = ts->tilesheet_data_raw + tile_id * size_per_tile;
+    } 
+    else if (format == ASSET_TYPE_FILEFORMAT_2) {
+        uint16_t* tile_offsets = (uint16_t*)ts->tilesheet_data_raw;
+        uint16_t tile_offset = tile_offsets[tile_id];
+        tile_ptr = ts->tilesheet_data_raw + tile_offset;
+        uint8_t* peek_ptr = tile_ptr;
+        uint8_t oX = *peek_ptr++;
+        uint8_t oY = *peek_ptr++;
+        uint8_t oW = *peek_ptr++;
+        uint8_t oH = *peek_ptr++;
+        size_per_tile = oW*oH;
+    }
+    void* dest = ng_mem_allocate(default_allocation_segment, size_per_tile);
+    memcpy(dest, tile_ptr, size_per_tile);
+    ts->cached_tile_ptrs[tile_id]=dest;
+    return dest;
 }

@@ -155,10 +155,10 @@ int mod_init(){
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
-    //flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
+    flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
-    flags_set(sprite_oldguy->flags, /*SPRITEFLAG_FLIP_H |*/ SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
+  //  flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_FLIP_V | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
     flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
@@ -167,8 +167,8 @@ int mod_init(){
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
     gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
 
-    sprite_oldguy->x=0;
-    sprite_oldguy->y=0;
+    sprite_oldguy->x=50;
+    sprite_oldguy->y=50;
     sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
 
     sprite_strawberry->x=50;
@@ -264,14 +264,14 @@ void mod_update() {
         if (anim>3){
             anim=0;
         }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,0);
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
     }
     else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
         anim--;
         if (anim<0){
             anim=3;
         }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,0);
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
     }
 
     kbm.key_down=0;
