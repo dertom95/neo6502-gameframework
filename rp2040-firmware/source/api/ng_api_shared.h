@@ -152,7 +152,7 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;
 #define flags_isset(FLAGS,MASK) ((FLAGS & MASK)==MASK)
 #define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
-#define flags_pack_4_4(HIGH,LOW) (HIGH<<4)|(LOW)
+#define flags_pack_4_4(HIGH,LOW) ((HIGH)<<4)|(LOW)
 #define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15);
 #define flags_mask_value(INPUT,MASK) (INPUT&MASK)
 #define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&MASK)==VALUE)

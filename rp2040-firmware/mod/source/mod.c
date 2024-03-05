@@ -49,11 +49,11 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=200,
-    .height=20,
-    .x=-2,
+    .width=160,
+    .height=30,
+    .x=0,
     .y=0,
-    .pixel_size=flags_pack_4_4(1,1),
+    .pixel_size=flags_pack_4_4(2,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -89,7 +89,7 @@ gfx_sprite_animator_t anim4={
         {
             .start_tile=4,
             .end_tile=6,
-            .delay_ms=1000
+            .delay_ms=125
         }
     }
 };
@@ -110,7 +110,7 @@ gfx_tilesheet_data_t ts_misc;
 gfx_tilesheet_data_t ts_oldguy;
 
 
-#define SPRITE_AMOUNT 16
+#define SPRITE_AMOUNT 32
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 
 gfx_sprite_t* sprite_oldguy=&sprites[0];
@@ -121,7 +121,12 @@ uint8_t sprite_potion_anim;
 uint8_t sprite_oldguy_anim;
 int8_t anim=0;
 
+int seed = 13;
 
+int random() {
+    seed = seed * 1103515245 + 12345;
+    return (unsigned int)(seed / 65536) % 32768;
+}
 
 
 int mod_init(){
@@ -173,6 +178,20 @@ int mod_init(){
 
     sprite_strawberry->x=50;
     sprite_strawberry->y=40;
+
+    for (int i=3;i<SPRITE_AMOUNT;i++){
+        gfx_sprite_t* spr = &sprites[i];
+        uint8_t tile_id = i % 5;
+        gfx_sprite_set_tileset(spr,&ts_misc,tile_id);
+        if (tile_id==4){
+            sprite_potion_anim = gfx_sprite_add_animator(spr,&anim4);
+            gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
+        }
+        spr->x=(i*40) % 300;
+        spr->y=50+((i*40) / 300)*40;
+        //spr->pixel_size=flags_pack_4_4((random()%2+1),(random()%2+1));
+        spr->pixel_size=flags_pack_4_4(i%2+1,i%2+1);
+    }
 
     sprite_potion->x=70;
     sprite_potion->y=40;
@@ -226,8 +245,11 @@ void mod_update() {
     // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
-    sprite_oldguy->x=*mx;
-    sprite_oldguy->y=*my;
+    // sprite_oldguy->x=*mx;
+    // sprite_oldguy->y=*my;
+
+    
+    pixelbuffer.y=*my;
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);

@@ -261,10 +261,12 @@ exit_all_loops:
                         while (subpixel_left_to_write--){
                             if (idx==255){
                                 //-- DEBUG-TRANSPARENCY---------------
-                                color = color_palette[COL_RED];
+                                //*(write_buf++)=color_palette[COL_RED];
                                 //------------------------------------
-                            } 
-                            *(write_buf++)=color;
+                                write_buf++;
+                            } else {
+                                *(write_buf++)=color;
+                            }
                             
 
                             if (output_pixels_to_write--==0){
