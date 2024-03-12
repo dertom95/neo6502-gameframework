@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "gen/color_palette.h"
+extern uint16_t color_palette[];
 //#include "zelda_mini_plus_walk_rgab5515.h"
 #include <string.h>
 
