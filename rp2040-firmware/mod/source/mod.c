@@ -49,11 +49,11 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=320,
-    .height=240,
+    .width=160,
+    .height=120,
     .x=0,
     .y=0,
-    .pixel_size=flags_pack_4_4(1,1),
+    .pixel_size=flags_pack_4_4(2,2),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -110,7 +110,7 @@ gfx_tilesheet_data_t ts_misc;
 gfx_tilesheet_data_t ts_oldguy;
 
 
-#define SPRITE_AMOUNT 16
+#define SPRITE_AMOUNT 8
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 
 gfx_sprite_t* sprite_oldguy=&sprites[0];
@@ -160,7 +160,7 @@ int mod_init(){
 
     for(uint16_t y=0;y<120;y++){
         for (uint16_t x=0;x<160;x++){
-            gfx_draw_pixel(x*2,y*2,(uint8_t)x*y);
+            gfx_draw_pixel(x,y,(uint8_t)y);
         }
     }
 
@@ -181,7 +181,7 @@ int mod_init(){
 
     sprite_oldguy->x=50;
     sprite_oldguy->y=50;
-    sprite_oldguy->pixel_size=flags_pack_4_4(4,4);
+    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
 
     sprite_strawberry->x=50;
     sprite_strawberry->y=40;
@@ -214,7 +214,7 @@ int mod_init(){
     // sprite_potion->flags=0;
 
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
-    gfx_renderqueue_add_id(spritebuffer);
+  //  gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 

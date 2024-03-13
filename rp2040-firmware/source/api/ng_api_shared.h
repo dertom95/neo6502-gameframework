@@ -61,6 +61,17 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 
     uint8_t pixel_size;
     uint8_t flags;
+    // runtime-data. after changing values you need to apply
+    uint16_t full_width;
+    
+
+    uint16_t output_pixels_to_write;
+    uint16_t output_subpixels_left;
+    
+    uint16_t input_pixels_to_read;
+    int8_t readbuf_offset;
+    int8_t writebuf_offset;
+
 } gfx_pixelbuffer_t;
 
 #define SPRITEFLAG_INUSE  (1 << 0)

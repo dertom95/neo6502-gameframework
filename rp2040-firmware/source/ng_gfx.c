@@ -371,7 +371,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                 break;
             }
 
-            if (px_width == 1 && pixelbuffer->width == SCREEN_WIDTH)
+            if (px_width == 1 && px_height == 1 && pixelbuffer->width == SCREEN_WIDTH)
             {
                 uint8_t *readbuffer = db->mem.data + pixel_y * pixelbuffer->width;
                 uint16_t counter = SCREEN_WIDTH;
@@ -387,34 +387,49 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     *(write_buf++)=last_color;
                 }
             } else {
-                uint16_t full_width = pixelbuffer->width * px_width;
+                // uint16_t full_width = pixelbuffer->width * px_width;
 
-                uint16_t output_pixels_to_write;
-                uint8_t output_subpixels_left;
+                // uint16_t output_pixels_to_write;
+                // uint8_t output_subpixels_left;
 
-                uint16_t input_pixels_to_read;
+                // uint16_t input_pixels_to_read;
+                // // point to the beginning of the pixelbuffer
+                // uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
+
+                // if (pixelbuffer->x >= 0)
+                // {
+                //     output_pixels_to_write = min(full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
+                //     output_subpixels_left = px_width;
+                //     write_buf += pixelbuffer->x;
+                // }
+                // else
+                // {
+                //     // the pixelbuffer.x is negative
+                //     output_pixels_to_write = full_width + pixelbuffer->x - 1;
+                //     output_subpixels_left = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
+                //     read_buffer -= pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
+                // }
+                // input_pixels_to_read = (output_pixels_to_write / px_width) + 1;
+
+
+                uint16_t output_pixels_to_write = pixelbuffer->output_pixels_to_write;
+                uint8_t output_subpixels_left = pixelbuffer->output_subpixels_left;
+
+                uint16_t input_pixels_to_read = pixelbuffer->input_pixels_to_read;
                 // point to the beginning of the pixelbuffer
                 uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
+                read_buffer += pixelbuffer->readbuf_offset;
+                write_buf += pixelbuffer->writebuf_offset;
 
-                if (pixelbuffer->x >= 0)
-                {
-                    output_pixels_to_write = min(full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
-                    output_subpixels_left = px_width;
-                    write_buf += pixelbuffer->x;
-                }
-                else
-                {
-                    // the pixelbuffer.x is negative
-                    output_pixels_to_write = full_width + pixelbuffer->x - 1;
-                    output_subpixels_left = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
-                    read_buffer -= pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
-                }
-                input_pixels_to_read = (output_pixels_to_write / px_width) + 1;
-
+                uint8_t last_idx = 0;
+                uint16_t color = color_palette[last_idx];
                 while (input_pixels_to_read--)
                 {
                     uint8_t data = *(read_buffer++);
-                    uint16_t color = color_palette[data];
+                    if (data!=last_idx){
+                        last_idx = data;
+                        color = color_palette[data];
+                    }
 
                     while (output_subpixels_left--)
                     {

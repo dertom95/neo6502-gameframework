@@ -112,7 +112,31 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 	bool success = ng_mem_allocate_block(SEGMENT_GFX_DATA, size, MEM_USAGE_PIXELBUFFER, &block->mem );
 	if (success){
 		initial_data->obj_id = id_store(block);
+
+        gfx_pixelbuffer_apply_data(initial_data);
 	}
+}
+
+void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
+{
+    uint8_t px_width;
+    uint8_t px_height;    
+    flags_unpack_4_4(pixelbuffer->pixel_size, px_width, px_height);
+    pixelbuffer->full_width = pixelbuffer->width * px_width;
+    if (pixelbuffer->x >= 0)
+    {
+        pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
+        pixelbuffer->output_subpixels_left = px_width;
+        pixelbuffer->writebuf_offset = pixelbuffer->x;
+    }
+    else
+    {
+        // the pixelbuffer.x is negative
+        pixelbuffer->output_pixels_to_write = pixelbuffer->full_width + pixelbuffer->x - 1;
+        pixelbuffer->output_subpixels_left = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
+        pixelbuffer->readbuf_offset = -pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
+    }
+    pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width) + 1;    
 }
 
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)
