@@ -49,11 +49,11 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=160,
-    .height=30,
+    .width=320,
+    .height=240,
     .x=0,
     .y=0,
-    .pixel_size=flags_pack_4_4(2,1),
+    .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -129,6 +129,7 @@ int random() {
 }
 
 
+
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
@@ -200,7 +201,7 @@ int mod_init(){
     // sprite_potion->flags=0;
 
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
-    gfx_renderqueue_add_id(spritebuffer);
+   // gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -281,20 +282,20 @@ void mod_update() {
         changed=true;
     }
 
-    if (flags_isset(kbm.key_pressed,KEY_COL_UP)){
-        anim++;
-        if (anim>3){
-            anim=0;
-        }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
-    }
-    else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
-        anim--;
-        if (anim<0){
-            anim=3;
-        }
-        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
-    }
+    // if (flags_isset(kbm.key_pressed,KEY_COL_UP)){
+    //     anim++;
+    //     if (anim>3){
+    //         anim=0;
+    //     }
+    //     gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
+    // }
+    // else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
+    //     anim--;
+    //     if (anim<0){
+    //         anim=3;
+    //     }
+    //     gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
+    // }
 
     kbm.key_down=0;
     kbm.key_pressed=0;

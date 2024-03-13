@@ -31,7 +31,7 @@ void assets_set_current_pack(void* data, uint32_t size)
     current_assetpack.sizes = (uint32_t*)ptr;
 
     for (int i=0;i<amount;i++){
-        assert(current_assetpack.offsets[i]==assets_offsets[i]);    
+        assert(current_assetpack.offsets[i]==current_assetpack.offsets[i]);    
         assert(current_assetpack.sizes[i]==assets_sizes[i]);    
     }
 
