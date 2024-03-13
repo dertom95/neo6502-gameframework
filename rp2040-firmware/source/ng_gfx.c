@@ -334,7 +334,8 @@ void __not_in_flash_func(gfx_render_scanline)(uint16_t *pixbuf, uint8_t y)
 void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 #endif
 {
-    // memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
+    //memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
+    memset(pixbuf,0,SCREEN_WIDTH_HALF *sizeof(uint32_t)); // make this a renderqueue-command
 
     for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
     {
@@ -460,129 +461,259 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                 uint8_t px_height;
                 flags_unpack_4_4(sprite->pixel_size, px_width, px_height);
 
-                uint16_t sprite_height = ts->data.tile_height * px_height;
+                if (px_height == 1 && px_width==1){
+                    // █▀ ▀█▀ ▄▀█ █▄░█ █▀▄ ▄▀█ █▀█ █▀▄   █▀ █▀█ █▀█ █ ▀█▀ █▀▀
+                    // ▄█ ░█░ █▀█ █░▀█ █▄▀ █▀█ █▀▄ █▄▀   ▄█ █▀▀ █▀▄ █ ░█░ ██▄                    
 
-                int16_t sprite_y = sprite->y;
+                    uint8_t *tile_ptr = sprite_internal->tile_ptr;
 
-                uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
-                if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
-                {
-                    sprite_y -= ts->data.tile_height_half * px_height;
-                }
-                else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
-                {
-                    sprite_y -= sprite_height;
-                }
-
-                uint8_t *tile_ptr = sprite_internal->tile_ptr;
-
-                uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
-                uint8_t offset_left = 0;
-                uint8_t offset_top = 0;
-                uint8_t offset_right = 0;
-                uint8_t offset_bottom = 0;
-                uint8_t offset_width = ts->data.tile_width;
-                uint8_t offset_height = ts->data.tile_height;
-                if (format == ASSET_TYPE_FILEFORMAT_2)
-                {
-                    uint8_t oX = *(tile_ptr++);
-                    uint8_t oY = *tile_ptr++;
-                    offset_width = *tile_ptr++;
-                    offset_height = *tile_ptr++;
-
-                    offset_left = oX;
-                    offset_top = oY;
-                    offset_right = ts->data.tile_width - oX - offset_width;
-                    offset_bottom = ts->data.tile_height - oY - offset_height;
-                }
-
-                if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom) <= y)
-                {
-                    sprite++;
-                    sprite_internal++;
-                    continue;
-                }
-
-                bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
-                bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
-
-                uint16_t sprite_width = ts->data.tile_width * px_width;
-
-                uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
-                int16_t sprite_x = sprite->x;
-                int8_t read_direction = flipped_h ? -1 : 1;
-
-                if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
-                {
-                    sprite_x -= ts->data.tile_width_half * px_width;
-                }
-                else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
-                {
-                    sprite_x -= sprite_width;
-                }
-
-                uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top) - 1) / px_height
-                                         : (y - sprite_y - offset_top) / px_height;
-
-                // apply pixel-height
-
-                uint8_t input_pixels_to_read = min(offset_width, SCREEN_WIDTH - sprite_x);
-
-                uint8_t *data = tile_ptr + line * offset_width;
-
-                int16_t output_pixels_to_write;
-                int8_t subpixel_left_to_write;
-
-                if (flipped_h)
-                {
-                    data += offset_width - 1;
-                }
-
-                if (sprite_x >= 0)
-                {
-                    subpixel_left_to_write = px_width;
-                    write_buf = pixbuf + sprite_x + offset_left * px_width;
-                    output_pixels_to_write = min(offset_width * px_width, SCREEN_WIDTH - sprite_x); // TODO: Right-Border using offset-values
-                }
-                else
-                {
-                    subpixel_left_to_write = px_width + sprite_x % px_width; // TODO: Left-Border using offset-values
-                    write_buf = pixbuf;
-                    output_pixels_to_write = offset_width + sprite_x - 1;
-                    data += sprite_x / px_width;
-                }
-
-                uint8_t idx;
-                while (input_pixels_to_read--)
-                {
-                    idx = *(data);
-                    data += read_direction;
-                    uint16_t color = color_palette[idx];
-                    while (subpixel_left_to_write--)
+                    uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
+                    uint8_t offset_left = 0;
+                    uint8_t offset_top = 0;
+                    uint8_t offset_right = 0;
+                    uint8_t offset_bottom = 0;
+                    uint8_t offset_width = ts->data.tile_width;
+                    uint8_t offset_height = ts->data.tile_height;
+                    if (format == ASSET_TYPE_FILEFORMAT_2)
                     {
-                        if (idx == 255)
-                        {
-                            //-- DEBUG-TRANSPARENCY---------------
-                            //*(write_buf++)=color_palette[COL_RED];
-                            //------------------------------------
-                            write_buf++;
-                        }
-                        else
-                        {
-                            *(write_buf++) = color;
-                        }
+                        uint8_t oX = *(tile_ptr++);
+                        uint8_t oY = *tile_ptr++;
+                        offset_width = *tile_ptr++;
+                        offset_height = *tile_ptr++;
 
+                        offset_left = oX;
+                        offset_top = oY;
+                        offset_right = ts->data.tile_width - oX - offset_width;
+                        offset_bottom = ts->data.tile_height - oY - offset_height;
+                    }  
+                    uint16_t sprite_height = ts->data.tile_height;
+
+                    int16_t sprite_y = sprite->y;
+
+                    uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
+                    if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
+                    {
+                        sprite_y -= ts->data.tile_height_half;
+                    }
+                    else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
+                    {
+                        sprite_y -= sprite_height;
+                    }                    
+                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom) <= y)
+                    {
+                        // no intersection! NEXT SPRITE, PLEASE!
+                        sprite++;
+                        sprite_internal++;
+                        continue;
+                    }                                      
+
+                    bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
+                    bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
+
+                    uint16_t sprite_width = ts->data.tile_width;
+
+                    uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
+                    int16_t sprite_x = sprite->x;
+                    int8_t read_direction = flipped_h ? -1 : 1;
+
+                    if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
+                    {
+                        sprite_x -= ts->data.tile_width_half;
+                    }
+                    else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
+                    {
+                        sprite_x -= sprite_width;
+                    }
+
+                    uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top) - 1) 
+                                            : (y - sprite_y - offset_top);
+
+                    // apply pixel-height
+
+                    uint8_t input_pixels_to_read = min(offset_width, SCREEN_WIDTH - sprite_x);
+
+                    uint8_t *data = tile_ptr + line * offset_width;
+
+                    int16_t output_pixels_to_write;
+
+                    if (flipped_h)
+                    {
+                        data += offset_width - 1;
+                    }
+
+                    if (sprite_x >= 0)
+                    {
+                        write_buf = pixbuf + sprite_x + offset_left;
+                        output_pixels_to_write = min(offset_width, SCREEN_WIDTH - sprite_x); // TODO: Right-Border using offset-values
+                    }
+                    else
+                    {
+                        write_buf = pixbuf;
+                        output_pixels_to_write = offset_width + sprite_x - 1;
+                        data += sprite_x;
+                    }
+
+                    uint8_t last_idx=0;
+                    uint16_t color = color_palette[0];
+
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t idx = *(data);
+                        data += read_direction;
+                        if (idx == 255){
+                            write_buf++;
+                            continue;
+                        }
+                        if (idx != last_idx){
+                            last_idx = idx;
+                            color = color_palette[last_idx];
+                        }
+                        *(write_buf++) = color;
                         if (output_pixels_to_write-- == 0)
                         {
-                            goto break_out;
+                            goto break_out2;
                         }
                     }
-                    subpixel_left_to_write = px_width;
+                break_out2:
+                    sprite++;
+                    sprite_internal++;
+                
+
+
+
+
+                } else {
+                    // █▀ █ ▀█ █▀▀ ▄▀█ █▄▄ █░░ █▀▀   █▀ █▀█ █▀█ █ ▀█▀ █▀▀
+                    // ▄█ █ █▄ ██▄ █▀█ █▄█ █▄▄ ██▄   ▄█ █▀▀ █▀▄ █ ░█░ ██▄
+
+                    uint16_t sprite_height = ts->data.tile_height * px_height;
+
+                    int16_t sprite_y = sprite->y;
+
+                    uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
+                    if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
+                    {
+                        sprite_y -= ts->data.tile_height_half * px_height;
+                    }
+                    else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
+                    {
+                        sprite_y -= sprite_height;
+                    }
+
+                    uint8_t *tile_ptr = sprite_internal->tile_ptr;
+
+                    uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
+                    uint8_t offset_left = 0;
+                    uint8_t offset_top = 0;
+                    uint8_t offset_right = 0;
+                    uint8_t offset_bottom = 0;
+                    uint8_t offset_width = ts->data.tile_width;
+                    uint8_t offset_height = ts->data.tile_height;
+                    if (format == ASSET_TYPE_FILEFORMAT_2)
+                    {
+                        uint8_t oX = *(tile_ptr++);
+                        uint8_t oY = *tile_ptr++;
+                        offset_width = *tile_ptr++;
+                        offset_height = *tile_ptr++;
+
+                        offset_left = oX;
+                        offset_top = oY;
+                        offset_right = ts->data.tile_width - oX - offset_width;
+                        offset_bottom = ts->data.tile_height - oY - offset_height;
+                    }
+
+                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom) <= y)
+                    {
+                        sprite++;
+                        sprite_internal++;
+                        continue;
+                    }
+
+                    bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
+                    bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
+
+                    uint16_t sprite_width = ts->data.tile_width * px_width;
+
+                    uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
+                    int16_t sprite_x = sprite->x;
+                    int8_t read_direction = flipped_h ? -1 : 1;
+
+                    if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
+                    {
+                        sprite_x -= ts->data.tile_width_half * px_width;
+                    }
+                    else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
+                    {
+                        sprite_x -= sprite_width;
+                    }
+
+                    uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top) - 1) / px_height
+                                            : (y - sprite_y - offset_top) / px_height;
+
+                    // apply pixel-height
+
+                    uint8_t input_pixels_to_read = min(offset_width, SCREEN_WIDTH - sprite_x);
+
+                    uint8_t *data = tile_ptr + line * offset_width;
+
+                    int16_t output_pixels_to_write;
+                    int8_t subpixel_left_to_write;
+
+                    if (flipped_h)
+                    {
+                        data += offset_width - 1;
+                    }
+
+                    if (sprite_x >= 0)
+                    {
+                        subpixel_left_to_write = px_width;
+                        write_buf = pixbuf + sprite_x + offset_left * px_width;
+                        output_pixels_to_write = min(offset_width * px_width, SCREEN_WIDTH - sprite_x); // TODO: Right-Border using offset-values
+                    }
+                    else
+                    {
+                        subpixel_left_to_write = px_width + sprite_x % px_width; // TODO: Left-Border using offset-values
+                        write_buf = pixbuf;
+                        output_pixels_to_write = offset_width + sprite_x - 1;
+                        data += sprite_x / px_width;
+                    }
+
+                    uint8_t idx;
+                    while (input_pixels_to_read--)
+                    {
+                        idx = *(data);
+                        data += read_direction;
+                        uint16_t color = color_palette[idx];
+                        while (subpixel_left_to_write--)
+                        {
+                            if (idx == 255)
+                            {
+                                //-- DEBUG-TRANSPARENCY---------------
+                                //*(write_buf++)=color_palette[COL_RED];
+                                //------------------------------------
+                                write_buf++;
+                            }
+                            else
+                            {
+                                *(write_buf++) = color;
+                            }
+
+                            if (output_pixels_to_write-- == 0)
+                            {
+                                goto break_out;
+                            }
+                        }
+                        subpixel_left_to_write = px_width;
+                    }
+                break_out:
+                    sprite++;
+                    sprite_internal++;
                 }
-            break_out:
-                sprite++;
-                sprite_internal++;
-            }
+                    
+                }
+
+
+
             break;
         }
         }

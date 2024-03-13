@@ -5,6 +5,7 @@
 #include "ng_api_shared.h"
 
 #define SCREEN_WIDTH 320
+#define SCREEN_WIDTH_HALF 160
 #define SCREEN_HEIGHT 240
 
 #define CPU6502_MEMORY_SIZE  0x10000 // 64k
