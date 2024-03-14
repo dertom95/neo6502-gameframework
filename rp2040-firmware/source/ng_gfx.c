@@ -327,6 +327,15 @@ void gfx_update()
 // 🇷​​​​​🇪​​​​​🇳​​​​​🇩​​​​​🇪​​​​​🇷 ​​​​​🇶​​​​​🇺​​​​​🇪​​​​​🇺​​​​​🇪​​​​​
 // ------------------------
 
+void writebuf2(uint16_t** writebuf, uint16_t col) {
+    (*(*writebuf)++)=(*(*writebuf)++)=col;
+//    *(*writebuf++)=*(*writebuf++)=col;
+}
+void writebuf3(uint16_t** writebuf, uint16_t col) {
+    *(writebuf++)=*(writebuf++)=*(writebuf++)=col;
+}
+typedef void (*WritebufFunctionPtr)(uint16_t**, uint16_t);
+
 // SCANLINE-RENDERER
 #ifdef PICO_NEO6502
 void __not_in_flash_func(gfx_render_scanline)(uint16_t *pixbuf, uint8_t y)
@@ -336,6 +345,8 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 {
     //memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
     memset(pixbuf,0,SCREEN_WIDTH_HALF *sizeof(uint32_t)); // make this a renderqueue-command
+    
+    WritebufFunctionPtr fn_writebuf = &writebuf2;
 
     for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
     {
@@ -417,7 +428,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
                 uint16_t input_pixels_to_read = pixelbuffer->input_pixels_to_read;
                 // point to the beginning of the pixelbuffer
-                uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
+                uint8_t *read_buffer = db->mem.data + (pixel_y >> 1) * pixelbuffer->width;
                 read_buffer += pixelbuffer->readbuf_offset;
                 write_buf += pixelbuffer->writebuf_offset;
 
@@ -430,15 +441,22 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         last_idx = data;
                         color = color_palette[data];
                     }
-
-                    while (output_subpixels_left--)
-                    {
-                        *(write_buf++) = color;
-                        if (output_pixels_to_write-- == 0)
-                        {
-                            goto exit_all_loops;
-                        }
-                    }
+                    
+                    fn_writebuf(&write_buf,color);
+                    //write_buf+=2;
+                    
+                   // *(write_buf++) = *(write_buf++) = color;
+                    // for(uint8_t i=output_subpixels_left;i>0;i--){
+                    //     *(write_buf++)  = color;
+                    // }
+                    // while (output_subpixels_left--)
+                    // {
+                    //     *(write_buf++) = color;
+                    // }
+                        // if (output_pixels_to_write-- == 0)
+                        // {
+                        //     goto exit_all_loops;
+                        // }
                     output_subpixels_left = px_width;
                 }                
             }
@@ -637,7 +655,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         offset_bottom = ts->data.tile_height - oY - offset_height;
                     }
 
-                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom) <= y)
+                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom - px_height) <= y)
                     {
                         sprite++;
                         sprite_internal++;

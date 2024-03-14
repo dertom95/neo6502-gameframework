@@ -160,20 +160,20 @@ int mod_init(){
 
     for(uint16_t y=0;y<120;y++){
         for (uint16_t x=0;x<160;x++){
-            gfx_draw_pixel(x,y,(uint8_t)y);
+            gfx_draw_pixel(x,y,(uint8_t)x*y);
         }
     }
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
-    flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
+   // flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
   //  flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_FLIP_V | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
     
     gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
-    flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
+    //flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
     
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
@@ -181,7 +181,7 @@ int mod_init(){
 
     sprite_oldguy->x=50;
     sprite_oldguy->y=50;
-    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
+    sprite_oldguy->pixel_size=flags_pack_4_4(5,5);
 
     sprite_strawberry->x=50;
     sprite_strawberry->y=40;
@@ -196,12 +196,12 @@ int mod_init(){
         }
         spr->x=(i*35)%300;
         spr->y=(i*30)%200;
-        if (i % 2){
-            flags_set(spr->flags,SPRITEFLAG_FLIP_H);
-        }
-        if (i % 5){
-            flags_set(spr->flags,SPRITEFLAG_FLIP_V);
-        }
+        // if (i % 2){
+        //     flags_set(spr->flags,SPRITEFLAG_FLIP_H);
+        // }
+        // if (i % 5){
+        //     flags_set(spr->flags,SPRITEFLAG_FLIP_V);
+        // }
         //spr->pixel_size=flags_pack_4_4((random()%2+1),(random()%2+1));
         //spr->pixel_size=flags_pack_4_4(i%2+1,i%2+1);
         spr->pixel_size=flags_pack_4_4(1,1);
@@ -214,7 +214,7 @@ int mod_init(){
     // sprite_potion->flags=0;
 
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
-  //  gfx_renderqueue_add_id(spritebuffer);
+    gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -296,20 +296,20 @@ void mod_update() {
         changed=true;
     }
 
-    // if (flags_isset(kbm.key_pressed,KEY_COL_UP)){
-    //     anim++;
-    //     if (anim>3){
-    //         anim=0;
-    //     }
-    //     gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
-    // }
-    // else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
-    //     anim--;
-    //     if (anim<0){
-    //         anim=3;
-    //     }
-    //     gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
-    // }
+    if (flags_isset(kbm.key_pressed,KEY_COL_UP)){
+        anim++;
+        if (anim>3){
+            anim=0;
+        }
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
+    }
+    else if (flags_isset(kbm.key_pressed,KEY_COL_DOWN)){
+        anim--;
+        if (anim<0){
+            anim=3;
+        }
+        gfx_spriteanimator_set_animation(sprite_oldguy_anim,anim,ANIMATIONFLAG_LOOP);
+    }
 
     kbm.key_down=0;
     kbm.key_pressed=0;

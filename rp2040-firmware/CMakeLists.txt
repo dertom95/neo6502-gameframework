@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
+
 include(pico_sdk_import.cmake)
 
 project(picodvi C CXX ASM)
@@ -7,6 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_compile_options(-Wall)
+
+#set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
 
 # To change the default serial config for all apps, pass e.g.
 #   cmake -DDVI_DEFAULT_SERIAL_CONFIG=pimoroni_demo_hdmi_cfg ..

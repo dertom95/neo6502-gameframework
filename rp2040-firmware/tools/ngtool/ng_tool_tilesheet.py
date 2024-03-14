@@ -141,7 +141,8 @@ def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transp
 
             if debug:
                 # Save the tile to a file
-                tile_filename = f"temp/tile{y * num_tiles_x + x}.png"
+                debug_name=os.path.splitext(os.path.basename(output))[0]
+                tile_filename = f"temp/{debug_name}_{y * num_tiles_x + x}.png"
                 stripped_tile_pixels.save(tile_filename)
 
             assert(stripped_tile_pixels.width<256)

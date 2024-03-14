@@ -1,9 +1,4 @@
-// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
-//
-// PlatformIO Debugging Solution
-//
-// Documentation: https://docs.platformio.org/en/latest/plus/debugging.html
-// Configuration: https://docs.platformio.org/en/latest/projectconf/sections/env/options/debug/index.html
+
 
 {
     "version": "0.2.0",
@@ -14,6 +9,8 @@
             "gdbPath": "gdb-multiarch",
             "cwd": "${workspaceRoot}",
             "executable": "${command:cmake.launchTargetPath}",
+            //"executable": "build-pico/source/neo6502firmware.elf",
+            //"executable": "/opt/pico-examples/t/divider/hello_divider.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
@@ -29,5 +26,6 @@
                 "continue"
             ]
         },
+      
     ]
 }

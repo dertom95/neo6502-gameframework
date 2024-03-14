@@ -37,7 +37,8 @@ assets-create: initialize
 									--array-name sprites_misc \
 									--output $(EXPORT_FOLDER)/sprites_misc.bin \
 									--binary \
-									--format 2
+									--format 2 \
+									--debug \
 
 	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/old_guy.png \
 									--tile-size 16x16 \
@@ -45,7 +46,8 @@ assets-create: initialize
 									--array-name gold_guy \
 									--output $(EXPORT_FOLDER)/old_guy.bin \
 									--binary \
-									--format 2
+									--format 2 \
+									--debug \
 
 
 check_code_bin:

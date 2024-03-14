@@ -95,7 +95,7 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 
 //uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
 // uint16_t  __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*4];
-uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH];
+uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH+20];
 
 void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8_t usage_type,void* data,uint32_t size){
 	bool success = ng_mem_allocate_block(segment_id,size,usage_type, block);
@@ -105,10 +105,11 @@ void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,ui
 
 void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
 	uint pixwidth = dvi0.timing->h_active_pixels;
-	uint words_per_channel = pixwidth / DVI_SYMBOLS_PER_WORD;
-	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 0 * words_per_channel, pixwidth / 2, DVI_16BPP_BLUE_MSB,  DVI_16BPP_BLUE_LSB );
-	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 1 * words_per_channel, pixwidth / 2, DVI_16BPP_GREEN_MSB, DVI_16BPP_GREEN_LSB);
-	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 2 * words_per_channel, pixwidth / 2, DVI_16BPP_RED_MSB,   DVI_16BPP_RED_LSB  );
+	uint16_t pw2 = pixwidth >> 1;
+    uint words_per_channel = pw2;
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 0 * words_per_channel, pw2, DVI_16BPP_BLUE_MSB,  DVI_16BPP_BLUE_LSB );
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 1 * words_per_channel, pw2, DVI_16BPP_GREEN_MSB, DVI_16BPP_GREEN_LSB);
+	tmds_encode_data_channel_16bpp((uint32_t*)pixbuf, tmdsbuf + 2 * words_per_channel, pw2, DVI_16BPP_RED_MSB,   DVI_16BPP_RED_LSB  );
 }
 
 int a = 0;
@@ -282,8 +283,8 @@ void* gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts,uint8_t tile_id){
         uint8_t oH = *peek_ptr++;
         size_per_tile = oW*oH;
     }
-    void* dest = ng_mem_allocate(default_allocation_segment, size_per_tile);
-    memcpy(dest, tile_ptr, size_per_tile);
+    void* dest = ng_mem_allocate(default_allocation_segment, size_per_tile + 4);
+    memcpy(dest, tile_ptr, size_per_tile + 4);
     ts->cached_tile_ptrs[tile_id]=dest;
     return dest;
 }
