@@ -66,7 +66,8 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     
 
     uint16_t output_pixels_to_write;
-    uint16_t output_subpixels_left;
+    uint8_t output_subpixels_start;
+    uint8_t output_subpixels_end;
     
     uint16_t input_pixels_to_read;
     int8_t readbuf_offset;

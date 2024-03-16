@@ -142,6 +142,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 26: {
+                call_gfx_pixelbuffer_apply_data_t* call = (call_gfx_pixelbuffer_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_apply_data( (gfx_pixelbuffer_t*)(&mem[ call->pxb ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 2: {
                 call_gfx_set_palettecolor_t* call = (call_gfx_set_palettecolor_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_set_palettecolor(  call->color_idx  ,    swap16(call->color565)    );

@@ -326,10 +326,11 @@ void gfx_update()
 // ------------------------
 // 🇷​​​​​🇪​​​​​🇳​​​​​🇩​​​​​🇪​​​​​🇷 ​​​​​🇶​​​​​🇺​​​​​🇪​​​​​🇺​​​​​🇪​​​​​
 // ------------------------
-
+void writebuf1(uint16_t** writebuf, uint16_t col) {
+    (*(*writebuf)++)=(*(*writebuf)++)=col;
+}
 void writebuf2(uint16_t** writebuf, uint16_t col) {
     (*(*writebuf)++)=(*(*writebuf)++)=col;
-//    *(*writebuf++)=*(*writebuf++)=col;
 }
 void writebuf3(uint16_t** writebuf, uint16_t col) {
     *(writebuf++)=*(writebuf++)=*(writebuf++)=col;
@@ -348,7 +349,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
     
     WritebufFunctionPtr fn_writebuf = &writebuf2;
 
-    for (int idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
+    for (uint8_t idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
     {
         ng_mem_block_t *current_render_block = renderqueue_current[idx];
         if (current_render_block == NULL)
@@ -384,6 +385,8 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
             if (px_width == 1 && px_height == 1 && pixelbuffer->width == SCREEN_WIDTH)
             {
+                // █▀ ▀█▀ ▄▀█ █▄░█ █▀▄ ▄▀█ █▀█ █▀▄
+                // ▄█ ░█░ █▀█ █░▀█ █▄▀ █▀█ █▀▄ █▄▀                
                 uint8_t *readbuffer = db->mem.data + pixel_y * pixelbuffer->width;
                 uint16_t counter = SCREEN_WIDTH;
                 uint8_t last_index=0;
@@ -424,41 +427,126 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
 
                 uint16_t output_pixels_to_write = pixelbuffer->output_pixels_to_write;
-                uint8_t output_subpixels_left = pixelbuffer->output_subpixels_left;
+                uint8_t output_subpixels_start = pixelbuffer->output_subpixels_start;
+
 
                 uint16_t input_pixels_to_read = pixelbuffer->input_pixels_to_read;
                 // point to the beginning of the pixelbuffer
-                uint8_t *read_buffer = db->mem.data + (pixel_y >> 1) * pixelbuffer->width;
+                uint8_t *read_buffer = db->mem.data + (pixel_y >> (px_height-1)) * pixelbuffer->width;
                 read_buffer += pixelbuffer->readbuf_offset;
                 write_buf += pixelbuffer->writebuf_offset;
 
-                uint8_t last_idx = 0;
+                uint8_t last_idx = *(read_buffer++);
                 uint16_t color = color_palette[last_idx];
-                while (input_pixels_to_read--)
-                {
-                    uint8_t data = *(read_buffer++);
-                    if (data!=last_idx){
-                        last_idx = data;
-                        color = color_palette[data];
-                    }
-                    
-                    fn_writebuf(&write_buf,color);
-                    //write_buf+=2;
-                    
-                   // *(write_buf++) = *(write_buf++) = color;
-                    // for(uint8_t i=output_subpixels_left;i>0;i--){
-                    //     *(write_buf++)  = color;
-                    // }
-                    // while (output_subpixels_left--)
-                    // {
-                    //     *(write_buf++) = color;
-                    // }
-                        // if (output_pixels_to_write-- == 0)
-                        // {
-                        //     goto exit_all_loops;
-                        // }
-                    output_subpixels_left = px_width;
-                }                
+
+                // first write subpixels (only scenario having px-size>1 and x-pos negative)
+                switch(output_subpixels_start){
+                    case 8: *(write_buf++)=color;
+                    case 7: *(write_buf++)=color;
+                    case 6: *(write_buf++)=color;
+                    case 5: *(write_buf++)=color;
+                    case 4: *(write_buf++)=color;
+                    case 3: *(write_buf++)=color;
+                    case 2: *(write_buf++)=color;
+                    case 1: *(write_buf++)=color;
+                }
+                // I know, I know looks totally silly but it produces the fastest code. 
+                if (px_width==8){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==7){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==6){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==5){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;*(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==4){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;*(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==3){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;*(write_buf++)=color;
+                        *(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==2){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;
+                        *(write_buf++)=color;
+                    }                
+                }
+                else if (px_width==1){
+                    while (input_pixels_to_read--)
+                    {
+                        uint8_t data = *(read_buffer++);
+                        if (data!=last_idx){
+                            last_idx = data;
+                            color = color_palette[data];
+                        }
+                        *(write_buf++)=color;
+                    }                
+                }
+
             }
 
 
@@ -610,10 +698,6 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                 break_out2:
                     sprite++;
                     sprite_internal++;
-                
-
-
-
 
                 } else {
                     // █▀ █ ▀█ █▀▀ ▄▀█ █▄▄ █░░ █▀▀   █▀ █▀█ █▀█ █ ▀█▀ █▀▀

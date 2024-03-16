@@ -51,9 +51,9 @@ keyboard_mapping_t kbm={
 gfx_pixelbuffer_t pixelbuffer = {
     .width=160,
     .height=120,
-    .x=0,
+    .x=-100,
     .y=0,
-    .pixel_size=flags_pack_4_4(2,2),
+    .pixel_size=flags_pack_4_4(4,4),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -164,6 +164,17 @@ int mod_init(){
         }
     }
 
+    gfx_draw_pixel(0,0,COL_ORANGE);
+    gfx_draw_pixel(159,0,COL_ORANGE);
+    gfx_draw_pixel(159,119,COL_ORANGE);
+    gfx_draw_pixel(0,119,COL_ORANGE);
+
+    gfx_draw_pixel(1,1,COL_GREEN);
+    gfx_draw_pixel(158,1,COL_GREEN);
+    gfx_draw_pixel(158,118,COL_GREEN);
+    gfx_draw_pixel(1,118,COL_GREEN);
+
+
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
@@ -220,6 +231,7 @@ int mod_init(){
 
 
     flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
+    int a=0;
 }
 
 
@@ -239,10 +251,10 @@ void mod_update() {
     static uint8_t seed = 0;
     seed++;
 
-    *(tile_map)=COL_RED;
-    *(tile_map+39)=COL_GREEN;
-    *(tile_map+39+29*40)=COL_ORANGE;
-    *(tile_map+29*40)=COL_VIOLETTE;
+    // *(tile_map)=COL_RED;
+    // *(tile_map+39)=COL_GREEN;
+    // *(tile_map+39+29*40)=COL_ORANGE;
+    // *(tile_map+29*40)=COL_VIOLETTE;
     
 
     // for (uint8_t i=0;i<4;i++){
@@ -260,39 +272,49 @@ void mod_update() {
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
 
-    sprite_oldguy->x=*mx;
-    sprite_oldguy->y=*my;
+    // sprite_oldguy->x=*mx;
+    // sprite_oldguy->y=*my;
 
     
-    //pixelbuffer.y=*my;
+    pixelbuffer.x=-*mx;
+    gfx_pixelbuffer_apply_data(&pixelbuffer);
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
 
     if ((kbm.key_pressed & KEY_LEFT)>0){
-        if (sprite_oldguy->tile_idx-1 >= 0){
-            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
+        if (px_width>0){
+            px_width--;
         }
+        //pixelbuffer.x--;
         changed=true;
+
+        // if (sprite_oldguy->tile_idx-1 >= 0){
+        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
+        // }
+        // changed=true;
     }
     if ((kbm.key_pressed & KEY_RIGHT)>0){
-        if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
-            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
+        if (px_width<15){
+            px_width++;
         }
+        // if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
+        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
+        // }
         changed=true;
     }
     if ((kbm.key_pressed & KEY_LEFT2)>0){
-        // if (px_height>0){
-        //     px_height--;
-        // }
-        pixelbuffer.x--;
+        if (px_height>0){
+            px_height--;
+        }
+        //pixelbuffer.x--;
         changed=true;
     }
     if ((kbm.key_pressed & KEY_RIGHT2)>0){
-        // if (px_height<15){
-        //     px_height++;
-        // }
-        pixelbuffer.x++;
+        if (px_height<15){
+            px_height++;
+        }
+        //pixelbuffer.x++;
         changed=true;
     }
 
@@ -316,7 +338,8 @@ void mod_update() {
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
-        gfx_pixelbuffer_set_active(&pixelbuffer);            
+        gfx_pixelbuffer_set_active(&pixelbuffer);      
+        gfx_pixelbuffer_apply_data(&pixelbuffer);      
     }
 }
 

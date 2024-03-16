@@ -14,7 +14,7 @@ initialize:
 	mkdir -p $(ASSET_FOLDER)/palette
 
 source-compile:
-	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -lexit-loop -linit-stack -I.. -I../../source/api mod.c ../../source/api/ng_api_shared.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map
+	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -g -lexit-loop -linit-stack -I.. -I../../source/api mod.c ../../source/api/ng_api_shared.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map && $(LLVM_MOS_SDK)/bin/llvm-objdump -S -l ../temp/code.bin.elf > ../temp/code.S 
 	
 # source-compile-cc65:	
 # 	cc65 -Osir source/mod.c --add-source -I../source/api -I. -o temp/main.s --standard c99

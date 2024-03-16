@@ -126,14 +126,14 @@ void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
     if (pixelbuffer->x >= 0)
     {
         pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
-        pixelbuffer->output_subpixels_left = px_width;
+        pixelbuffer->output_subpixels_start = px_width;
         pixelbuffer->writebuf_offset = pixelbuffer->x;
     }
     else
     {
         // the pixelbuffer.x is negative
-        pixelbuffer->output_pixels_to_write = pixelbuffer->full_width + pixelbuffer->x - 1;
-        pixelbuffer->output_subpixels_left = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
+        pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width + pixelbuffer->x - 1,SCREEN_WIDTH-1);
+        pixelbuffer->output_subpixels_start = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
         pixelbuffer->readbuf_offset = -pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
     }
     pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width) + 1;    
