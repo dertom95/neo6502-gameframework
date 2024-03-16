@@ -534,6 +534,10 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     continue;
                 }
 
+                if (flags_isset(sprite->flags,SPRITEFLAG_DIRTY)){
+                    gfx_sprite_apply_data(sprite);
+                }                
+
                 gfx_tilesheet_t *ts = si->tilesheet;
 
                 uint8_t px_width;
@@ -709,7 +713,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                             case 1: *(write_buf++)=color;
                         }
                     } else {
-                        //write_buf+=si->subpixel_left;
+#ifndef DEBUG_TRANSPARENCY                        
+                        write_buf+=si->subpixel_left;
+#else                        
                         switch(si->subpixel_left){
                             case 8: *(write_buf++)=color_palette[COL_RED];
                             case 7: *(write_buf++)=color_palette[COL_RED];
@@ -720,11 +726,13 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                             case 2: *(write_buf++)=color_palette[COL_RED];
                             case 1: *(write_buf++)=color_palette[COL_RED];
                         }
+#endif                        
                     }
 
 
 // ------ DEFINE ------------------------------------------------------
-#define DEFAULT_LOOP_LOGIC \
+#ifndef DEBUG_TRANSPARENCY
+# define DEFAULT_LOOP_LOGIC \
                             idx = *(data); \
                             if (idx!=last_idx){ \
                                 last_idx = idx; \
@@ -732,11 +740,23 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                             } \
                             data += read_direction; \
                             if (idx==255) { \
-                                /*write_buf += px_width;*/ \
-                                /* continue;*/ \
+                                write_buf += px_width; \
+                                continue; \
+                            } \
+                            uint16_t color = color_palette[idx]; 
+#else 
+# define DEFAULT_LOOP_LOGIC \
+                            idx = *(data); \
+                            if (idx!=last_idx){ \
+                                last_idx = idx; \
+                                color = color_palette[idx]; \
+                            } \
+                            data += read_direction; \
+                            if (idx==255) { \
                                 idx = COL_RED; \
                             } \
-                            uint16_t color = color_palette[idx]; \
+                            uint16_t color = color_palette[idx]; 
+#endif
 // -------------------------------------------------------------------
                     uint8_t idx;
                     if (px_width==1){

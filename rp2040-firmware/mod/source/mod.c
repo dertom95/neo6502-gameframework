@@ -57,7 +57,7 @@ gfx_pixelbuffer_t pixelbuffer = {
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
-#define delay 2000
+#define delay 120
 
 gfx_sprite_animator_t anim4x3={
     .animation_amount=4,
@@ -196,16 +196,17 @@ int mod_init(){
     sprite_oldguy->x=50;
     sprite_oldguy->y=50;
     sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
+    gfx_sprite_apply_data(sprite_oldguy);
 
     sprite_sword->x=40;
     sprite_sword->y=40;
-    sprite_sword->pixel_size=flags_pack_4_4(3,3);
+    sprite_sword->pixel_size=flags_pack_4_4(1,1);
     for (int i=0;i<6;i++){
         gfx_sprite_t* spr = &sprites[i+3];
         uint8_t tile_id = i+3;
         gfx_sprite_set_tileset(spr,&ts_oldguy,tile_id);
         spr->x=0;
-        spr->y=i*20;
+        spr->y=i*16;
         // if (i % 2){
         //     flags_set(spr->flags,SPRITEFLAG_FLIP_H);
         // }
@@ -215,6 +216,7 @@ int mod_init(){
         //spr->pixel_size=flags_pack_4_4((random()%2+1),(random()%2+1));
         //spr->pixel_size=flags_pack_4_4(i%2+1,i%2+1);
         spr->pixel_size=flags_pack_4_4(1,1);
+        gfx_sprite_apply_data(spr);
     }
 
     sprite_potion->x=70;

@@ -43,6 +43,8 @@ typedef uint8_t* US_ADDRESS;
 #define ASSET_TYPE_FILEFORMAT_1    (0 << 2)
 #define ASSET_TYPE_FILEFORMAT_2    (1 << 2)
 
+//#define DEBUG_TRANSPARENCY 
+
 
 
 

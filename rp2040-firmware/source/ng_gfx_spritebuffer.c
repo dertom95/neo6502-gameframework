@@ -70,9 +70,6 @@ void  gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
     gfx_sprite_t* current_sprite = spritebuffer->sprites;
     gfx_internal_sprite_t* current_internal_sprite = spritebuffer->sprite_internals;
     while (amount--){
-        if (flags_isset(current_sprite->flags,SPRITEFLAG_DIRTY)){
-            gfx_sprite_apply_data(current_sprite);
-        }
         if (current_sprite->flags!=0 && current_internal_sprite->extensions!=NULL){
             _internal_gfx_sprite_update(current_sprite,current_internal_sprite,dt);
         }
