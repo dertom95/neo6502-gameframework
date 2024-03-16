@@ -90,6 +90,7 @@ void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_i
     
 	sprite_internal->tile_ptr = gfx_tilesheet_get_chached_tile(sprite_internal->tilesheet, tile_idx);
 	sprite->tile_idx = tile_idx;
+    flags_set(sprite->flags,SPRITEFLAG_DIRTY);
 }
 
 
@@ -252,7 +253,7 @@ void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
         si->sprite_x -= si->sprite_width;
     }
 
-    si->input_pixels_to_read = min(si->offset_width, SCREEN_WIDTH - si->sprite_x);
+    si->input_pixels_to_read = min(si->offset_width-1, SCREEN_WIDTH - si->sprite_x);
 
     if (flipped_h)
     {

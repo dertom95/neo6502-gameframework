@@ -51,11 +51,13 @@ keyboard_mapping_t kbm={
 gfx_pixelbuffer_t pixelbuffer = {
     .width=160,
     .height=120,
-    .x=-100,
+    .x=0,
     .y=0,
-    .pixel_size=flags_pack_4_4(4,4),
+    .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
+
+#define delay 2000
 
 gfx_sprite_animator_t anim4x3={
     .animation_amount=4,
@@ -63,22 +65,22 @@ gfx_sprite_animator_t anim4x3={
         {
             .start_tile=0,
             .end_tile=2,
-            .delay_ms=125,
+            .delay_ms=delay,
         },
         {
             .start_tile=3,
             .end_tile=4,
-            .delay_ms=125,
+            .delay_ms=delay,
         },
         {
             .start_tile=6,
             .end_tile=8,
-            .delay_ms=125,
+            .delay_ms=delay,
         },
         {
             .start_tile=9,
             .end_tile=10,
-            .delay_ms=125,
+            .delay_ms=delay,
         },
     }
 };
@@ -110,11 +112,11 @@ gfx_tilesheet_data_t ts_misc;
 gfx_tilesheet_data_t ts_oldguy;
 
 
-#define SPRITE_AMOUNT 8
+#define SPRITE_AMOUNT 16
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 
 gfx_sprite_t* sprite_oldguy=&sprites[0];
-gfx_sprite_t* sprite_strawberry=&sprites[1];
+gfx_sprite_t* sprite_sword=&sprites[1];
 gfx_sprite_t* sprite_potion=&sprites[2];
 
 uint8_t sprite_potion_anim;
@@ -158,21 +160,21 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
-    for(uint16_t y=0;y<120;y++){
+    for(uint16_t y=0;y<120;y+=2){
         for (uint16_t x=0;x<160;x++){
-            gfx_draw_pixel(x,y,(uint8_t)x*y);
+            gfx_draw_pixel(x,y,x+y);
         }
     }
 
-    gfx_draw_pixel(0,0,COL_ORANGE);
-    gfx_draw_pixel(159,0,COL_ORANGE);
-    gfx_draw_pixel(159,119,COL_ORANGE);
-    gfx_draw_pixel(0,119,COL_ORANGE);
+    // gfx_draw_pixel(0,0,COL_ORANGE);
+    // gfx_draw_pixel(159,0,COL_ORANGE);
+    // gfx_draw_pixel(159,119,COL_ORANGE);
+    // gfx_draw_pixel(0,119,COL_ORANGE);
 
-    gfx_draw_pixel(1,1,COL_GREEN);
-    gfx_draw_pixel(158,1,COL_GREEN);
-    gfx_draw_pixel(158,118,COL_GREEN);
-    gfx_draw_pixel(1,118,COL_GREEN);
+    // gfx_draw_pixel(1,1,COL_GREEN);
+    // gfx_draw_pixel(158,1,COL_GREEN);
+    // gfx_draw_pixel(158,118,COL_GREEN);
+    // gfx_draw_pixel(1,118,COL_GREEN);
 
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
@@ -183,7 +185,8 @@ int mod_init(){
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
   //  flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_FLIP_V | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
     
-    gfx_sprite_set_tileset(sprite_strawberry,&ts_misc,3);
+    gfx_sprite_set_tileset(sprite_sword,&ts_misc,3);
+    
     //flags_set(sprite_strawberry->flags,SPRITEFLAG_FLIP_V);
     
     gfx_sprite_set_tileset(sprite_potion,&ts_misc,4);
@@ -192,21 +195,17 @@ int mod_init(){
 
     sprite_oldguy->x=50;
     sprite_oldguy->y=50;
-    sprite_oldguy->pixel_size=flags_pack_4_4(5,5);
+    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
 
-    sprite_strawberry->x=50;
-    sprite_strawberry->y=40;
-
-    for (int i=3;i<SPRITE_AMOUNT;i++){
-        gfx_sprite_t* spr = &sprites[i];
-        uint8_t tile_id = i % 5;
-        gfx_sprite_set_tileset(spr,&ts_misc,tile_id);
-        if (tile_id==4){
-            sprite_potion_anim = gfx_sprite_add_animator(spr,&anim4);
-            gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
-        }
-        spr->x=(i*35)%300;
-        spr->y=(i*30)%200;
+    sprite_sword->x=40;
+    sprite_sword->y=40;
+    sprite_sword->pixel_size=flags_pack_4_4(3,3);
+    for (int i=0;i<6;i++){
+        gfx_sprite_t* spr = &sprites[i+3];
+        uint8_t tile_id = i+3;
+        gfx_sprite_set_tileset(spr,&ts_oldguy,tile_id);
+        spr->x=0;
+        spr->y=i*20;
         // if (i % 2){
         //     flags_set(spr->flags,SPRITEFLAG_FLIP_H);
         // }
@@ -219,7 +218,11 @@ int mod_init(){
     }
 
     sprite_potion->x=70;
-    sprite_potion->y=40;
+    sprite_potion->y=0;
+    sprite_potion->pixel_size=flags_pack_4_4(3,3);
+    sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
+    gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_LOOP);
+    
 
     // sprite_strawberry->flags=0;
     // sprite_potion->flags=0;
@@ -274,9 +277,10 @@ void mod_update() {
 
     // sprite_oldguy->x=*mx;
     // sprite_oldguy->y=*my;
+    // flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY);
 
     
-    pixelbuffer.x=-*mx;
+   // pixelbuffer.x=-*mx;
     gfx_pixelbuffer_apply_data(&pixelbuffer);
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
