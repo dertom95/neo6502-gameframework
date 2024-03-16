@@ -70,6 +70,9 @@ void  gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
     gfx_sprite_t* current_sprite = spritebuffer->sprites;
     gfx_internal_sprite_t* current_internal_sprite = spritebuffer->sprite_internals;
     while (amount--){
+        if (flags_isset(current_sprite->flags,SPRITEFLAG_DIRTY)){
+            gfx_sprite_apply_data(current_sprite);
+        }
         if (current_sprite->flags!=0 && current_internal_sprite->extensions!=NULL){
             _internal_gfx_sprite_update(current_sprite,current_internal_sprite,dt);
         }
@@ -89,6 +92,187 @@ void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_i
 	sprite->tile_idx = tile_idx;
 }
 
+
+/*
+
+                    uint16_t sprite_height = ts->data.tile_height * px_height;
+
+                    int16_t sprite_y = sprite->y;
+
+                    uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
+                    if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
+                    {
+                        sprite_y -= ts->data.tile_height_half * px_height;
+                    }
+                    else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
+                    {
+                        sprite_y -= sprite_height;
+                    }
+
+                    uint8_t *tile_ptr = sprite_internal->tile_ptr;
+
+                    uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
+                    uint8_t offset_left = 0;
+                    uint8_t offset_top = 0;
+                    uint8_t offset_right = 0;
+                    uint8_t offset_bottom = 0;
+                    uint8_t offset_width = ts->data.tile_width;
+                    uint8_t offset_height = ts->data.tile_height;
+                    if (format == ASSET_TYPE_FILEFORMAT_2)
+                    {
+                        uint8_t oX = *(tile_ptr++);
+                        uint8_t oY = *tile_ptr++;
+                        offset_width = *tile_ptr++;
+                        offset_height = *tile_ptr++;
+
+                        offset_left = oX;
+                        offset_top = oY;
+                        offset_right = ts->data.tile_width - oX - offset_width;
+                        offset_bottom = ts->data.tile_height - oY - offset_height;
+                    }
+
+                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom - px_height) <= y)
+                    {
+                        sprite++;
+                        sprite_internal++;
+                        continue;
+                    }
+
+                    bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
+                    bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
+
+                    uint16_t sprite_width = ts->data.tile_width * px_width;
+
+                    uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
+                    int16_t sprite_x = sprite->x;
+                    int8_t read_direction = flipped_h ? -1 : 1;
+
+                    if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
+                    {
+                        sprite_x -= ts->data.tile_width_half * px_width;
+                    }
+                    else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
+                    {
+                        sprite_x -= sprite_width;
+                    }
+
+                    uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top) - 1) / px_height
+                                            : (y - sprite_y - offset_top) / px_height;
+
+                    // apply pixel-height
+
+                    uint8_t input_pixels_to_read = min(offset_width, SCREEN_WIDTH - sprite_x);
+
+                    uint8_t *data = tile_ptr + line * offset_width;
+
+                    int16_t output_pixels_to_write;
+                    int8_t subpixel_left_to_write;
+
+                    if (flipped_h)
+                    {
+                        data += offset_width - 1;
+                    }
+
+                    if (sprite_x >= 0)
+                    {
+                        subpixel_left_to_write = px_width;
+                        write_buf = pixbuf + sprite_x + offset_left * px_width;
+                        output_pixels_to_write = min(offset_width * px_width, SCREEN_WIDTH - sprite_x); // TODO: Right-Border using offset-values
+                    }
+                    else
+                    {
+                        subpixel_left_to_write = px_width + sprite_x % px_width; // TODO: Left-Border using offset-values
+                        write_buf = pixbuf;
+                        output_pixels_to_write = offset_width + sprite_x - 1;
+                        data += sprite_x / px_width;
+                    }
+
+
+*/
+
+void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
+    flags_unset(sprite->flags,SPRITEFLAG_DIRTY);
+    gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
+    gfx_internal_sprite_t* si = &spritebuffer->sprite_internals[sprite->sprite_idx];
+    gfx_tilesheet_t* ts = si->tilesheet;
+
+    uint8_t px_width;
+    uint8_t px_height;
+    flags_unpack_4_4(sprite->pixel_size, px_width, px_height);
+
+    si->sprite_height = ts->data.tile_height * px_height;
+    si->sprite_x = sprite->x;
+    si->sprite_y = sprite->y;
+    uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
+    if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
+    {
+        si->sprite_y -= ts->data.tile_height_half * px_height;
+    }
+    else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
+    {
+        si->sprite_y -= si->sprite_height;
+    } 
+
+    uint8_t *tile_ptr = si->tile_ptr;
+
+    si->format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
+    si->offset_left = 0;
+    si->offset_top = 0;
+    si->offset_right = 0;
+    si->offset_bottom = 0;
+    si->offset_width = ts->data.tile_width;
+    si->offset_height = ts->data.tile_height;
+    if (si->format == ASSET_TYPE_FILEFORMAT_2)
+    {
+        uint8_t oX = *(tile_ptr++);
+        uint8_t oY = *tile_ptr++;
+        si->offset_width = *tile_ptr++;
+        si->offset_height = *tile_ptr++;
+
+        si->offset_left = oX;
+        si->offset_top = oY;
+        si->offset_right = ts->data.tile_width - oX - si->offset_width;
+        si->offset_bottom = ts->data.tile_height - oY - si->offset_height;
+    }
+
+    bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
+    bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
+
+    si->sprite_width = ts->data.tile_width * px_width;
+
+    uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
+    si->read_direction = flipped_h ? -1 : 1;
+
+    if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
+    {
+        si->sprite_x -= ts->data.tile_width_half * px_width;
+    }
+    else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
+    {
+        si->sprite_x -= si->sprite_width;
+    }
+
+    si->input_pixels_to_read = min(si->offset_width, SCREEN_WIDTH - si->sprite_x);
+
+    if (flipped_h)
+    {
+        si->readbuf_offset = si->offset_width - 1;
+    }
+
+    if (si->sprite_x >= 0)
+    {
+        si->subpixel_left = px_width;
+        si->writebuf_offset = si->sprite_x + si->offset_left * px_width;
+    }
+    else
+    {
+        si->subpixel_left = px_width + si->sprite_x % px_width; // TODO: Left-Border using offset-values
+        si->writebuf_offset = 0;
+        si->readbuf_offset += si->sprite_x / px_width;
+    }
+    flags_set(sprite->flags,SPRITEFLAG_READY);
+}
+
 void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx) {
     assert(sprite!=NULL);
 
@@ -98,7 +282,7 @@ void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, 
     gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];
 
     sprite_internal->tilesheet = ts;
-    sprite->flags = 1;
+    flags_set(sprite->flags,SPRITEFLAG_DIRTY);
     _gfx_sprite_set_tileid(sprite, sprite_internal, initial_tile_idx);
 }
 

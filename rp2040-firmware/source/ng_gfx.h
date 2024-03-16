@@ -32,6 +32,27 @@ typedef struct gfx_internal_sprite_t {
 	gfx_tilesheet_t* tilesheet;
 	void* tile_ptr; // direct link to the current tiledata
     gfx_extension_header_t* extensions; // manipualtors on this sprite
+    // runtime precalculation
+    uint16_t sprite_height;
+    uint16_t sprite_width;
+    int16_t sprite_x;
+    int16_t sprite_y;
+
+    uint8_t input_pixels_to_read;
+    uint8_t read_direction;
+    uint8_t subpixel_left;    
+    uint8_t subpixel_right;
+    
+    int8_t  readbuf_offset;
+    int8_t  writebuf_offset;
+    uint8_t format;
+
+    uint8_t offset_left;
+    uint8_t offset_top;
+    uint8_t offset_right;
+    uint8_t offset_bottom;
+    uint8_t offset_width;
+    uint8_t offset_height;
 } gfx_internal_sprite_t;
 
 
@@ -94,6 +115,7 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
 /*api:1:21*/void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
 
+/*api:1:27*/void    gfx_sprite_apply_data(gfx_sprite_t* sprite);
 /*api:1:17*/void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
 /*api:1:18*/void    gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
 /*api:1:19*/uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* animator);
@@ -133,6 +155,6 @@ void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *for
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:26
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:27
 
 #endif 

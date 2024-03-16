@@ -326,16 +326,6 @@ void gfx_update()
 // ------------------------
 // 🇷​​​​​🇪​​​​​🇳​​​​​🇩​​​​​🇪​​​​​🇷 ​​​​​🇶​​​​​🇺​​​​​🇪​​​​​🇺​​​​​🇪​​​​​
 // ------------------------
-void writebuf1(uint16_t** writebuf, uint16_t col) {
-    (*(*writebuf)++)=(*(*writebuf)++)=col;
-}
-void writebuf2(uint16_t** writebuf, uint16_t col) {
-    (*(*writebuf)++)=(*(*writebuf)++)=col;
-}
-void writebuf3(uint16_t** writebuf, uint16_t col) {
-    *(writebuf++)=*(writebuf++)=*(writebuf++)=col;
-}
-typedef void (*WritebufFunctionPtr)(uint16_t**, uint16_t);
 
 // SCANLINE-RENDERER
 #ifdef PICO_NEO6502
@@ -347,8 +337,6 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
     //memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
     memset(pixbuf,0,SCREEN_WIDTH_HALF *sizeof(uint32_t)); // make this a renderqueue-command
     
-    WritebufFunctionPtr fn_writebuf = &writebuf2;
-
     for (uint8_t idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
     {
         ng_mem_block_t *current_render_block = renderqueue_current[idx];
@@ -401,37 +389,11 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     *(write_buf++)=last_color;
                 }
             } else {
-                // uint16_t full_width = pixelbuffer->width * px_width;
-
-                // uint16_t output_pixels_to_write;
-                // uint8_t output_subpixels_left;
-
-                // uint16_t input_pixels_to_read;
-                // // point to the beginning of the pixelbuffer
-                // uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
-
-                // if (pixelbuffer->x >= 0)
-                // {
-                //     output_pixels_to_write = min(full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
-                //     output_subpixels_left = px_width;
-                //     write_buf += pixelbuffer->x;
-                // }
-                // else
-                // {
-                //     // the pixelbuffer.x is negative
-                //     output_pixels_to_write = full_width + pixelbuffer->x - 1;
-                //     output_subpixels_left = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
-                //     read_buffer -= pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
-                // }
-                // input_pixels_to_read = (output_pixels_to_write / px_width) + 1;
-
-
-                uint16_t output_pixels_to_write = pixelbuffer->output_pixels_to_write;
                 uint8_t output_subpixels_start = pixelbuffer->output_subpixels_start;
-
 
                 uint16_t input_pixels_to_read = pixelbuffer->input_pixels_to_read;
                 // point to the beginning of the pixelbuffer
+                // TODO: divison by bitshifting only for pow2
                 uint8_t *read_buffer = db->mem.data + (pixel_y >> (px_height-1)) * pixelbuffer->width;
                 read_buffer += pixelbuffer->readbuf_offset;
                 write_buf += pixelbuffer->writebuf_offset;
@@ -548,10 +510,6 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                 }
 
             }
-
-
-
-        exit_all_loops:
             break;
         }
 
@@ -565,28 +523,30 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
             uint8_t max_sprites = spritebuffer->amount_sprites;
             gfx_sprite_t *sprite = (gfx_sprite_t *)spritebuffer->sprites;
-            gfx_internal_sprite_t *sprite_internal = spritebuffer->sprite_internals;
+            gfx_internal_sprite_t *si = spritebuffer->sprite_internals;
 
             while (max_sprites--)
             {
-                if (sprite->flags == 0)
+                if (!flags_isset(sprite->flags,SPRITEFLAG_READY))
                 {
                     sprite++;
-                    sprite_internal++;
+                    si++;
                     continue;
                 }
 
-                gfx_tilesheet_t *ts = sprite_internal->tilesheet;
+                gfx_tilesheet_t *ts = si->tilesheet;
 
                 uint8_t px_width;
                 uint8_t px_height;
                 flags_unpack_4_4(sprite->pixel_size, px_width, px_height);
 
-                if (px_height == 1 && px_width==1){
+                //if (px_height == 1 && px_width==1)
+                if (false)
+                {
                     // █▀ ▀█▀ ▄▀█ █▄░█ █▀▄ ▄▀█ █▀█ █▀▄   █▀ █▀█ █▀█ █ ▀█▀ █▀▀
                     // ▄█ ░█░ █▀█ █░▀█ █▄▀ █▀█ █▀▄ █▄▀   ▄█ █▀▀ █▀▄ █ ░█░ ██▄                    
 
-                    uint8_t *tile_ptr = sprite_internal->tile_ptr;
+                    uint8_t *tile_ptr = si->tile_ptr;
 
                     uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
                     uint8_t offset_left = 0;
@@ -624,7 +584,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     {
                         // no intersection! NEXT SPRITE, PLEASE!
                         sprite++;
-                        sprite_internal++;
+                        si++;
                         continue;
                     }                                      
 
@@ -697,137 +657,138 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     }
                 break_out2:
                     sprite++;
-                    sprite_internal++;
+                    si++;
 
                 } else {
                     // █▀ █ ▀█ █▀▀ ▄▀█ █▄▄ █░░ █▀▀   █▀ █▀█ █▀█ █ ▀█▀ █▀▀
                     // ▄█ █ █▄ ██▄ █▀█ █▄█ █▄▄ ██▄   ▄█ █▀▀ █▀▄ █ ░█░ ██▄
 
-                    uint16_t sprite_height = ts->data.tile_height * px_height;
+                    uint8_t *tile_ptr = si->tile_ptr;
 
-                    int16_t sprite_y = sprite->y;
-
-                    uint8_t alignment_v = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNV_MASK);
-                    if (alignment_v == SPRITEFLAG_ALIGNV_CENTER)
+                    if (si->format == ASSET_TYPE_FILEFORMAT_2)
                     {
-                        sprite_y -= ts->data.tile_height_half * px_height;
-                    }
-                    else if (alignment_v == SPRITEFLAG_ALIGNV_BOTTOM)
-                    {
-                        sprite_y -= sprite_height;
+                        tile_ptr += 4;
                     }
 
-                    uint8_t *tile_ptr = sprite_internal->tile_ptr;
-
-                    uint8_t format = flags_mask_value(ts->data.type, ASSET_TYPE_FILEFORMAT_MASK);
-                    uint8_t offset_left = 0;
-                    uint8_t offset_top = 0;
-                    uint8_t offset_right = 0;
-                    uint8_t offset_bottom = 0;
-                    uint8_t offset_width = ts->data.tile_width;
-                    uint8_t offset_height = ts->data.tile_height;
-                    if (format == ASSET_TYPE_FILEFORMAT_2)
-                    {
-                        uint8_t oX = *(tile_ptr++);
-                        uint8_t oY = *tile_ptr++;
-                        offset_width = *tile_ptr++;
-                        offset_height = *tile_ptr++;
-
-                        offset_left = oX;
-                        offset_top = oY;
-                        offset_right = ts->data.tile_width - oX - offset_width;
-                        offset_bottom = ts->data.tile_height - oY - offset_height;
-                    }
-
-                    if ((sprite_y + offset_top) > y || (sprite_y + sprite_height - offset_bottom - px_height) <= y)
+                    if ((si->sprite_y + si->offset_top) > y || (si->sprite_y + si->sprite_height - si->offset_bottom - px_height) <= y)
                     {
                         sprite++;
-                        sprite_internal++;
+                        si++;
                         continue;
                     }
 
+                    int8_t read_direction = si->read_direction;
+
                     bool flipped_v = flags_isset(sprite->flags, SPRITEFLAG_FLIP_V);
-                    bool flipped_h = flags_isset(sprite->flags, SPRITEFLAG_FLIP_H);
 
-                    uint16_t sprite_width = ts->data.tile_width * px_width;
-
-                    uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
-                    int16_t sprite_x = sprite->x;
-                    int8_t read_direction = flipped_h ? -1 : 1;
-
-                    if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
-                    {
-                        sprite_x -= ts->data.tile_width_half * px_width;
-                    }
-                    else if (alignment_h == SPRITEFLAG_ALIGNH_RIGHT)
-                    {
-                        sprite_x -= sprite_width;
-                    }
-
-                    uint8_t line = flipped_v ? (offset_height - (y - sprite_y - offset_top) - 1) / px_height
-                                            : (y - sprite_y - offset_top) / px_height;
+                    uint8_t line = flipped_v ? (si->offset_height - (y - si->sprite_y - si->offset_top) - 1) / px_height
+                                            : (y - si->sprite_y - si->offset_top) / px_height;
 
                     // apply pixel-height
 
-                    uint8_t input_pixels_to_read = min(offset_width, SCREEN_WIDTH - sprite_x);
+                    uint8_t input_pixels_to_read = si->input_pixels_to_read;
 
-                    uint8_t *data = tile_ptr + line * offset_width;
+                    uint8_t *data = tile_ptr + line * si->offset_width;
+                    data += si->readbuf_offset;
 
-                    int16_t output_pixels_to_write;
-                    int8_t subpixel_left_to_write;
+                    write_buf = pixbuf + si->writebuf_offset;
 
-                    if (flipped_h)
-                    {
-                        data += offset_width - 1;
+                    uint8_t last_idx = *(data);
+                    data += read_direction;
+                    uint16_t color = color_palette[last_idx];
+
+                    switch(si->subpixel_left){
+                        case 8: *(write_buf++)=color;
+                        case 7: *(write_buf++)=color;
+                        case 6: *(write_buf++)=color;
+                        case 5: *(write_buf++)=color;
+                        case 4: *(write_buf++)=color;
+                        case 3: *(write_buf++)=color;
+                        case 2: *(write_buf++)=color;
+                        case 1: *(write_buf++)=color;
                     }
 
-                    if (sprite_x >= 0)
-                    {
-                        subpixel_left_to_write = px_width;
-                        write_buf = pixbuf + sprite_x + offset_left * px_width;
-                        output_pixels_to_write = min(offset_width * px_width, SCREEN_WIDTH - sprite_x); // TODO: Right-Border using offset-values
-                    }
-                    else
-                    {
-                        subpixel_left_to_write = px_width + sprite_x % px_width; // TODO: Left-Border using offset-values
-                        write_buf = pixbuf;
-                        output_pixels_to_write = offset_width + sprite_x - 1;
-                        data += sprite_x / px_width;
-                    }
-
+// ------ DEFINE ------------------------------------------------------
+#define DEFAULT_LOOP_LOGIC \
+                            idx = *(data); \
+                            if (idx!=last_idx){ \
+                                last_idx = idx; \
+                                color = color_palette[idx]; \
+                            } \
+                            data += read_direction; \
+                            if (idx==255) { \
+                                write_buf += px_width; \
+                                continue; \
+                            } \
+                            uint16_t color = color_palette[idx]; \
+// -------------------------------------------------------------------
                     uint8_t idx;
-                    while (input_pixels_to_read--)
-                    {
-                        idx = *(data);
-                        data += read_direction;
-                        uint16_t color = color_palette[idx];
-                        while (subpixel_left_to_write--)
+                    if (px_width==1){
+                        while (input_pixels_to_read--)
                         {
-                            if (idx == 255)
-                            {
-                                //-- DEBUG-TRANSPARENCY---------------
-                                //*(write_buf++)=color_palette[COL_RED];
-                                //------------------------------------
-                                write_buf++;
-                            }
-                            else
-                            {
-                                *(write_buf++) = color;
-                            }
-
-                            if (output_pixels_to_write-- == 0)
-                            {
-                                goto break_out;
-                            }
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;
                         }
-                        subpixel_left_to_write = px_width;
                     }
-                break_out:
-                    sprite++;
-                    sprite_internal++;
+                    else if (px_width==2){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==3){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==4){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==5){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            *(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==6){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            *(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==7){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+                    else if (px_width==8){
+                        while (input_pixels_to_read--)
+                        {
+                            DEFAULT_LOOP_LOGIC
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                        }
+                    }
+
                 }
+                sprite++;
+                si++;
                     
-                }
+            }
 
 
 
@@ -853,7 +814,7 @@ void gfx_renderqueue_add(ng_mem_block_t *renderblock)
 
 void gfx_renderqueue_wipe(void)
 {
-    for (int i = 0; i < GFX_RENDERQUEUE_MAX_ELEMENTS; i++)
+    for (uint8_t i = 0; i < GFX_RENDERQUEUE_MAX_ELEMENTS; i++)
     {
         renderqueue_request[i] = NULL;
     }

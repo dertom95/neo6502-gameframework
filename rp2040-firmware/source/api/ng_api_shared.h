@@ -75,10 +75,10 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 
 } gfx_pixelbuffer_t;
 
-#define SPRITEFLAG_INUSE  (1 << 0)
+#define SPRITEFLAG_READY  (1 << 0)
 #define SPRITEFLAG_FLIP_H (1 << 1)
 #define SPRITEFLAG_FLIP_V (1 << 2)
-
+#define SPRITEFLAG_DIRTY  (1 << 7)
 //TODO: hmm, maybe alignment is the wrong term? (right<->left mixed up). :thinking: doesn't matter for now
 #define SPRITEFLAG_ALIGNH_MASK   (3 << 3)
 #define SPRITEFLAG_ALIGNH_LEFT   (0 << 3)
@@ -90,9 +90,11 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 #define SPRITEFLAG_ALIGNV_CENTER (1 << 5)
 #define SPRITEFLAG_ALIGNV_BOTTOM (2 << 5)
 
+
 typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 	int16_t x;
 	int16_t y;
+    // b[7]   DIRTY (calculate internal data)
     // b[5-6] VERTICAL ALIGNMENT
     // b[3-4] HORIZONTAL ALIGNMENT
     // b[2]   FLIP_VERTICAL
