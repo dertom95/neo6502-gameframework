@@ -122,6 +122,11 @@ void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
     uint8_t px_width;
     uint8_t px_height;    
     flags_unpack_4_4(pixelbuffer->pixel_size, px_width, px_height);
+    
+    if (px_width==0){
+        return;
+    }
+
     pixelbuffer->full_width = pixelbuffer->width * px_width;
     if (pixelbuffer->x >= 0)
     {
@@ -137,6 +142,7 @@ void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
         pixelbuffer->readbuf_offset = -pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
     }
     pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width) + 1;    
+    flags_unset(pixelbuffer->flags,PXBFLAG_DIRTY);
 }
 
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer)

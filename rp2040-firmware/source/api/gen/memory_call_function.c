@@ -55,6 +55,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 27: {
+                call_gfx_sprite_apply_data_t* call = (call_gfx_sprite_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_sprite_apply_data( (gfx_sprite_t*)(&mem[ call->sprite ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 17: {
                 call_gfx_sprite_set_tileset_t* call = (call_gfx_sprite_set_tileset_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_sprite_set_tileset( (gfx_sprite_t*)(&mem[ call->sprite ]) ,   (gfx_tilesheet_data_t*)(&mem[ call->tsdata ]) ,    call->initial_tile_idx    );

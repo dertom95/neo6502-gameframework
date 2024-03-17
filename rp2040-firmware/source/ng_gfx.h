@@ -35,24 +35,30 @@ typedef struct gfx_internal_sprite_t {
     // runtime precalculation
     uint16_t sprite_height;
     uint16_t sprite_width;
+
     int16_t sprite_x;
     int16_t sprite_y;
 
+    int16_t  readbuf_offset;
+    int16_t  writebuf_offset;
+
     uint8_t input_pixels_to_read;
-    uint8_t read_direction;
+    int8_t read_direction;
+    
     uint8_t subpixel_left;    
     uint8_t subpixel_right;
     
-    int8_t  readbuf_offset;
-    int8_t  writebuf_offset;
     uint8_t format;
-
     uint8_t offset_left;
+
     uint8_t offset_top;
     uint8_t offset_right;
+
     uint8_t offset_bottom;
     uint8_t offset_width;
+
     uint8_t offset_height;
+    uint8_t __unusedfield; // padding
 } gfx_internal_sprite_t;
 
 

@@ -180,7 +180,8 @@ int mod_init(){
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_sprite_set_tileset(sprite_oldguy,&ts_oldguy,0);
-   // flags_set(sprite_oldguy->flags,SPRITEFLAG_FLIP_H);
+    flags_set(sprite_oldguy->flags,SPRITEFLAG_ALIGNH_RIGHT);
+    
 
     sprite_oldguy_anim = gfx_sprite_add_animator(sprite_oldguy,&anim4x3);
   //  flags_set(sprite_oldguy->flags, SPRITEFLAG_FLIP_H | SPRITEFLAG_FLIP_V | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER);
@@ -193,7 +194,7 @@ int mod_init(){
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
     gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_BACKWARDS | ANIMATIONFLAG_LOOP);
 
-    sprite_oldguy->x=50;
+    sprite_oldguy->x=128;
     sprite_oldguy->y=50;
     sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
     gfx_sprite_apply_data(sprite_oldguy);
@@ -201,27 +202,27 @@ int mod_init(){
     sprite_sword->x=40;
     sprite_sword->y=40;
     sprite_sword->pixel_size=flags_pack_4_4(1,1);
-    for (int i=0;i<6;i++){
-        gfx_sprite_t* spr = &sprites[i+3];
-        uint8_t tile_id = i+3;
-        gfx_sprite_set_tileset(spr,&ts_oldguy,tile_id);
-        spr->x=0;
-        spr->y=i*16;
-        // if (i % 2){
-        //     flags_set(spr->flags,SPRITEFLAG_FLIP_H);
-        // }
-        // if (i % 5){
-        //     flags_set(spr->flags,SPRITEFLAG_FLIP_V);
-        // }
-        //spr->pixel_size=flags_pack_4_4((random()%2+1),(random()%2+1));
-        //spr->pixel_size=flags_pack_4_4(i%2+1,i%2+1);
-        spr->pixel_size=flags_pack_4_4(1,1);
-        gfx_sprite_apply_data(spr);
-    }
+    // for (int i=0;i<6;i++){
+    //     gfx_sprite_t* spr = &sprites[i+3];
+    //     uint8_t tile_id = i+3;
+    //     gfx_sprite_set_tileset(spr,&ts_oldguy,tile_id);
+    //     spr->x=0;
+    //     spr->y=i*16;
+    //     // if (i % 2){
+    //     //     flags_set(spr->flags,SPRITEFLAG_FLIP_H);
+    //     // }
+    //     // if (i % 5){
+    //     //     flags_set(spr->flags,SPRITEFLAG_FLIP_V);
+    //     // }
+    //     //spr->pixel_size=flags_pack_4_4((random()%2+1),(random()%2+1));
+    //     //spr->pixel_size=flags_pack_4_4(i%2+1,i%2+1);
+    //     spr->pixel_size=flags_pack_4_4(1,1);
+    //     gfx_sprite_apply_data(spr);
+    // }
 
     sprite_potion->x=70;
     sprite_potion->y=0;
-    sprite_potion->pixel_size=flags_pack_4_4(3,3);
+    sprite_potion->pixel_size=flags_pack_4_4(1,1);
     sprite_potion_anim = gfx_sprite_add_animator(sprite_potion,&anim4);
     gfx_spriteanimator_set_animation(sprite_potion_anim, 0, ANIMATIONFLAG_LOOP);
     
@@ -229,7 +230,7 @@ int mod_init(){
     // sprite_strawberry->flags=0;
     // sprite_potion->flags=0;
 
-    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+   // gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
@@ -277,13 +278,13 @@ void mod_update() {
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
 
-    // sprite_oldguy->x=*mx;
-    // sprite_oldguy->y=*my;
-    // flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY);
+    sprite_oldguy->x=*mx;
+    sprite_oldguy->y=*my;
+    flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY | SPRITEFLAG_FLIP_H);
 
     
    // pixelbuffer.x=-*mx;
-    gfx_pixelbuffer_apply_data(&pixelbuffer);
+    //gfx_pixelbuffer_apply_data(&pixelbuffer);
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
@@ -344,8 +345,9 @@ void mod_update() {
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
-        gfx_pixelbuffer_set_active(&pixelbuffer);      
-        gfx_pixelbuffer_apply_data(&pixelbuffer);      
+        flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+        //gfx_pixelbuffer_set_active(&pixelbuffer);      
+        //gfx_pixelbuffer_apply_data(&pixelbuffer);      
     }
 }
 

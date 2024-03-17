@@ -48,6 +48,8 @@ typedef struct ng_mem_block_t
 // #define PXB_WRAPMODE(PXB_FLAG,MODE) \
 //     ((PXB_FLAG&~PXB_WRAPMODE_MASK)|MODE)
 
+#define PXBFLAG_DIRTY (1 << 0)
+
 typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 {
     uint8_t obj_id;
@@ -78,7 +80,10 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 #define SPRITEFLAG_READY  (1 << 0)
 #define SPRITEFLAG_FLIP_H (1 << 1)
 #define SPRITEFLAG_FLIP_V (1 << 2)
+// sprite data changed (e.g. position, pixel-size) and needs to be recalculated! This is mandatory for changes to showup
 #define SPRITEFLAG_DIRTY  (1 << 7)
+// the sprite is visible at the moment 
+#define SPRITEFLAG_VISIBLE (1 << 8) 
 //TODO: hmm, maybe alignment is the wrong term? (right<->left mixed up). :thinking: doesn't matter for now
 #define SPRITEFLAG_ALIGNH_MASK   (3 << 3)
 #define SPRITEFLAG_ALIGNH_LEFT   (0 << 3)
@@ -162,14 +167,14 @@ typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
 
 int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 
-#define flags_set(FLAGS,MASK) FLAGS |= MASK;
-#define flags_unset(FLAGS,MASK) FLAGS &= ~MASK;
-#define flags_isset(FLAGS,MASK) ((FLAGS & MASK)==MASK)
-#define flags_isset_some(FLAGS,MASK) ((FLAGS & MASK)>0)
+#define flags_set(FLAGS,MASK) FLAGS |= (MASK);
+#define flags_unset(FLAGS,MASK) FLAGS &= ~(MASK);
+#define flags_isset(FLAGS,MASK) ((FLAGS & (MASK))==(MASK))
+#define flags_isset_some(FLAGS,MASK) ((FLAGS & (MASK))>0)
 #define flags_pack_4_4(HIGH,LOW) ((HIGH)<<4)|(LOW)
 #define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15);
-#define flags_mask_value(INPUT,MASK) (INPUT&MASK)
-#define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&MASK)==VALUE)
+#define flags_mask_value(INPUT,MASK) (INPUT&(MASK))
+#define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&(MASK))==VALUE)
 
 #define MM_SB MEMORY_MAP_VARS_START /* memory-location where the memory-mapping starts */
 #define MM_LAST_KB_CHAR (MM_SB + 0x00)

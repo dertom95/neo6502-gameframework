@@ -190,6 +190,10 @@ void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_i
 
 void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
     flags_unset(sprite->flags,SPRITEFLAG_DIRTY);
+    if (sprite->x>SCREEN_WIDTH){
+        flags_unset(sprite->flags,SPRITEFLAG_VISIBLE); // not visible at the moment
+        return;
+    }
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
     gfx_internal_sprite_t* si = &spritebuffer->sprite_internals[sprite->sprite_idx];
     gfx_tilesheet_t* ts = si->tilesheet;
@@ -239,7 +243,6 @@ void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
     si->sprite_width = ts->data.tile_width * px_width;
 
     uint8_t alignment_h = flags_mask_value(sprite->flags, SPRITEFLAG_ALIGNH_MASK);
-    si->read_direction = flipped_h ? -1 : 1;
 
     if (alignment_h == SPRITEFLAG_ALIGNH_CENTER)
     {
@@ -250,23 +253,60 @@ void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
         si->sprite_x -= si->sprite_width;
     }
 
-    si->input_pixels_to_read = min(si->offset_width-1, SCREEN_WIDTH - si->sprite_x);
-
     if (flipped_h)
     {
         si->readbuf_offset = si->offset_width - 1;
+        si->read_direction = -1;
+    } else {
+        si->readbuf_offset = 0;
+        si->read_direction = 1;
     }
 
+    // TODO: This whole clipping procedure here just seems overdone and I feel as if there is much simpler solution!
     if (si->sprite_x >= 0)
     {
+        if (si->sprite_x > SCREEN_WIDTH) {
+            flags_unset(sprite->flags, SPRITEFLAG_VISIBLE); 
+        } else {
+            flags_set(sprite->flags, SPRITEFLAG_VISIBLE); 
+        }
+
         si->subpixel_left = px_width;
         si->writebuf_offset = si->sprite_x + si->offset_left * px_width;
+        si->input_pixels_to_read = min(si->offset_width-1, SCREEN_WIDTH - si->sprite_x);
     }
     else
     {
-        si->subpixel_left = px_width + si->sprite_x % px_width; // TODO: Left-Border using offset-values
-        si->writebuf_offset = 0;
-        si->readbuf_offset += si->sprite_x / px_width;
+        int8_t m = si->offset_left*px_width + si->sprite_x;
+
+        if (m>0){
+            // the offscreen part is not part of pixels
+            si->subpixel_left = px_width;
+            si->input_pixels_to_read = si->offset_width-1;
+            si->writebuf_offset += m;
+        } else {
+            // we need to cut away pixels
+            si->readbuf_offset += (-m / px_width) * si->read_direction; // TODO: check the direction-studd
+            
+            if (flipped_h){
+                int8_t read_px = si->readbuf_offset - 1;
+                if (read_px <= 0){
+                    flags_unset(sprite->flags, SPRITEFLAG_VISIBLE); // not visible! // TODO: Is there an earlier options to exit out?
+                } else {
+                    si->input_pixels_to_read = read_px;
+                    flags_set(sprite->flags, SPRITEFLAG_VISIBLE); 
+                }
+            } else {
+                if (si->readbuf_offset > si->offset_width){
+                    flags_unset(sprite->flags, SPRITEFLAG_VISIBLE); // not visible! // TODO: Is there an earlier options to exit out?
+                } else {
+                    flags_set(sprite->flags, SPRITEFLAG_VISIBLE); 
+                }
+                si->input_pixels_to_read = si->offset_width - si->readbuf_offset - 1;
+            }
+            si->subpixel_left = -m % px_width;
+            si->writebuf_offset = 0;
+        }
     }
     flags_set(sprite->flags,SPRITEFLAG_READY);
 }

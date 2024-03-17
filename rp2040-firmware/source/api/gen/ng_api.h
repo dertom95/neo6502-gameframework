@@ -38,6 +38,8 @@ void gfx_renderqueue_apply(void);
 uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
  // returns: void f-grp: f-id:21;
 void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
+ // returns: void f-grp: f-id:27;
+void    gfx_sprite_apply_data(gfx_sprite_t* sprite);
  // returns: void f-grp: f-id:17;
 void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
  // returns: void f-grp: f-id:18;
@@ -102,6 +104,11 @@ typedef struct call_gfx_spritebuffer_update_t {
     int16_t dt;
     uint8_t spritebuffer_id;
 } call_gfx_spritebuffer_update_t;
+// returns: void f-grp: f-id:27
+typedef struct call_gfx_sprite_apply_data_t {
+    call_header_t hdr;
+    uint16_t sprite;
+} call_gfx_sprite_apply_data_t;
 // returns: void f-grp: f-id:17
 typedef struct call_gfx_sprite_set_tileset_t {
     call_header_t hdr;

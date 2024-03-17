@@ -89,6 +89,22 @@ void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
 
     }
 }   
+// returns: void f-grp:1 f-id:27
+void    gfx_sprite_apply_data(gfx_sprite_t* sprite){
+    uint8_t result_code;
+    call_gfx_sprite_apply_data_t* func_data;
+    func_data = (call_gfx_sprite_apply_data_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 27;
+    func_data->sprite=(uint16_t) sprite;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: void f-grp:1 f-id:17
 void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx){
     uint8_t result_code;

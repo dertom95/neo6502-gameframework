@@ -61,7 +61,7 @@ static void callback_window_resized(int x, int y,void* data){
 
 void gfx_backend_init()
 {
-    pixbuf = ng_mem_allocate(SEGMENT_GFX_DATA,SCREEN_WIDTH*sizeof(uint16_t*));
+    pixbuf = ng_mem_allocate(SEGMENT_GFX_DATA,(SCREEN_WIDTH+12)*sizeof(uint16_t*));
     
     kinc_framebuffer_options_t framebuffer_opts;
     kinc_framebuffer_options_set_defaults(&framebuffer_opts);

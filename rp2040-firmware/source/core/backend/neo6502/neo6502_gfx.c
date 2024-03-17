@@ -95,7 +95,7 @@ static const struct dvi_serialiser_cfg _pico_neo6502_cfg = {
 
 //uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*2];
 // uint16_t  __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH*4];
-uint16_t __scratch_x("render") __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH+20];
+uint16_t /*__scratch_x("render")*/ __attribute__((aligned(4))) core1_scanbuf[FRAME_WIDTH+20];
 
 void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,uint8_t usage_type,void* data,uint32_t size){
 	bool success = ng_mem_allocate_block(segment_id,size,usage_type, block);

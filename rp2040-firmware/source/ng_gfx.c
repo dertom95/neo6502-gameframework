@@ -334,6 +334,7 @@ void __not_in_flash_func(gfx_render_scanline)(uint16_t *pixbuf, uint8_t y)
 void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 #endif
 {
+    uint16_t* end = pixbuf + SCREEN_WIDTH_HALF;
     //memset(pixbuf,color_palette[32],SCREEN_WIDTH*sizeof(uint16_t)); // make this a renderqueue-command
     memset(pixbuf,0,SCREEN_WIDTH_HALF *sizeof(uint32_t)); // make this a renderqueue-command
     
@@ -359,6 +360,10 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
             // TODO: MEMO to myself. This is just a first version, just finish and iterate over it.
             ng_mem_datablock_t *db = (ng_mem_datablock_t *)current_render_block;
             gfx_pixelbuffer_t *pixelbuffer = db->info;
+
+            if (flags_isset(pixelbuffer->flags,PXBFLAG_DIRTY)){
+                gfx_pixelbuffer_apply_data(pixelbuffer);
+            }
 
             uint8_t px_width;
             uint8_t px_height;
@@ -527,17 +532,18 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
             while (max_sprites--)
             {
-                if (!flags_isset(sprite->flags,SPRITEFLAG_READY))
+                
+                if (flags_isset(sprite->flags,SPRITEFLAG_DIRTY)){
+                    gfx_sprite_apply_data(sprite);
+                }   
+
+                if (!flags_isset(sprite->flags,SPRITEFLAG_READY|SPRITEFLAG_VISIBLE))
                 {
                     sprite++;
                     si++;
                     continue;
                 }
-
-                if (flags_isset(sprite->flags,SPRITEFLAG_DIRTY)){
-                    gfx_sprite_apply_data(sprite);
-                }                
-
+             
                 gfx_tilesheet_t *ts = si->tilesheet;
 
                 uint8_t px_width;
@@ -820,6 +826,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         }
                     }
 
+                }
+                if ((uintptr_t)write_buf>(uintptr_t)end){
+                    int a=0;
                 }
                 sprite++;
                 si++;
