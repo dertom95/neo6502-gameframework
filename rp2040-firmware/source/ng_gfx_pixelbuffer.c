@@ -119,29 +119,49 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 
 void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
 {
+    if (pixelbuffer->x > SCREEN_WIDTH){
+        flags_unset(pixelbuffer->flags,PXBFLAG_VISIBLE);
+        return;
+    }
+    
     uint8_t px_width;
     uint8_t px_height;    
     flags_unpack_4_4(pixelbuffer->pixel_size, px_width, px_height);
     
-    if (px_width==0){
+    if (px_width==0 || px_height==0){
+        flags_unset(pixelbuffer->flags,PXBFLAG_VISIBLE);
         return;
     }
 
-    pixelbuffer->full_width = pixelbuffer->width * px_width;
+    uint16_t fw = pixelbuffer->full_width = pixelbuffer->width * px_width;
+    if (pixelbuffer->x+fw<0){
+        flags_unset(pixelbuffer->flags,PXBFLAG_VISIBLE);
+        return;
+    }
+
+    flags_set(pixelbuffer->flags,PXBFLAG_VISIBLE);
+    
     if (pixelbuffer->x >= 0)
     {
         pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
         pixelbuffer->output_subpixels_start = px_width;
         pixelbuffer->writebuf_offset = pixelbuffer->x;
+        pixelbuffer->readbuf_offset = 0;
+        pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width);    
     }
     else
     {
         // the pixelbuffer.x is negative
-        pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width + pixelbuffer->x - 1,SCREEN_WIDTH-1);
         pixelbuffer->output_subpixels_start = px_width + pixelbuffer->x % px_width; // start inbetween a subpixel
-        pixelbuffer->readbuf_offset = -pixelbuffer->x / px_width;                     // move forward(!) to the start-pixel (right side is negative)
+
+        pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width + pixelbuffer->x,SCREEN_WIDTH) - 1;
+        pixelbuffer->readbuf_offset = -pixelbuffer->x / px_width;                    
+        pixelbuffer->writebuf_offset = 0;
+        pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width);    
     }
-    pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width) + 1;    
+
+    printf("px:%d input_pixels_to_read:%d roffset:%d\n",pixelbuffer->x,pixelbuffer->input_pixels_to_read,pixelbuffer->readbuf_offset);
+
     flags_unset(pixelbuffer->flags,PXBFLAG_DIRTY);
 }
 

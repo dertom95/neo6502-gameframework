@@ -49,6 +49,7 @@ typedef struct ng_mem_block_t
 //     ((PXB_FLAG&~PXB_WRAPMODE_MASK)|MODE)
 
 #define PXBFLAG_DIRTY (1 << 0)
+#define PXBFLAG_VISIBLE (1 << 1)
 
 typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 {
@@ -61,20 +62,21 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint16_t width;
     uint16_t height;
 
-    uint8_t pixel_size;
-    uint8_t flags;
+    uint16_t flags;
     // runtime-data. after changing values you need to apply
     uint16_t full_width;
-    
 
     uint16_t output_pixels_to_write;
     uint8_t output_subpixels_start;
     uint8_t output_subpixels_end;
     
     uint16_t input_pixels_to_read;
-    int8_t readbuf_offset;
-    int8_t writebuf_offset;
+    int16_t writebuf_offset;
 
+    uint16_t readbuf_offset;
+    
+    uint8_t pixel_size;
+    uint8_t __unused;
 } gfx_pixelbuffer_t;
 
 #define SPRITEFLAG_READY  (1 << 0)

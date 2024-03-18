@@ -143,7 +143,7 @@ void main_loop(void* data)
         if (tick_counter < frame_len){
             continue;
         }
-        //gfx_update();
+        gfx_update();
 
         io_before_tick();
     // gfx_draw();

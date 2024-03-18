@@ -51,7 +51,7 @@ keyboard_mapping_t kbm={
 gfx_pixelbuffer_t pixelbuffer = {
     .width=160,
     .height=120,
-    .x=0,
+    .x=50,
     .y=0,
     .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
@@ -160,21 +160,21 @@ int mod_init(){
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
-    for(uint16_t y=0;y<120;y+=2){
+    for(uint16_t y=0;y<120;y+=1){
         for (uint16_t x=0;x<160;x++){
-            gfx_draw_pixel(x,y,x+y);
+            gfx_draw_pixel(x,y,COL_LIGHTGREY);
         }
     }
 
-    // gfx_draw_pixel(0,0,COL_ORANGE);
-    // gfx_draw_pixel(159,0,COL_ORANGE);
-    // gfx_draw_pixel(159,119,COL_ORANGE);
-    // gfx_draw_pixel(0,119,COL_ORANGE);
+    gfx_draw_pixel(0,0,COL_RED);
+    gfx_draw_pixel(159,0,COL_GREEN);
+    gfx_draw_pixel(159,119,COL_GREEN);
+    gfx_draw_pixel(0,119,COL_RED);
 
-    // gfx_draw_pixel(1,1,COL_GREEN);
-    // gfx_draw_pixel(158,1,COL_GREEN);
-    // gfx_draw_pixel(158,118,COL_GREEN);
-    // gfx_draw_pixel(1,118,COL_GREEN);
+    // gfx_draw_pixel(1,1,COL_RED);
+    // gfx_draw_pixel(158,1,COL_RED);
+    // gfx_draw_pixel(158,118,COL_RED);
+    // gfx_draw_pixel(1,118,COL_RED);
 
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
@@ -196,7 +196,7 @@ int mod_init(){
 
     sprite_oldguy->x=128;
     sprite_oldguy->y=50;
-    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
+    sprite_oldguy->pixel_size=flags_pack_4_4(5,5);
     gfx_sprite_apply_data(sprite_oldguy);
 
     sprite_sword->x=40;
@@ -230,7 +230,7 @@ int mod_init(){
     // sprite_strawberry->flags=0;
     // sprite_potion->flags=0;
 
-   // gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
@@ -240,7 +240,7 @@ int mod_init(){
     int a=0;
 }
 
-
+uint16_t last_x =0;
 void mod_update() {
     // TODO: implement some kind of sleep
     
@@ -278,13 +278,19 @@ void mod_update() {
     // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
     //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
 
-    sprite_oldguy->x=*mx;
-    sprite_oldguy->y=*my;
-    flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY | SPRITEFLAG_FLIP_H);
+    // sprite_oldguy->x=*mx;
+    // sprite_oldguy->y=*my;
+    // flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY | SPRITEFLAG_FLIP_H);
 
     
-   // pixelbuffer.x=-*mx;
-    //gfx_pixelbuffer_apply_data(&pixelbuffer);
+    if (last_x!=*mx){
+        last_x=*mx;
+        pixelbuffer.x=-80+*mx;
+    // pixelbuffer.x=-50+*mx;
+        //printf("pxb-x:%d\n",pixelbuffer.x);
+        flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+       // gfx_pixelbuffer_apply_data(&pixelbuffer);
+    }
 
     ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
@@ -345,9 +351,9 @@ void mod_update() {
 
     if (changed){
         pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
-        flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+        //flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
         //gfx_pixelbuffer_set_active(&pixelbuffer);      
-        //gfx_pixelbuffer_apply_data(&pixelbuffer);      
+        gfx_pixelbuffer_apply_data(&pixelbuffer);      
     }
 }
 
