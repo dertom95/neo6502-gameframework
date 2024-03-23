@@ -176,7 +176,7 @@ void main_loop(void* data)
 kinc_thread_t logic_thread;
 
 void graphics_loop(void* data){
-    gfx_update();
+    gfx_backend_update();
 }
 
 int kickstart(int argc, char **argv){

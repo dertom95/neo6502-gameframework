@@ -117,7 +117,7 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 	}
 }
 
-void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pixelbuffer)
+void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pixelbuffer)
 {
     if (pixelbuffer->x > SCREEN_WIDTH){
         flags_unset(pixelbuffer->flags,PXBFLAG_VISIBLE);

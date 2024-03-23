@@ -318,40 +318,39 @@ void gfx_draw()
 {
 }
 
-void _update_pixelbuffers(void){
-    for (uint8_t idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
-        {
-            ng_mem_block_t *current_render_block = renderqueue_current[idx];
-            if (current_render_block == NULL)
-            {
-                break;
-            }
+// void _update_pixelbuffers(void){
+//     for (uint8_t idx = 0; idx < GFX_RENDERQUEUE_MAX_ELEMENTS; idx++)
+//         {
+//             ng_mem_block_t *current_render_block = renderqueue_current[idx];
+//             if (current_render_block == NULL)
+//             {
+//                 break;
+//             }
 
-            uint8_t usage = ng_memblock_get_usage(current_render_block);
+//             uint8_t usage = ng_memblock_get_usage(current_render_block);
 
-            switch (usage)
-            {
-                case MEM_USAGE_PIXELBUFFER:
-                {
-                    // █▀█ █ ▀▄▀ █▀▀ █░░ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
-                    // █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄
+//             switch (usage)
+//             {
+//                 case MEM_USAGE_PIXELBUFFER:
+//                 {
+//                     // █▀█ █ ▀▄▀ █▀▀ █░░ █▄▄ █░█ █▀▀ █▀▀ █▀▀ █▀█
+//                     // █▀▀ █ █░█ ██▄ █▄▄ █▄█ █▄█ █▀░ █▀░ ██▄ █▀▄
 
-                    // TODO: MEMO to myself. This is just a first version, just finish and iterate over it.
-                    ng_mem_datablock_t *db = (ng_mem_datablock_t *)current_render_block;
-                    gfx_pixelbuffer_t *pixelbuffer = db->info;
+//                     // TODO: MEMO to myself. This is just a first version, just finish and iterate over it.
+//                     ng_mem_datablock_t *db = (ng_mem_datablock_t *)current_render_block;
+//                     gfx_pixelbuffer_t *pixelbuffer = db->info;
 
-                    if (flags_isset(pixelbuffer->flags,PXBFLAG_DIRTY)){
-                        gfx_pixelbuffer_apply_data(pixelbuffer);
-                    }
-                }
-            }
-        }
-}
+//                     if (flags_isset(pixelbuffer->flags,PXBFLAG_DIRTY)){
+//                         gfx_pixelbuffer_apply_data(pixelbuffer);
+//                     }
+//                 }
+//             }
+//         }
+// }
 
 void gfx_update(void)
 {
-    _update_pixelbuffers();
-    gfx_backend_update();
+    //_update_pixelbuffers();
 }
 
 // ------------------------
@@ -394,6 +393,10 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
 
                 if (!flags_isset(pixelbuffer->flags,PXBFLAG_VISIBLE)){
                     break;
+                }
+
+                if (flags_isset(pixelbuffer->flags,PXBFLAG_DIRTY)){
+                    gfx_pixelbuffer_apply_data(pixelbuffer);
                 }
 
                 uint8_t px_width;
