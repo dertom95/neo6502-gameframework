@@ -140,7 +140,7 @@ void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 /*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
 /*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 /*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
-/*api:1:26*/void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb);
+/*api:1:26*/void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb);
 
 // 🇵​​​​​🇽​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​ - 🇨​​​​​🇦​​​​​🇳​​​​​🇻​​​​​🇦​​​​​🇸​​​​​ 🇴​​​​​🇵​​​​​🇪​​​​​🇷​​​​​🇦​​​​​🇹​​​​​🇮​​​​​🇴​​​​​🇳​​​​​
 /*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
@@ -159,6 +159,7 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
+
 
 
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 1:27

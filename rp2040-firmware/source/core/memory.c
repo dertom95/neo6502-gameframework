@@ -110,7 +110,7 @@ void __not_in_flash_func(memory_write_data)(uint16_t address,uint8_t data) {
   mem[address]=data;
 }
 
-uint8_t* memory_resolve_address(uint16_t address){
+uint8_t* __not_in_flash_func(memory_resolve_address)(uint16_t address){
   if (address >= MEMORY_MAP_FUNC_START && address <= MEMORY_MAP_FUNC_END){
     return NULL;
   }

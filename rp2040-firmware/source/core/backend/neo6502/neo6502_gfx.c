@@ -103,7 +103,7 @@ void neo6502_copy_from_flash_to_ram(ng_mem_block_t* block, uint8_t segment_id,ui
 	memcpy(block->data,data,size);
 }
 
-void encode_scanline(uint16_t *pixbuf, uint32_t *tmdsbuf) {
+void __not_in_flash_func(encode_scanline)(uint16_t *pixbuf, uint32_t *tmdsbuf) {
 	uint pixwidth = dvi0.timing->h_active_pixels;
 	uint16_t pw2 = pixwidth >> 1;
     uint words_per_channel = pw2;
@@ -137,31 +137,6 @@ void __not_in_flash_func(core1_main()) {
     uint16_t *pixbuf;
    	while (1) {
 		for (uint y = 0; y < FRAME_HEIGHT; y ++) {
-            // bool blocked = queue_try_remove_u32(&dvi0.q_tmds_free,&tmds0);
-            // if (blocked){
-            //     queue_remove_blocking_u32(&cache_free,&pixbuf);
- 	        //     gfx_render_scanline(pixbuf, y);
-            //     queue_add_blocking_u32(&cache_filled,pixbuf);
-            //     continue;
-            // }
-            // //queue_remove_blocking_u32(&dvi0.q_tmds_free, &tmds0);
- 	
-            // if (requested_renderqueue_apply){
-            //     requested_renderqueue_apply = false;
-            //     ng_mem_block_t** save_current = renderqueue_current;
-            //     renderqueue_current = renderqueue_request;
-            //     renderqueue_request = save_current;
-            // }
-
-            // bool found = queue_try_remove_u32(&cache_filled,&pixbuf);
-            // if (found){
-    		// 	encode_scanline(pixbuf, tmds0);
-            // } else {
-     	    //     gfx_render_scanline(core1_scanbuf, y);
-            //     encode_scanline(core1_scanbuf, tmds0);
-            // }
-            // queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);
-
             queue_remove_blocking_u32(&dvi0.q_tmds_free,&tmds0);
  	
             if (requested_renderqueue_apply){
@@ -181,37 +156,6 @@ void __not_in_flash_func(core1_main()) {
 	__builtin_unreachable();
 }
 
-/// @brief callback to render current scanline
-/// @param  
-/// @return 
-void __not_in_flash_func(core1_scanline_callback)() {
-	// Discard any scanline pointers passed back
-	uint16_t *bufptr;
-	queue_try_remove_u32(&dvi0.q_colour_free, &bufptr);
-	// // Note first two scanlines are pushed before DVI start
-	static uint scanline = 2;
-	//bufptr = &framebuf[FRAME_WIDTH * scanline];
- 	
-	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; 
-	queue_add_blocking_u32(&dvi0.q_colour_valid, &bufptr);
-
-	if (requested_renderqueue_apply){
-		requested_renderqueue_apply = false;
-		ng_mem_block_t** save_current = renderqueue_current;
-		renderqueue_current = renderqueue_request;
-		renderqueue_request = save_current;
-	}
-
-	scanline++;
-	if (scanline >= FRAME_HEIGHT){
-		frame++;
-		scanline = 0;
-	}
-	
-	bufptr = &core1_scanbuf[(scanline & 1)*FRAME_WIDTH]; // alternate between odd or even intermediate lines encoded in 565-format
- 	gfx_render_scanline(bufptr, scanline);
-}
-
 void gfx_backend_init()
 {
  	vreg_set_voltage(VREG_VSEL);
@@ -228,7 +172,6 @@ void gfx_backend_init()
 
 	dvi0.timing = &DVI_TIMING;
 	dvi0.ser_cfg = _pico_neo6502_cfg;
-	//dvi0.scanline_callback = core1_scanline_callback;
 	dvi_init(&dvi0, next_striped_spin_lock_num(), next_striped_spin_lock_num());
 
 	// Once we've given core 1 the framebuffer, it will just keep on displaying

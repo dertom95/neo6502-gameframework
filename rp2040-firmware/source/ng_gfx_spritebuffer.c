@@ -63,7 +63,7 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
     return spritebuffer_id;
 }
 
-void  gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
+void  __not_in_flash_func(gfx_spritebuffer_update)(int16_t dt,uint8_t spritebuffer_id){
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(spritebuffer_id);
     
     uint8_t amount = spritebuffer->amount_sprites;
@@ -81,7 +81,7 @@ void  gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
 // -------------
 // 🇸​​​​​🇵​​​​​🇷​​​​​🇮​​​​​🇹​​​​​🇪​​​​​
 // -------------
-void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_internal, uint8_t tile_idx){
+void __not_in_flash_func(_gfx_sprite_set_tileid)(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_internal, uint8_t tile_idx){
 	assert(sprite_internal->tilesheet!=NULL && "no tilesheet set for sprite!");
     assert(tile_idx < sprite_internal->tilesheet->data.tile_amount && "exceeded tile-id");
     
@@ -188,7 +188,7 @@ void _gfx_sprite_set_tileid(gfx_sprite_t* sprite,gfx_internal_sprite_t* sprite_i
 
 */
 
-void gfx_sprite_apply_data(gfx_sprite_t* sprite) {
+void __not_in_flash_func(gfx_sprite_apply_data)(gfx_sprite_t* sprite) {
     flags_unset(sprite->flags,SPRITEFLAG_DIRTY);
     if (sprite->x>SCREEN_WIDTH){
         flags_unset(sprite->flags,SPRITEFLAG_VISIBLE); // not visible at the moment
@@ -324,7 +324,7 @@ void gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, 
     _gfx_sprite_set_tileid(sprite, sprite_internal, initial_tile_idx);
 }
 
-void gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx){
+void __not_in_flash_func(gfx_sprite_set_tileid)(gfx_sprite_t* sprite,uint8_t tile_idx){
     assert(sprite!=NULL);
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
 
@@ -353,7 +353,7 @@ bool gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type){
 }
 
 
-void _internal_gfx_sprite_update(gfx_sprite_t* sprite, gfx_internal_sprite_t* sprite_internal, uint16_t dt)
+void __not_in_flash_func(_internal_gfx_sprite_update)(gfx_sprite_t* sprite, gfx_internal_sprite_t* sprite_internal, uint16_t dt)
 {
     // TODO: add flag that indicates it has extensions to be updated
     gfx_extension_header_t* extension = sprite_internal->extensions;

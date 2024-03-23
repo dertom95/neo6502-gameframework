@@ -160,7 +160,7 @@ void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pixelbuf
         pixelbuffer->input_pixels_to_read = (pixelbuffer->output_pixels_to_write / px_width);    
     }
 
-    printf("px:%d input_pixels_to_read:%d roffset:%d\n",pixelbuffer->x,pixelbuffer->input_pixels_to_read,pixelbuffer->readbuf_offset);
+    //printf("px:%d input_pixels_to_read:%d roffset:%d\n",pixelbuffer->x,pixelbuffer->input_pixels_to_read,pixelbuffer->readbuf_offset);
 
     flags_unset(pixelbuffer->flags,PXBFLAG_DIRTY);
 }

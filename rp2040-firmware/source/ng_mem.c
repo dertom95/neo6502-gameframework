@@ -93,7 +93,7 @@ bool ng_mem_allocate_block(uint8_t segment_id,uint32_t size, uint8_t usage_type,
     return true;
 }
 
-uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block)
+uint8_t  __not_in_flash_func(ng_memblock_get_usage)(ng_mem_block_t* mem_block)
 {
     uint8_t result = (uint8_t)(mem_block->flags & MEMBLOCK_USAGE_MASK);
     return result;
