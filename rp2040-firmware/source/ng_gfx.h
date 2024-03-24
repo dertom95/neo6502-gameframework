@@ -13,11 +13,22 @@
 
 #define TILESHEET_FORMAT_INDEXED = 1
 
+
 typedef struct gfx_tilesheet_t {
     gfx_tilesheet_data_t data;
 	uint8_t** cached_tile_ptrs; // array of pointers to the 'cached' tiles. in pico these should be in RAM in x86 we can just point to the raw data
 	uint8_t* tilesheet_data_raw;
 } gfx_tilesheet_t;
+
+// data to the current tilesheet to be used for painting into the current pixelbuffer
+typedef struct gfx_tilesheet_current_info_t {
+    gfx_tilesheet_t* ts;
+    uint8_t px_width;
+    uint8_t px_height;
+    uint16_t tile_width;
+    uint16_t tile_height;
+} gfx_tilesheet_current_info_t;
+
 
 #define GFX_EXTENSION_SPRITEANIMATOR 1
 
@@ -159,9 +170,12 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
+/*api:1:28*/void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
+/*api:1:29*/void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);
+/*api:1:30*/void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
+/*api:1:31*/void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap);
 
 
-
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:27
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:31
 
 #endif 

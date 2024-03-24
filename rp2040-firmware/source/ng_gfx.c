@@ -435,7 +435,8 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     uint16_t input_pixels_to_read = pixelbuffer->input_pixels_to_read;
                     // point to the beginning of the pixelbuffer
                     // TODO: divison by bitshifting only for pow2
-                    uint8_t *read_buffer = db->mem.data + (pixel_y >> (px_height-1)) * pixelbuffer->width;
+//                    uint8_t *read_buffer = db->mem.data + (pixel_y >> (px_height-1)) * pixelbuffer->width;
+                    uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
                     read_buffer += pixelbuffer->readbuf_offset;
                     write_buf += pixelbuffer->writebuf_offset;
 

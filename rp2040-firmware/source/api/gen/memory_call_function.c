@@ -150,8 +150,8 @@ uint8_t call_function()
             }
 
             case 26: {
-                call_gfx_pixelbuffer_apply_data_t* call = (call_gfx_pixelbuffer_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_pixelbuffer_apply_data( (gfx_pixelbuffer_t*)(&mem[ call->pxb ])   );
+                call___not_in_flash_func_t* call = (call___not_in_flash_func_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  __not_in_flash_func();
 
                 return FUNCTION_RETURN_OK;
             }
@@ -211,6 +211,34 @@ uint8_t call_function()
             case 14: {
                 call_gfx_draw_text_t* call = (call_gfx_draw_text_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 28: {
+                call_gfx_tilesheet_current_set_pixel_size_t* call = (call_gfx_tilesheet_current_set_pixel_size_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_tilesheet_current_set_pixel_size(  call->px_width  ,    call->px_height    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 29: {
+                call_gfx_tilesheet_current_set_t* call = (call_gfx_tilesheet_current_set_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_tilesheet_current_set( (gfx_tilesheet_data_t*)(&mem[ call->tsdata ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 30: {
+                call_gfx_draw_tile_t* call = (call_gfx_draw_tile_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_tile(  call->x  ,    call->y  ,    call->tile_number    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 31: {
+                call_gfx_draw_tilemap_t* call = (call_gfx_draw_tilemap_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_tilemap(  call->x  ,    call->y  ,   (gfx_tilemap_data_t*)(&mem[ call->tilemap ])   );
 
                 return FUNCTION_RETURN_OK;
             }

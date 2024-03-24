@@ -142,7 +142,7 @@ typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
 //           The data for the tilesheets is created by the exporter. 
 //           If you change this struct you also have to modify the exporter (ng_tool_tilesheet.py: encode_tiles(..) )
 //           IMPORTANT: if add/removing to this struct you also need to maintain GFX_TILESHEET_DATA_SIZE-define (see below)
-typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
+typedef struct __align4 gfx_tilesheet_data_t{
 	uint8_t type;
 	uint8_t tile_width;
 	uint8_t tile_height;
@@ -155,11 +155,17 @@ typedef struct  __attribute__((aligned(4))) gfx_tilesheet_data_t{
 	uint8_t flags;
     uint8_t ts_id;
 } gfx_tilesheet_data_t;
-// if you add or remove data to gfx_tilesheet_data_t you need to count the bytes and maintain following define.
-// using sizeof(..) might result to inconsistent results due to alignment and padding!
-#define GFX_TILESHEET_DATA_SIZE 10
 
-
+typedef struct __align4 gfx_tilemap_data_t {
+    // amount of tiles horizontally
+    uint8_t width;
+    // amount of tiles vertically
+    uint8_t height;
+    // the tilesheet
+    uint8_t tilesheet_id;
+    // the data
+    uint8_t data[];
+} gfx_tilemap_data_t;
 
 #if _MOD_NATIVE_
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))

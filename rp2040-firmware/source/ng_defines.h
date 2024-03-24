@@ -25,6 +25,7 @@ typedef uint8_t* US_ADDRESS;
 # define swap16(val) (val << 8) | (val >> 8)
 #endif
 
+#define __align4 __attribute__((aligned(4)))
 
 #ifdef PICO_NEO6502
 # include "pico/platform.h"

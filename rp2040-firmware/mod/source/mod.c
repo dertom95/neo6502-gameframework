@@ -97,6 +97,7 @@ gfx_sprite_animator_t anim4={
 };
 
 
+
 uint8_t spritebuffer;
 
 uint8_t kX=0,kY=0;
@@ -111,6 +112,19 @@ uint8_t px_height;
 gfx_tilesheet_data_t ts_misc;
 gfx_tilesheet_data_t ts_oldguy;
 
+
+
+gfx_tilemap_data_t tilemap = {
+    .width=5,
+    .height=5,
+    .data={
+        1,1,1,1,1,
+        2,2,2,2,2,
+        1,1,1,1,1,
+        2,2,2,2,2,
+        1,1,1,1,1,
+    }
+};
 
 #define SPRITE_AMOUNT 16
 gfx_sprite_t sprites[SPRITE_AMOUNT];
@@ -130,7 +144,7 @@ int random() {
     return (unsigned int)(seed / 65536) % 32768;
 }
 
-
+int16_t x=0;
 
 int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
@@ -141,6 +155,9 @@ int mod_init(){
 
     asset_get_tilesheet(&ts_oldguy,ASSET_OLD_GUY);
     asset_get_tilesheet(&ts_misc,ASSET_SPRITES_MISC);
+    tilemap.tilesheet_id=ts_misc.ts_id;
+
+    gfx_tilesheet_current_set(&ts_misc);
 
     io_keyboardmapping_register(&kbm,1);
 
@@ -176,6 +193,11 @@ int mod_init(){
     // gfx_draw_pixel(158,118,COL_RED);
     // gfx_draw_pixel(1,118,COL_RED);
 
+    // gfx_draw_tile(10,10,1);
+    // gfx_draw_tile(30,30,2);
+    // gfx_draw_tile(50,10,3);
+
+    gfx_draw_tilemap(10,10,&tilemap);
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
@@ -296,9 +318,10 @@ void mod_update() {
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
 
     if ((kbm.key_pressed & KEY_LEFT)>0){
-        if (px_width>0){
-            px_width--;
-        }
+        x--;
+        // if (px_width>0){
+        //     px_width--;
+        // }
         //pixelbuffer.x--;
         changed=true;
 
@@ -308,9 +331,10 @@ void mod_update() {
         // changed=true;
     }
     if ((kbm.key_pressed & KEY_RIGHT)>0){
-        if (px_width<15){
-            px_width++;
-        }
+        x++;
+        // if (px_width<15){
+        //     px_width++;
+        // }
         // if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
         //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
         // }
@@ -350,10 +374,12 @@ void mod_update() {
     kbm.key_pressed=0;
 
     if (changed){
-        pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
+        //pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
         //flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
         //gfx_pixelbuffer_set_active(&pixelbuffer);      
-        gfx_pixelbuffer_apply_data(&pixelbuffer);      
+        //gfx_pixelbuffer_apply_data(&pixelbuffer);      
+        gfx_draw_tilemap(x,10,&tilemap);
+
     }
 }
 

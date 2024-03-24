@@ -312,13 +312,12 @@ void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
     }
 }   
 // returns: void f-grp:1 f-id:26
-void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb){
+void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb){
     uint8_t result_code;
-    call_gfx_pixelbuffer_apply_data_t* func_data;
-    func_data = (call_gfx_pixelbuffer_apply_data_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call___not_in_flash_func_t* func_data;
+    func_data = (call___not_in_flash_func_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 26;
-    func_data->pxb=(uint16_t) pxb;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -460,6 +459,75 @@ void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx){
     func_data->y= y;
     func_data->txt=(uint16_t) txt;
     func_data->color_idx= color_idx;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:28
+void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height){
+    uint8_t result_code;
+    call_gfx_tilesheet_current_set_pixel_size_t* func_data;
+    func_data = (call_gfx_tilesheet_current_set_pixel_size_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 28;
+    func_data->px_width= px_width;
+    func_data->px_height= px_height;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:29
+void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata){
+    uint8_t result_code;
+    call_gfx_tilesheet_current_set_t* func_data;
+    func_data = (call_gfx_tilesheet_current_set_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 29;
+    func_data->tsdata=(uint16_t) tsdata;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:30
+void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number){
+    uint8_t result_code;
+    call_gfx_draw_tile_t* func_data;
+    func_data = (call_gfx_draw_tile_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 30;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->tile_number= tile_number;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:31
+void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap){
+    uint8_t result_code;
+    call_gfx_draw_tilemap_t* func_data;
+    func_data = (call_gfx_draw_tilemap_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 31;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->tilemap=(uint16_t) tilemap;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

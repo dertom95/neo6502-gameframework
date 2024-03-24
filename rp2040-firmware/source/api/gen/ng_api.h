@@ -65,7 +65,7 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
  // returns: void f-grp: f-id:13;
 void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination);
  // returns: void f-grp: f-id:26;
-void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb);
+void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -82,6 +82,14 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
  // returns: void f-grp: f-id:14;
 void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
+ // returns: void f-grp: f-id:28;
+void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
+ // returns: void f-grp: f-id:29;
+void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);
+ // returns: void f-grp: f-id:30;
+void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
+ // returns: void f-grp: f-id:31;
+void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -181,10 +189,9 @@ typedef struct call_gfx_pixelbuffer_mount_t {
     uint16_t destination;
 } call_gfx_pixelbuffer_mount_t;
 // returns: void f-grp: f-id:26
-typedef struct call_gfx_pixelbuffer_apply_data_t {
+typedef struct call___not_in_flash_func_t {
     call_header_t hdr;
-    uint16_t pxb;
-} call_gfx_pixelbuffer_apply_data_t;
+} call___not_in_flash_func_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;
@@ -236,6 +243,31 @@ typedef struct call_gfx_draw_text_t {
     uint16_t txt;
     uint8_t color_idx;
 } call_gfx_draw_text_t;
+// returns: void f-grp: f-id:28
+typedef struct call_gfx_tilesheet_current_set_pixel_size_t {
+    call_header_t hdr;
+    uint8_t px_width;
+    uint8_t px_height;
+} call_gfx_tilesheet_current_set_pixel_size_t;
+// returns: void f-grp: f-id:29
+typedef struct call_gfx_tilesheet_current_set_t {
+    call_header_t hdr;
+    uint16_t tsdata;
+} call_gfx_tilesheet_current_set_t;
+// returns: void f-grp: f-id:30
+typedef struct call_gfx_draw_tile_t {
+    call_header_t hdr;
+    int16_t x;
+    int16_t y;
+    uint8_t tile_number;
+} call_gfx_draw_tile_t;
+// returns: void f-grp: f-id:31
+typedef struct call_gfx_draw_tilemap_t {
+    call_header_t hdr;
+    int16_t x;
+    int16_t y;
+    uint16_t tilemap;
+} call_gfx_draw_tilemap_t;
 
 // function grp: 2
 

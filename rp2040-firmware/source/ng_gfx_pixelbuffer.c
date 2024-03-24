@@ -303,3 +303,97 @@ void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format,
 	}
 }
 
+gfx_tilesheet_current_info_t current_tilesheet_info;
+
+
+void _gfx_tilesheet_prepare_info(void){
+    assert(current_tilesheet_info.ts!=NULL);
+    gfx_tilesheet_current_info_t* cur = &current_tilesheet_info;
+    cur->tile_height = cur->px_height * cur->ts->data.tile_height;
+    cur->tile_width  = cur->px_width * cur->ts->data.tile_width;
+}
+
+void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height){
+    current_tilesheet_info.px_width = px_width;
+    current_tilesheet_info.px_height = px_height;
+    if (current_tilesheet_info.ts!=NULL){
+        _gfx_tilesheet_prepare_info();
+    }
+}
+
+void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata){
+    gfx_tilesheet_t* ts = id_get_ptr(tsdata->ts_id);
+    current_tilesheet_info.ts = ts;
+    _gfx_tilesheet_prepare_info();
+}
+
+void gfx_draw_tile(int16_t _x, int16_t _y, uint8_t tile_number) {
+    assert(current_tilesheet_info.ts!=NULL && "NO TILESHEET SET!");
+
+    gfx_tilesheet_t* ts = current_tilesheet_info.ts;
+    gfx_tilesheet_data_t* tsdata = &ts->data;
+
+    uint8_t *tile_ptr = gfx_tilesheet_get_chached_tile(ts,tile_number);
+
+    uint8_t format = flags_mask_value(tsdata->type, ASSET_TYPE_FILEFORMAT_MASK);
+    uint8_t offset_left = 0;
+    uint8_t offset_top = 0;
+    uint8_t offset_right = 0;
+    uint8_t offset_bottom = 0;
+    uint8_t offset_width = ts->data.tile_width;
+    uint8_t offset_height = ts->data.tile_height;
+    if (format == ASSET_TYPE_FILEFORMAT_2)
+    {
+        uint8_t oX = *(tile_ptr++);
+        uint8_t oY = *tile_ptr++;
+        offset_width = *tile_ptr++;
+        offset_height = *tile_ptr++;
+
+        offset_left = oX;
+        offset_top = oY;
+        offset_right = ts->data.tile_width - oX - offset_width;
+        offset_bottom = ts->data.tile_height - oY - offset_height;
+    }
+
+    if (_x+offset_width<0 || _x>active_pixelbuffer->width){
+        return;
+    }
+
+    uint16_t start_x = _x + offset_left;
+    uint16_t start_y = _y + offset_top;
+
+    for (int16_t y = start_y, yEnd = offset_height+start_y; y < yEnd; y++){
+        for (int16_t x = start_x, xEnd=start_x+offset_width; x < xEnd; x++){
+            
+            uint8_t current_idx = *tile_ptr++;
+
+            // TODO: make a version that checks once if the sprite is contained completely by the pixelbuffer so we won't have to check each pixel
+            if ((x < 0 || x >= active_pixelbuffer->width) || (y < 0 || y >= active_pixelbuffer->height)
+            ){
+                continue;
+            }
+
+            if (current_idx!=255){
+                gfx_draw_pixel(x,y,current_idx);
+            }
+        }
+    }
+}
+
+void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap) {
+    gfx_tilesheet_t* ts = id_get_ptr(tilemap->tilesheet_id);
+    current_tilesheet_info.ts = ts;
+    _gfx_tilesheet_prepare_info();
+    gfx_tilesheet_data_t* tsdata = &ts->data;
+
+    for (int tY=0,tEnd=tilemap->width;tY < tEnd;tY++){
+        for (int tX=0,tEnd=tilemap->width;tX < tEnd;tX++){
+            uint8_t tile_id = tilemap->data[tX+tY*tilemap->width];
+            gfx_draw_tile(
+                x+tX*tsdata->tile_width,
+                y+tY*tsdata->tile_height,
+                tile_id
+            );
+        }
+    }
+}
