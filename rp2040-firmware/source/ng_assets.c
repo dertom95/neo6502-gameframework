@@ -71,8 +71,23 @@ void asset_get_tilesheet(gfx_tilesheet_data_t* tilesheet_data,uint8_t asset_id){
 	tilesheet->cached_tile_ptrs = ng_mem_allocate(SEGMENT_GFX_DATA,cached_tileptr_size);
 	memset(tilesheet->cached_tile_ptrs,0,cached_tileptr_size);
 
-	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata) + 10;
+	tilesheet->tilesheet_data_raw = ((uint8_t*)assetdata) + GFX_TILESHEETDATA_T_HEADER_SIZE;
 
     tilesheet->data.ts_id = id_store(tilesheet);
     *tilesheet_data = tilesheet->data;
+}
+
+void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id){
+    const gfx_tilemap_t* flashdata = assets_get_pointer(asset_id);
+    memcpy(tilemap,flashdata,GFX_TILEMAP_T_HEADER_SIZE);
+
+    gfx_internal_tilemap_t* internal_tilemap = ng_mem_allocate(SEGMENT_GFX_DATA,sizeof(gfx_internal_tilemap_t));
+    *internal_tilemap = (gfx_internal_tilemap_t){0};
+    
+    ng_mem_allocate_block(SEGMENT_GFX_DATA,sizeof(gfx_tilemap_layer_t*)*tilemap->layer_amount,MEM_USAGE_TILEMAP,&internal_tilemap->mem);
+    internal_tilemap->tilemap_data=tilemap;
+    internal_tilemap->layers=(gfx_tilemap_layer_t**)internal_tilemap->mem.data;
+    internal_tilemap->rawdata = (void*)flashdata;
+    ng_memblock_wipe(&internal_tilemap->mem);
+    tilemap->handle = id_store(internal_tilemap);
 }

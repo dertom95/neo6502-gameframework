@@ -20,6 +20,8 @@ typedef struct call_header_t {
 
  // returns: void f-grp: f-id:1;
 void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
+ // returns: void f-grp: f-id:2;
+void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id);
 
 // returns: void f-grp: f-id:1
 typedef struct call_asset_get_tilesheet_t {
@@ -27,6 +29,12 @@ typedef struct call_asset_get_tilesheet_t {
     uint16_t ts_data;
     uint8_t asset_id;
 } call_asset_get_tilesheet_t;
+// returns: void f-grp: f-id:2
+typedef struct call_asset_get_tilemap_t {
+    call_header_t hdr;
+    uint16_t tilemap;
+    uint8_t asset_id;
+} call_asset_get_tilemap_t;
 
 // function grp: 1
 
@@ -89,7 +97,9 @@ void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);
  // returns: void f-grp: f-id:30;
 void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
  // returns: void f-grp: f-id:31;
-void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap);
+void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
+ // returns: void f-grp: f-id:32;
+void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -262,12 +272,19 @@ typedef struct call_gfx_draw_tile_t {
     uint8_t tile_number;
 } call_gfx_draw_tile_t;
 // returns: void f-grp: f-id:31
-typedef struct call_gfx_draw_tilemap_t {
+typedef struct call_gfx_draw_tilemap_layer_t {
     call_header_t hdr;
     int16_t x;
     int16_t y;
     uint16_t tilemap;
-} call_gfx_draw_tilemap_t;
+} call_gfx_draw_tilemap_layer_t;
+// returns: void f-grp: f-id:32
+typedef struct call_gfx_load_tilemap_layer_t {
+    call_header_t hdr;
+    uint16_t tm;
+    uint16_t out_layer;
+    uint8_t layer_nr;
+} call_gfx_load_tilemap_layer_t;
 
 // function grp: 2
 

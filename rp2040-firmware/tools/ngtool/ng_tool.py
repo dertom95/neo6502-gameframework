@@ -7,6 +7,7 @@ from ng_tool_tilesheet import convert_tilesheet
 from ng_tool_packfiles import pack_files
 from ng_tool_palette import convert_palette
 from ng_tool_create_gluecode import create_gluecode_xml
+from ng_tool_tilemap_converter import create_tilemap
 
 from utils import write_header
 
@@ -46,6 +47,12 @@ def main():
     gluecode_parser.add_argument('--output', help='Output file path')
     gluecode_parser.add_argument('--target', help='path to the target-script')
 
+    # Create the subparser for "convert-tilemap"
+    convert_tilemap_parser = subparsers.add_parser('convert-tilemap', description="Convert tilemaps to binary format")
+    convert_tilemap_parser.add_argument('--format', choices=['tiled', 'ldtk', 'spritefusion'], help='the input format')
+    convert_tilemap_parser.add_argument('--input', help='the filename of the tilemap')
+    convert_tilemap_parser.add_argument('--output', help='Output file path')
+
     args = None
     # Parse the arguments
     try:
@@ -67,6 +74,8 @@ def main():
         pack_files(args)
     elif args.command == 'create-gluecode':
         create_gluecode_xml(args)
+    elif args.command == 'convert-tilemap':
+        create_tilemap(args)
 
 
 

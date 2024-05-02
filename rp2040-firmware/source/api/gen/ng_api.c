@@ -22,6 +22,23 @@ void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
 
     }
 }   
+// returns: void f-grp:1 f-id:2
+void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id){
+    uint8_t result_code;
+    call_asset_get_tilemap_t* func_data;
+    func_data = (call_asset_get_tilemap_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 4;
+    func_data->hdr.func_id = 2;
+    func_data->tilemap=(uint16_t) tilemap;
+    func_data->asset_id= asset_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 
 // returns: void f-grp:1 f-id:12
 void gfx_renderqueue_add_id(uint8_t id){
@@ -519,15 +536,33 @@ void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number){
     }
 }   
 // returns: void f-grp:1 f-id:31
-void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap){
+void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap){
     uint8_t result_code;
-    call_gfx_draw_tilemap_t* func_data;
-    func_data = (call_gfx_draw_tilemap_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_gfx_draw_tilemap_layer_t* func_data;
+    func_data = (call_gfx_draw_tilemap_layer_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 31;
     func_data->x= x;
     func_data->y= y;
     func_data->tilemap=(uint16_t) tilemap;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:32
+void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr){
+    uint8_t result_code;
+    call_gfx_load_tilemap_layer_t* func_data;
+    func_data = (call_gfx_load_tilemap_layer_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 32;
+    func_data->tm=(uint16_t) tm;
+    func_data->out_layer=(uint16_t) out_layer;
+    func_data->layer_nr= layer_nr;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

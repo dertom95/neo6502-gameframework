@@ -49,9 +49,9 @@ keyboard_mapping_t kbm={
 };
 
 gfx_pixelbuffer_t pixelbuffer = {
-    .width=160,
-    .height=120,
-    .x=50,
+    .width=320,
+    .height=200,
+    .x=0,
     .y=0,
     .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
@@ -110,21 +110,35 @@ uint8_t px_width;
 uint8_t px_height;
 
 gfx_tilesheet_data_t ts_misc;
-gfx_tilesheet_data_t ts_oldguy;
+gfx_tilesheet_data_t ts_oldguy={0};
+gfx_tilesheet_data_t ts_spritesheet;
 
 
 
-gfx_tilemap_data_t tilemap = {
-    .width=5,
-    .height=5,
-    .data={
-        1,1,1,1,1,
-        2,2,2,2,2,
-        1,1,1,1,1,
-        2,2,2,2,2,
-        1,1,1,1,1,
-    }
-};
+// gfx_tilemap_data_t tilemap = {
+//     .width=5,
+//     .height=5,
+//     .data={
+//         1,1,1,1,1,
+//         2,2,2,2,2,
+//         1,1,1,1,1,
+//         2,2,2,2,2,
+//         1,1,1,1,1,
+//     }
+// };
+
+
+gfx_tilemap_t tilemap = {0};
+
+typedef struct gfx_layer_30_30_t {
+    gfx_tilemap_layer_t layer_data;
+    uint8_t data[30*30];
+} gfx_layer_30_30_t;
+
+gfx_layer_30_30_t layer0 = {0};
+
+// gfx_tilemap_layer_t layer0 = {0};
+// gfx_tilemap_layer_t layer1 = {0};
 
 #define SPRITE_AMOUNT 16
 gfx_sprite_t sprites[SPRITE_AMOUNT];
@@ -132,6 +146,8 @@ gfx_sprite_t sprites[SPRITE_AMOUNT];
 gfx_sprite_t* sprite_oldguy=&sprites[0];
 gfx_sprite_t* sprite_sword=&sprites[1];
 gfx_sprite_t* sprite_potion=&sprites[2];
+
+
 
 uint8_t sprite_potion_anim;
 uint8_t sprite_oldguy_anim;
@@ -155,7 +171,14 @@ int mod_init(){
 
     asset_get_tilesheet(&ts_oldguy,ASSET_OLD_GUY);
     asset_get_tilesheet(&ts_misc,ASSET_SPRITES_MISC);
-    tilemap.tilesheet_id=ts_misc.ts_id;
+    asset_get_tilesheet(&ts_spritesheet, ASSET_SPRITESHEET);
+    //tilemap.tilesheet_id=ts_misc.ts_id;
+
+    asset_get_tilemap(&tilemap,ASSET_TILEMAP);
+    tilemap.tilesheet_id=ts_spritesheet.ts_id;
+    gfx_load_tilemap_layer(&tilemap,&layer0,0);
+    //gfx_load_tilemap_layer(&tilemap,&layer1,1);
+
 
     gfx_tilesheet_current_set(&ts_misc);
 
@@ -197,7 +220,7 @@ int mod_init(){
     // gfx_draw_tile(30,30,2);
     // gfx_draw_tile(50,10,3);
 
-    gfx_draw_tilemap(10,10,&tilemap);
+    gfx_draw_tilemap_layer(10,10,&layer0);
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
@@ -218,7 +241,7 @@ int mod_init(){
 
     sprite_oldguy->x=128;
     sprite_oldguy->y=50;
-    sprite_oldguy->pixel_size=flags_pack_4_4(5,5);
+    sprite_oldguy->pixel_size=flags_pack_4_4(1,1);
     gfx_sprite_apply_data(sprite_oldguy);
 
     sprite_sword->x=40;
@@ -252,7 +275,7 @@ int mod_init(){
     // sprite_strawberry->flags=0;
     // sprite_potion->flags=0;
 
-    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+   // gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
@@ -378,7 +401,7 @@ void mod_update() {
         //flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
         //gfx_pixelbuffer_set_active(&pixelbuffer);      
         //gfx_pixelbuffer_apply_data(&pixelbuffer);      
-        gfx_draw_tilemap(x,10,&tilemap);
+    //    gfx_draw_tilemap(x,10,&tilemap);
 
     }
 }

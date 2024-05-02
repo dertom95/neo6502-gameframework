@@ -8,17 +8,16 @@
 #define MEM_USAGE_UNKNOWN       0
 #define MEM_USAGE_PIXELBUFFER   1
 #define MEM_USAGE_SPRITEBUFFER  2
-#define MEM_USAGE_TILESHEET     3
+#define MEM_USAGE_TILEMAP       3
 
 #define MAX_DATAMOUNTS 3
-
-
-
-
 
 #define MEM_MAX_SEGMENTS 3
 #define MEMBLOCK_USAGE_MASK   (15 << 0) // bits 0-3 usage
 #define MEMBLOCK_SEGMENT_MASK (7 << 4)  // bits 4-6 segmentid
+
+//TODO: I really meant it well, creating something to keep memory under control and making 
+//      it possible to wipe certain usagetypes.... in the end it is just born dead. but I still use it ;)
 
 typedef struct ng_mem_segment_t {
     void* start;

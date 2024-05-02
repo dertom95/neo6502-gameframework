@@ -24,6 +24,7 @@ add_executable(neo6502firmware
 	ng_gfx.c
     ng_gfx_spritebuffer.c
     ng_gfx_pixelbuffer.c
+    ng_gfx_tilemap.c
 	ng_cpu.c
 	ng_sound.c
 	ng_utils.c

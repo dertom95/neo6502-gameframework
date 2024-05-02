@@ -101,6 +101,19 @@
                 "--config-file","${workspaceFolder}/generator/generate_gluecode.json"
             ],
             "console": "integratedTerminal"
-        },           
+        },    
+        {
+            "name": "ng: convert tilemap",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ngtool/ng_tool.py",
+            "args" : [
+                "convert-tilemap",
+                "--format","spritefusion",
+                "--input","${workspaceFolder}/res/tilemaps/spritefusion/map.json",
+                "--output","${workspaceFolder}/temp/tilemap.bin"
+            ],
+            "console": "integratedTerminal"
+        },                  
     ]
 }

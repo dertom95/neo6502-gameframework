@@ -104,6 +104,13 @@ typedef struct gfx_internal_sprite_animator_t {
     gfx_sprite_t* sprite;
 } gfx_internal_sprite_animator_t;
 
+typedef struct gfx_internal_tilemap_t {
+    ng_mem_block_t mem;
+    gfx_tilemap_t* tilemap_data;
+    void* rawdata;
+    gfx_tilemap_layer_t** layers;
+} gfx_internal_tilemap_t;
+
 extern const uint8_t* font;
 
 void 	 gfx_init();
@@ -173,9 +180,9 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:28*/void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
 /*api:1:29*/void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);
 /*api:1:30*/void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
-/*api:1:31*/void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap);
+/*api:1:31*/void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
+/*api:1:32*/void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
 
-
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:31
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:32
 
 #endif 

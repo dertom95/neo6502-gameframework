@@ -379,16 +379,23 @@ void gfx_draw_tile(int16_t _x, int16_t _y, uint8_t tile_number) {
         }
     }
 }
+//// void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap) {
+void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap_layer){
+    gfx_internal_tilemap_t* tm_internal = id_get_ptr(tilemap_layer->tm_handle);
+    gfx_tilemap_t* tm = tm_internal->tilemap_data;
 
-void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap) {
-    gfx_tilesheet_t* ts = id_get_ptr(tilemap->tilesheet_id);
+    gfx_tilesheet_t* ts = id_get_ptr(tm->tilesheet_id);
+    
     current_tilesheet_info.ts = ts;
     _gfx_tilesheet_prepare_info();
     gfx_tilesheet_data_t* tsdata = &ts->data;
 
-    for (int tY=0,tEnd=tilemap->width;tY < tEnd;tY++){
-        for (int tX=0,tEnd=tilemap->width;tX < tEnd;tX++){
-            uint8_t tile_id = tilemap->data[tX+tY*tilemap->width];
+    for (int tY=0,tEnd=tm->tileamount_vertical;tY < tEnd;tY++){
+        for (int tX=0,tEnd=tm->tileamount_horizontal;tX < tEnd;tX++){
+            uint8_t tile_id = tilemap_layer->data[tX+tY*tm->tileamount_horizontal];
+            if (tile_id == 255){
+                continue;
+            }
             gfx_draw_tile(
                 x+tX*tsdata->tile_width,
                 y+tY*tsdata->tile_height,

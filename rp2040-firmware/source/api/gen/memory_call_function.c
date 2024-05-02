@@ -19,6 +19,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 2: {
+                call_asset_get_tilemap_t* call = (call_asset_get_tilemap_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  asset_get_tilemap( (gfx_tilemap_t*)(&mem[ call->tilemap ]) ,    call->asset_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 
@@ -237,8 +244,15 @@ uint8_t call_function()
             }
 
             case 31: {
-                call_gfx_draw_tilemap_t* call = (call_gfx_draw_tilemap_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_draw_tilemap(  call->x  ,    call->y  ,   (gfx_tilemap_data_t*)(&mem[ call->tilemap ])   );
+                call_gfx_draw_tilemap_layer_t* call = (call_gfx_draw_tilemap_layer_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_tilemap_layer(  call->x  ,    call->y  ,   (gfx_tilemap_layer_t*)(&mem[ call->tilemap ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 32: {
+                call_gfx_load_tilemap_layer_t* call = (call_gfx_load_tilemap_layer_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_load_tilemap_layer( (gfx_tilemap_t*)(&mem[ call->tm ]) ,   (gfx_tilemap_layer_t*)(&mem[ call->out_layer ]) ,    call->layer_nr    );
 
                 return FUNCTION_RETURN_OK;
             }

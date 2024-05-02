@@ -142,6 +142,7 @@ typedef struct __attribute__((aligned(4))) gfx_sprite_animator_t {
 //           The data for the tilesheets is created by the exporter. 
 //           If you change this struct you also have to modify the exporter (ng_tool_tilesheet.py: encode_tiles(..) )
 //           IMPORTANT: if add/removing to this struct you also need to maintain GFX_TILESHEET_DATA_SIZE-define (see below)
+#define GFX_TILESHEETDATA_T_HEADER_SIZE 10
 typedef struct __align4 gfx_tilesheet_data_t{
 	uint8_t type;
 	uint8_t tile_width;
@@ -156,16 +157,44 @@ typedef struct __align4 gfx_tilesheet_data_t{
     uint8_t ts_id;
 } gfx_tilesheet_data_t;
 
-typedef struct __align4 gfx_tilemap_data_t {
-    // amount of tiles horizontally
-    uint8_t width;
-    // amount of tiles vertically
-    uint8_t height;
-    // the tilesheet
-    uint8_t tilesheet_id;
-    // the data
+// typedef struct __align4 gfx_tilemap_data_t {
+//     // amount of tiles horizontally
+//     uint8_t width;
+//     // amount of tiles vertically
+//     uint8_t height;
+//     // the tilesheet
+//     uint8_t tilesheet_id;
+//     // the data
+//     uint8_t data[];
+// } gfx_tilemap_data_t;
+
+#define GFX_TILEMAP_LAYER_T_HEADER_SIZE 2 /*read size in dataformat*/
+
+typedef struct gfx_tilemap_layer_t {
+    uint8_t tm_handle;
+    uint8_t __unused_field;
+
+    uint8_t layer_id;
+    uint8_t flags;
+
     uint8_t data[];
-} gfx_tilemap_data_t;
+} gfx_tilemap_layer_t;
+
+#define GFX_TILEMAP_T_HEADER_SIZE 4
+typedef struct gfx_tilemap_t{
+    // data directly written from asset-data
+    uint8_t layer_amount;
+    uint8_t tileamount_horizontal;
+    uint8_t tileamount_vertical;
+    uint8_t flags;
+
+    // runtime-data
+    uint8_t tilesheet_id;
+    uint8_t palette_id;
+    uint8_t handle;
+    uint8_t __unused_field;
+} gfx_tilemap_t;
+
 
 #if _MOD_NATIVE_
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))

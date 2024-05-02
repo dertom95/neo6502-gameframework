@@ -8,11 +8,13 @@
 #define ASSET_FONT8 3
 #define ASSET_OLD_GUY 4
 #define ASSET_SPRITES_MISC 5
+#define ASSET_SPRITESHEET 6
+#define ASSET_TILEMAP 7
 
 extern const uint32_t assets_offsets[];
 extern const uint32_t assets_sizes[];
 
-#define ASSETS_AMOUNT 6
+#define ASSETS_AMOUNT 8
 
 #ifdef INCLUDE_DATA
 extern const uint8_t assets_data[];

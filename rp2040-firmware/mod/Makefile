@@ -49,6 +49,19 @@ assets-create: initialize
 									--format 2 \
 									--debug \
 
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/tilesheets/spritesheet.png \
+									--tile-size 16x16 \
+									--palette-file $(ASSET_FOLDER)/palette/palette.png \
+									--array-name spritesheet \
+									--output $(EXPORT_FOLDER)/spritesheet.bin \
+									--binary \
+									--format 1 \
+									--debug \
+
+	$(NG_TOOL) convert-tilemap      --input $(ASSET_FOLDER)/tilemaps/map.json \
+									--format spritefusion \
+									--output $(EXPORT_FOLDER)/tilemap.bin \
+
 
 check_code_bin:
 	@if [ ! -f temp/code.bin ]; then \
