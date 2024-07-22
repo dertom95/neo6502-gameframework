@@ -420,7 +420,7 @@ void io_backend_before_tick(void){
 }
 
 void io_backend_after_tick(void){
-  //neo6502_usb_update();
+  neo6502_usb_update();
 }
 
 

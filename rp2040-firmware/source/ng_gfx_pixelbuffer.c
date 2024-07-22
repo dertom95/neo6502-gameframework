@@ -196,7 +196,10 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y)
 
 void  gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 {
-	assert(x < active_pixelbuffer->width);
+    if (!active_pixelbuffer){
+        return;
+    }
+    assert(x < active_pixelbuffer->width);
 	assert(y < active_pixelbuffer->height);
 	uint8_t* pixel = _pixelbuffer_location_ptr(x,y);
 	*pixel = color_idx;
@@ -218,6 +221,9 @@ const uint8_t* _char2fontbuffer(uint8_t ch)
 
 void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 {
+    if (!active_pixelbuffer){
+        return;
+    }
 	// for now let's require positive x and y
 	if (   x < 0 || x > active_pixelbuffer->width 
 		|| y < 0 || y > active_pixelbuffer->height

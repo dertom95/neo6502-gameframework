@@ -135,10 +135,11 @@ void __not_in_flash_func(core1_main()) {
 	//dvi_scanbuf_main_16bpp(&dvi0);
     uint32_t *tmds0;
     uint16_t *pixbuf;
+    requested_renderqueue_apply=true;
    	while (1) {
 		for (uint y = 0; y < FRAME_HEIGHT; y ++) {
             queue_remove_blocking_u32(&dvi0.q_tmds_free,&tmds0);
- 	
+ 	 
             if (requested_renderqueue_apply){
                 requested_renderqueue_apply = false;
                 ng_mem_block_t** save_current = renderqueue_current;

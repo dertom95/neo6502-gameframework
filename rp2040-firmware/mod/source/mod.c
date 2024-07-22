@@ -48,14 +48,14 @@ keyboard_mapping_t kbm={
     .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN
 };
 
-gfx_pixelbuffer_t pixelbuffer = {
-    .width=320,
-    .height=200,
-    .x=0,
-    .y=0,
-    .pixel_size=flags_pack_4_4(1,1),
-    //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
-};
+// gfx_pixelbuffer_t pixelbuffer = {
+//     .width=320,
+//     .height=200,
+//     .x=0,
+//     .y=0,
+//     .pixel_size=flags_pack_4_4(1,1),
+//     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
+// };
 
 #define delay 120
 
@@ -171,12 +171,12 @@ int mod_init(){
 
     asset_get_tilesheet(&ts_oldguy,ASSET_OLD_GUY);
     asset_get_tilesheet(&ts_misc,ASSET_SPRITES_MISC);
-    asset_get_tilesheet(&ts_spritesheet, ASSET_SPRITESHEET);
+   // asset_get_tilesheet(&ts_spritesheet, ASSET_SPRITESHEET);
     //tilemap.tilesheet_id=ts_misc.ts_id;
 
-    asset_get_tilemap(&tilemap,ASSET_TILEMAP);
-    tilemap.tilesheet_id=ts_spritesheet.ts_id;
-    gfx_load_tilemap_layer(&tilemap,&layer0,0);
+    // asset_get_tilemap(&tilemap,ASSET_TILEMAP);
+    // tilemap.tilesheet_id=ts_spritesheet.ts_id;
+    // gfx_load_tilemap_layer(&tilemap,&layer0,0);
     //gfx_load_tilemap_layer(&tilemap,&layer1,1);
 
 
@@ -191,25 +191,25 @@ int mod_init(){
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
 
-    gfx_pixelbuffer_create(&pixelbuffer);
-    gfx_pixelbuffer_set_active(&pixelbuffer);
+    // gfx_pixelbuffer_create(&pixelbuffer);
+    // gfx_pixelbuffer_set_active(&pixelbuffer);
 
-    gfx_pixelbuffer_mount(&pixelbuffer,0x5000);
+    // gfx_pixelbuffer_mount(&pixelbuffer,0x5000);
 #ifdef _MOD_NATIVE_    
     // memory mappings needs to be queried after they are mounted in _MOD_NATIVE_
     tile_map = (uint8_t*)MEMPTR(0x5000);
 #endif
 
-    for(uint16_t y=0;y<120;y+=1){
-        for (uint16_t x=0;x<160;x++){
-            gfx_draw_pixel(x,y,COL_LIGHTGREY);
-        }
-    }
+    // for(uint16_t y=0;y<120;y+=1){
+    //     for (uint16_t x=0;x<160;x++){
+    //         gfx_draw_pixel(x,y,COL_LIGHTGREY);
+    //     }
+    // }
 
-    gfx_draw_pixel(0,0,COL_RED);
-    gfx_draw_pixel(159,0,COL_GREEN);
-    gfx_draw_pixel(159,119,COL_GREEN);
-    gfx_draw_pixel(0,119,COL_RED);
+    // gfx_draw_pixel(0,0,COL_RED);
+    // gfx_draw_pixel(159,0,COL_GREEN);
+    // gfx_draw_pixel(159,119,COL_GREEN);
+    // gfx_draw_pixel(0,119,COL_RED);
 
     // gfx_draw_pixel(1,1,COL_RED);
     // gfx_draw_pixel(158,1,COL_RED);
@@ -220,7 +220,7 @@ int mod_init(){
     // gfx_draw_tile(30,30,2);
     // gfx_draw_tile(50,10,3);
 
-    gfx_draw_tilemap_layer(10,10,&layer0);
+  //  gfx_draw_tilemap_layer(10,10,&layer0);
 
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
@@ -275,13 +275,13 @@ int mod_init(){
     // sprite_strawberry->flags=0;
     // sprite_potion->flags=0;
 
-   // gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    //gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
 
-    flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
+    //flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
     int a=0;
 }
 
@@ -330,10 +330,12 @@ void mod_update() {
     
     if (last_x!=*mx){
         last_x=*mx;
-        pixelbuffer.x=-80+*mx;
+        sprite_oldguy->x=*mx;
+        gfx_sprite_apply_data(sprite_oldguy);
+     //   pixelbuffer.x=-80+*mx;
     // pixelbuffer.x=-50+*mx;
         //printf("pxb-x:%d\n",pixelbuffer.x);
-        flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+    //    flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
        // gfx_pixelbuffer_apply_data(&pixelbuffer);
     }
 
@@ -348,19 +350,19 @@ void mod_update() {
         //pixelbuffer.x--;
         changed=true;
 
-        // if (sprite_oldguy->tile_idx-1 >= 0){
-        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
-        // }
-        // changed=true;
+        if (sprite_oldguy->tile_idx-1 >= 0){
+            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
+        }
+        changed=true;
     }
     if ((kbm.key_pressed & KEY_RIGHT)>0){
         x++;
         // if (px_width<15){
         //     px_width++;
         // }
-        // if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
-        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
-        // }
+        if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
+            gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
+        }
         changed=true;
     }
     if ((kbm.key_pressed & KEY_LEFT2)>0){
