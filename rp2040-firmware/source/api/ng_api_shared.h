@@ -31,7 +31,7 @@ typedef struct keyboard_mapping_t
 typedef struct ng_mem_block_t
 {
     uint16_t flags; // free[15-7] | segment_id bits[6-4] | usage_type bits[3-0]
-    uint16_t size;
+    uint32_t size;
     uint8_t *data; // pointer to the actual data
 } ng_mem_block_t;
 
@@ -196,7 +196,7 @@ typedef struct gfx_tilemap_t{
 } gfx_tilemap_t;
 
 
-#if _MOD_NATIVE_
+#if defined(_MOD_NATIVE_)
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))
 #else
     #define MEMPTR(ADDRESS) ((uint8_t*)ADDRESS)

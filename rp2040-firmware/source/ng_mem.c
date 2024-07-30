@@ -123,19 +123,44 @@ void ng_memblock_wipe(ng_mem_block_t* mem_block)
 
 
 
-void ng_mem_add_datamount(ng_mem_datamount_t* data_mount)
+uint8_t ng_mem_add_datamount(ng_mem_datamount_t* data_mount)
 {
     assert(datamount_amount<MAX_DATAMOUNTS&&"exceeded max amount of datamounts");
+    uint8_t current = datamount_amount;
     datamounts[datamount_amount++]=data_mount;
+    return current;
 }
 
-void ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination) {
+ng_mem_datamount_t* ng_mem_get_datamount(uint8_t data_mount){
+    assert(data_mount < datamount_amount);
+    return datamounts[data_mount];
+}
+
+bool ng_mem_set_datamount_page(uint8_t mount_id, uint8_t page)
+{
+    ng_mem_datamount_t* mount = ng_mem_get_datamount(mount_id);
+    uint8_t* new_page_address = mount->source + mount->page_size * page;
+    
+    if (new_page_address > mount->source + mount->size){
+        return false;
+    }
+
+    mount->current_page_ptr = new_page_address;
+    mount->page = page;
+    return true;
+}
+
+uint8_t ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination, uint16_t page_size) {
     ng_mem_block_t save = *data_block;
     ng_mem_datamount_t* mount = ng_mem_allocate(SEGMENT_GFX_DATA,sizeof(ng_mem_datamount_t));
-    mount->destination = destination;
-    mount->size = save.size;
-    mount->source = save.data;
-    ng_mem_add_datamount(mount);
+    *mount = (ng_mem_datamount_t){
+        .destination=destination,
+        .size = save.size,
+        .source = save.data,
+        .page = 0,
+        .page_size = page_size
+    };
+    return ng_mem_add_datamount(mount);
 }
 
 #if defined(TESTING)

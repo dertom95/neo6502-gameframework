@@ -178,11 +178,17 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void) {
 	return active_pixelbuffer;
 }
 
-void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination){
+uint8_t gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size){
 	ng_mem_datablock_t* px_datablock = (ng_mem_datablock_t*)id_get_ptr(pxb->obj_id);
-    ng_mem_mount_block((ng_mem_block_t*)px_datablock,destination);         
+    uint8_t mount_id = ng_mem_mount_block((ng_mem_block_t*)px_datablock,destination, page_size);         
+    return mount_id;
 }
 
+bool gfx_mount_set_page(uint8_t mount_id, uint8_t page)
+{
+    bool result = ng_mem_set_datamount_page(mount_id,page);
+    return result;
+}
 
 // ------------------------------------
 // 🇵​​​​​🇽​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​ - 🇬​​​​​🇷​​​​​🇦​​​​​🇵​​​​​🇭​​​​​🇮​​​​​🇨​​​​​🇸​​​​​

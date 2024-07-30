@@ -98,10 +98,10 @@ void __not_in_flash_func(memory_write_data)(uint16_t address,uint8_t data) {
   else if (datamount_amount>0){
     for (int i=0;i<datamount_amount;i++){
       ng_mem_datamount_t* mount = datamounts[i];
-      if (address>=mount->destination && address<=mount->destination+mount->size){
+      if (address>=mount->destination && address<=mount->destination+mount->page_size){
         uint16_t offset = address - mount->destination;
-        uint8_t* dat = (mount->source+offset);
-        *(mount->source+offset)=data;
+        uint8_t* dat = (mount->current_page_ptr+offset);
+        *dat=data;
         return;
       }    
     }
@@ -117,9 +117,9 @@ uint8_t* __not_in_flash_func(memory_resolve_address)(uint16_t address){
   else if (datamount_amount>0){
     for (int i=0;i<datamount_amount;i++){
       ng_mem_datamount_t* mount = datamounts[i];
-      if (address>=mount->destination && address<=mount->destination+mount->size){
+      if (address>=mount->destination && address<=mount->destination+mount->page_size){
         uint16_t offset = address - mount->destination;
-        return (uint8_t*)(mount->source+offset);
+        return (uint8_t*)(mount->current_page_ptr+offset);
       }    
     }
   }

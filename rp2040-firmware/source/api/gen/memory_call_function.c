@@ -151,8 +151,18 @@ uint8_t call_function()
 
             case 13: {
                 call_gfx_pixelbuffer_mount_t* call = (call_gfx_pixelbuffer_mount_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)    );
+                uint8_t call_result =  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)  ,    swap16(call->page_size)    );
 
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 33: {
+                call_gfx_mount_set_page_t* call = (call_gfx_mount_set_page_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  gfx_mount_set_page(  call->mount_id  ,    call->page    );
+
+                *call_buffer_return=(uint8_t)call_result;
                 return FUNCTION_RETURN_OK;
             }
 

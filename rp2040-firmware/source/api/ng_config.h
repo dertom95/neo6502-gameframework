@@ -14,7 +14,6 @@
 
 #define GFX_RENDERQUEUE_MAX_ELEMENTS 5
 
-
 // sizes should be uneven so that the next address will start on an even number
 // otherwise ARM might not like that and crash. ARM don't like to use unaligned addresses ;)
 #define MEMORY_MAP_VARS_START 0xe000

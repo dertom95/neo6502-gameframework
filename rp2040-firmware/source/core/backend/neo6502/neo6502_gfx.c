@@ -150,7 +150,7 @@ void __not_in_flash_func(core1_main()) {
             gfx_render_scanline(core1_scanbuf, y);
             encode_scanline(core1_scanbuf, tmds0);
             queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);
-
+ 
 		}
 	} 
 

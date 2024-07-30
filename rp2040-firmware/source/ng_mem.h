@@ -34,10 +34,12 @@ typedef struct ng_mem_datablock_t {
 
 typedef struct ng_mem_datamount_t {
     uint8_t* source;
-    uint16_t size;
+    uint8_t* current_page_ptr;
+    uint32_t size;
     uint16_t destination;
     uint8_t page;
     uint8_t flags;
+    uint16_t page_size; 
 } __attribute__((aligned(4)))  ng_mem_datamount_t;
 
 extern uint8_t datamount_amount;
@@ -71,10 +73,15 @@ bool ng_mem_allocate_block(uint8_t segment_id,uint32_t size, uint8_t usage_type,
 
 /// @brief Mount the specified area in the 6502-mem
 /// @param data_mount 
-void ng_mem_add_datamount(ng_mem_datamount_t* data_mount);
+uint8_t  ng_mem_add_datamount(ng_mem_datamount_t* data_mount);
+/// @brief Set the page for the specified mount
+/// @param mount_id 
+/// @param page 
+/// @return 
+bool ng_mem_set_datamount_page(uint8_t mount_id, uint8_t page);
 
 //void ng_mem_mount_block(ng_mem_datablock_t* dtb, uint16_t destination);
-void ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination);
+uint8_t ng_mem_mount_block(ng_mem_block_t* data_block, uint16_t destination, uint16_t page_size);
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block); 
 uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block); 

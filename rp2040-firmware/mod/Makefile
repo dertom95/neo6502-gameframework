@@ -15,7 +15,7 @@ initialize:
 
 source-compile:
 	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -g -lexit-loop -linit-stack -I.. -I../../source/api \
-		mod_pixelbuffer.c \
+		mod_simple.c \
 		../../source/api/ng_api_shared.c && $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map && $(LLVM_MOS_SDK)/bin/llvm-objdump -S -l ../temp/code.bin.elf > ../temp/code.S 
 	
 # source-compile-cc65:	

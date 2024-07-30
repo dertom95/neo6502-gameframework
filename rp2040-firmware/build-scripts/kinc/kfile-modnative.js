@@ -21,7 +21,11 @@ project.addFile('../../source/*.c');
 project.addFile('../../source/core/*.c');
 //project.addFile('../../source/game/*.c');
 project.addFile('../../source/core/backend/kinc/*.c');
-project.addFile('../../mod/source/mod_pixelbuffer.c');
+
+// MOD - NATIVE - FILE
+//project.addFile('../../mod/source/mod_pixelbuffer.c');
+project.addFile('../../mod/source/mod_simple.c');
+
 project.addFile('../../source/api/*.c');
 //project.addFile('../../test/gen_prg1.c')
 //project.addFile('../../mod/export/*.c')
