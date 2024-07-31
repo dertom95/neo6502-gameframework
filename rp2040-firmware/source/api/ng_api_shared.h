@@ -76,7 +76,7 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint16_t readbuf_offset;
     
     uint8_t pixel_size;
-    uint8_t __unused;
+    uint8_t mount_id;
 } gfx_pixelbuffer_t;
 
 #define SPRITEFLAG_READY  (1 << 0)

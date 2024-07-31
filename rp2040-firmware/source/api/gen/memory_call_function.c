@@ -151,9 +151,7 @@ uint8_t call_function()
 
             case 13: {
                 call_gfx_pixelbuffer_mount_t* call = (call_gfx_pixelbuffer_mount_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                uint8_t call_result =  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)  ,    swap16(call->page_size)    );
-
-                *call_buffer_return=call_result;
+                  gfx_pixelbuffer_mount( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    swap16(call->destination)  ,    swap16(call->page_size)    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -167,8 +165,8 @@ uint8_t call_function()
             }
 
             case 26: {
-                call___not_in_flash_func_t* call = (call___not_in_flash_func_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  __not_in_flash_func();
+                call_gfx_pixelbuffer_apply_data_t* call = (call_gfx_pixelbuffer_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_apply_data( (gfx_pixelbuffer_t*)(&mem[ call->pxb ])   );
 
                 return FUNCTION_RETURN_OK;
             }

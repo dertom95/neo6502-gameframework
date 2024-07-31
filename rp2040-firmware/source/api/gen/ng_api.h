@@ -70,12 +70,12 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
 void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
  // returns: gfx_pixelbuffer_t* f-grp: f-id:11;
 gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
- // returns: uint8_t f-grp: f-id:13;
-uint8_t gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size);
+ // returns: void f-grp: f-id:13;
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size);
  // returns: bool f-grp: f-id:33;
 bool gfx_mount_set_page(uint8_t mount_id, uint8_t page);
  // returns: void f-grp: f-id:26;
-void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb);
+void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb);
  // returns: void f-grp: f-id:2;
 void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);
  // returns: uint16_t f-grp: f-id:3;
@@ -194,7 +194,7 @@ typedef struct call_gfx_pixelbuffer_set_active_t {
 typedef struct call_gfx_pixelbuffer_get_current_t {
     call_header_t hdr;
 } call_gfx_pixelbuffer_get_current_t;
-// returns: uint8_t f-grp: f-id:13
+// returns: void f-grp: f-id:13
 typedef struct call_gfx_pixelbuffer_mount_t {
     call_header_t hdr;
     uint16_t pxb;
@@ -208,9 +208,10 @@ typedef struct call_gfx_mount_set_page_t {
     uint8_t page;
 } call_gfx_mount_set_page_t;
 // returns: void f-grp: f-id:26
-typedef struct call___not_in_flash_func_t {
+typedef struct call_gfx_pixelbuffer_apply_data_t {
     call_header_t hdr;
-} call___not_in_flash_func_t;
+    uint16_t pxb;
+} call_gfx_pixelbuffer_apply_data_t;
 // returns: void f-grp: f-id:2
 typedef struct call_gfx_set_palettecolor_t {
     call_header_t hdr;

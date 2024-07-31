@@ -1,0 +1,225 @@
+
+#include <stdint.h>
+#include <stdio.h>
+
+
+#ifdef _MOD_NATIVE_
+# include "../../source/core/memory.h"
+# include "../../source/ng_all.h"
+#else
+# include <ng_config.h>
+# include <gen/ng_api.c>
+#endif
+
+#include "export/assets.h"
+#include <ng_api_shared.h>
+
+volatile uint16_t* mx = NULL;
+volatile uint16_t* my = NULL;
+volatile uint8_t* mbtn = NULL;
+
+//volatile uint8_t* tile_map = (uint8_t*)(0xd000);
+
+volatile uint8_t* tile_map;
+
+//volatile uint8_t* tile_map = (uint8_t*)(0x5000);
+uint8_t col = 0;
+uint8_t current_back=0;
+uint8_t current_x=0;
+uint8_t current_y=0;
+
+#define KEY_COL_DOWN    (1 << 7)
+#define KEY_COL_UP      (1 << 6)
+#define KEY_LEFT    (1 << 5)
+#define KEY_LEFT2      (1 << 4)
+#define KEY_RIGHT2   (1 << 3)
+#define KEY_RIGHT    (1 << 2)
+
+keyboard_mapping_t kbm={
+    .keycodes = {
+        HID_KEY_0,
+        HID_KEY_1,
+        HID_KEY_A,
+        HID_KEY_Q,
+        HID_KEY_E,
+        HID_KEY_D,
+        0,
+        0},
+    .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN
+};
+
+gfx_pixelbuffer_t pixelbuffer = {
+    .width=160,
+    .height=120,
+    .x=50,
+    .y=0,
+    .pixel_size=flags_pack_4_4(1,1),
+    //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
+};
+
+#define delay 120
+
+uint8_t kX=0,kY=0;
+char text_bf[30];
+
+#define TICK_RATE (1000/30)
+volatile uint16_t* ms_delta = NULL;
+
+uint8_t px_width;
+uint8_t px_height;
+
+uint16_t seed;
+
+int random() {
+    seed = seed * 1103515245 + 12345;
+    return (unsigned int)(seed / 65536) % 32768;
+}
+
+int16_t x=0;
+
+int mod_init(){
+    ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
+    mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
+    my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
+    mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
+
+    io_keyboardmapping_register(&kbm,1);
+
+    // while(1){
+    //     *(tile_map)=1;
+    // }
+
+    gfx_set_font_from_asset(ASSET_FONT8);
+    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
+
+    gfx_pixelbuffer_create(&pixelbuffer);
+    gfx_pixelbuffer_set_active(&pixelbuffer);
+
+    gfx_pixelbuffer_mount(&pixelbuffer,0x5000);
+#ifdef _MOD_NATIVE_    
+    // memory mappings needs to be queried after they are mounted in _MOD_NATIVE_
+    tile_map = (uint8_t*)MEMPTR(0x5000);
+#endif
+
+    for(uint16_t y=0;y<120;y+=1){
+        for (uint16_t x=0;x<160;x++){
+            gfx_draw_pixel(x,y,COL_LIGHTGREY);
+        }
+    }
+
+    gfx_draw_pixel(0,0,COL_RED);
+    gfx_draw_pixel(159,0,COL_GREEN);
+    gfx_draw_pixel(159,119,COL_GREEN);
+    gfx_draw_pixel(0,119,COL_RED);
+
+    // gfx_draw_pixel(1,1,COL_RED);
+    // gfx_draw_pixel(158,1,COL_RED);
+    // gfx_draw_pixel(158,118,COL_RED);
+    // gfx_draw_pixel(1,118,COL_RED);
+
+    // gfx_draw_tile(10,10,1);
+    // gfx_draw_tile(30,30,2);
+    // gfx_draw_tile(50,10,3);
+
+    //gfx_draw_tilemap(10,10,&tilemap);
+
+    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+
+    gfx_renderqueue_apply();
+
+
+    flags_unpack_4_4(pixelbuffer.pixel_size,px_width,px_height);
+    int a=0;
+}
+
+uint16_t last_x =0;
+void mod_update() {
+    // TODO: implement some kind of sleep
+    
+    
+    if (*ms_delta<TICK_RATE)
+    {
+        return;
+    }
+
+    int16_t dt = *ms_delta;
+    *ms_delta=0;
+
+    bool changed = false;
+
+   
+    if (last_x!=*mx){
+        last_x=*mx;
+        pixelbuffer.x=-80+*mx;
+    // pixelbuffer.x=-50+*mx;
+        //printf("pxb-x:%d\n",pixelbuffer.x);
+        flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+       // gfx_pixelbuffer_apply_data(&pixelbuffer);
+    }
+
+    ng_snprintf(text_bf,30,"M %d : %d",*mx,*my);
+    gfx_draw_text(4,2,text_bf,COL_ORANGE);
+
+    if ((kbm.key_pressed & KEY_LEFT)>0){
+        x--;
+        // if (px_width>0){
+        //     px_width--;
+        // }
+        //pixelbuffer.x--;
+        changed=true;
+
+        // if (sprite_oldguy->tile_idx-1 >= 0){
+        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx-1);
+        // }
+        // changed=true;
+    }
+    if ((kbm.key_pressed & KEY_RIGHT)>0){
+        x++;
+        // if (px_width<15){
+        //     px_width++;
+        // }
+        // if (sprite_oldguy->tile_idx+1 < ts_oldguy.tile_amount){
+        //     gfx_sprite_set_tileid(sprite_oldguy, sprite_oldguy->tile_idx+1);
+        // }
+        changed=true;
+    }
+    if ((kbm.key_pressed & KEY_LEFT2)>0){
+        if (px_height>0){
+            px_height--;
+        }
+        //pixelbuffer.x--;
+        changed=true;
+    }
+    if ((kbm.key_pressed & KEY_RIGHT2)>0){
+        if (px_height<15){
+            px_height++;
+        }
+        //pixelbuffer.x++;
+        changed=true;
+    }
+
+
+    kbm.key_down=0;
+    kbm.key_pressed=0;
+
+    if (changed){
+        //pixelbuffer.pixel_size=flags_pack_4_4(px_width,px_height);
+        //flags_set(pixelbuffer.flags,PXBFLAG_DIRTY);
+        //gfx_pixelbuffer_set_active(&pixelbuffer);      
+        //gfx_pixelbuffer_apply_data(&pixelbuffer);      
+        //gfx_draw_tilemap(x,10,&tilemap);
+
+    }
+}
+
+#ifndef _MOD_NATIVE_
+int main(){
+    mod_init();
+
+    while(1){
+        mod_update();
+    }
+
+    return 0;
+}
+#endif

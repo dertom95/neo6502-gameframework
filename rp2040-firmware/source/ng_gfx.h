@@ -157,9 +157,9 @@ void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 /*api:1:9*/void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
 /*api:1:10*/void gfx_pixelbuffer_set_active(gfx_pixelbuffer_t* pxbuffer);
 /*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
-/*api:1:13*/uint8_t gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size);
+/*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size);
 /*api:1:33*/bool gfx_mount_set_page(uint8_t mount_id, uint8_t page);
-/*api:1:26*/void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb);
+/*api:1:26*/void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb);
 
 // 🇵​​​​​🇽​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​ - 🇨​​​​​🇦​​​​​🇳​​​​​🇻​​​​​🇦​​​​​🇸​​​​​ 🇴​​​​​🇵​​​​​🇪​​​​​🇷​​​​​🇦​​​​​🇹​​​​​🇮​​​​​🇴​​​​​🇳​​​​​
 /*api:1:2*/void     gfx_set_palettecolor(uint8_t color_idx, uint16_t color565);

@@ -311,8 +311,8 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
         return call_result;
     }
 }   
-// returns: uint8_t f-grp:1 f-id:13
-uint8_t gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size){
+// returns: void f-grp:1 f-id:13
+void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size){
     uint8_t result_code;
     call_gfx_pixelbuffer_mount_t* func_data;
     func_data = (call_gfx_pixelbuffer_mount_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -326,8 +326,7 @@ uint8_t gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint
     // TODO: resultcode some error checking?!
 
     {
-        uint8_t call_result = (uint8_t)*mem_call_result;
-        return call_result;
+
     }
 }   
 // returns: bool f-grp:1 f-id:33
@@ -349,12 +348,13 @@ bool gfx_mount_set_page(uint8_t mount_id, uint8_t page){
     }
 }   
 // returns: void f-grp:1 f-id:26
-void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pxb){
+void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb){
     uint8_t result_code;
-    call___not_in_flash_func_t* func_data;
-    func_data = (call___not_in_flash_func_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_gfx_pixelbuffer_apply_data_t* func_data;
+    func_data = (call_gfx_pixelbuffer_apply_data_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 26;
+    func_data->pxb=(uint16_t) pxb;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

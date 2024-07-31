@@ -185,7 +185,7 @@ int kickstart(int argc, char **argv){
     main_init();
 
     // graphics thread is running on mainthread
-    kinc_set_update_callback(graphics_loop,NULL);
+    kinc_set_update_callback(graphics_loop,NULL);cd 
     // logic on other thread
     kinc_thread_init(&logic_thread,main_loop,NULL);
 	kinc_start();
