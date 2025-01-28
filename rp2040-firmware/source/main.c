@@ -118,21 +118,21 @@ void main_loop(void* data)
         last_millis = current_millis;
 
         
-        if (msCount > 1000){
-            tps = (tickscpu);
-            tickscpu = 0;
-            msCount=-1000;
-            fps = frame;
-            frame = 0;
-//             gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
+//         if (msCount > 1000){
+//             tps = (tickscpu);
+//             tickscpu = 0;
+//             msCount=-1000;
+//             fps = frame;
+//             frame = 0;
+// //             gfx_draw_printf(0,0,COL_WHITE,"fps:%03d 6502:%07d addr:%04x data:%02x",fps,tps,last_address,last_data);
             
-// #ifdef __KINC__            
-//             gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
-// #endif            
+// // #ifdef __KINC__            
+// //             gfx_draw_printf(0,10,COL_WHITE,"diff:%12d ns_timer:%07d ms:%05d",diff,ns_timer,msDelta);
+// // #endif            
             
             
-            //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
-        }     
+//             //gfx_draw_printf(0,40,COL_WHITE,"Ich bin Thomas!");            
+//         }     
         //gfx_draw_printf(0,20,COL_WHITE,"current:%06d delta:%06d",current_millis,msDelta);
         //gfx_draw_printf(0,40,COL_WHITE,"msc:%06d tc:%06d",msCount,tick_counter);
         

@@ -52,6 +52,10 @@
 #define UART_TX_PIN 28
 #endif
 
+#include <ctype.h>
+#include "ff.h"
+#include "diskio.h"
+
 uint8_t kbd_addr = 0;
 uint8_t kbd_inst = 0;
 
@@ -395,12 +399,176 @@ bool io_mouse_connected(void)
   return _mouse_connected;
 }
 
+void tuh_mount_cb(uint8_t dev_addr) {
+  // application set-up
+  printf("A device with address %d is mounted\r\n", dev_addr);
+}
+
+void tuh_umount_cb(uint8_t dev_addr) {
+  // application tear-down
+  printf("A device with address %d is unmounted \r\n", dev_addr);
+}
+#include <inttypes.h>
+
+//--------------------------------------------------------------------+
+// MACRO TYPEDEF CONSTANT ENUM DECLARATION
+//--------------------------------------------------------------------+
+static scsi_inquiry_resp_t inquiry_resp;
+bool inquiry_complete = false;
+
+static FATFS msc_fatfs_volumes[CFG_TUH_DEVICE_MAX];
+//static volatile bool _disk_busy[CFG_TUH_DEVICE_MAX];
+static volatile bool msc_volume_busy[CFG_TUH_DEVICE_MAX];
+
+bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data)
+{
+  msc_cbw_t const* cbw = cb_data->cbw;
+  msc_csw_t const* csw = cb_data->csw;
+
+  if (csw->status != 0)
+  {
+    return false;
+  }
+
+
+    uint16_t vid, pid;
+    tuh_vid_pid_get(dev_addr, &vid, &pid);
+   // CONWriteString("USB Key found %04x %04x\r",vid,pid);
+
+    char drive_path[3] = "0:";
+    drive_path[0] += dev_addr;
+    FRESULT result = f_mount(&msc_fatfs_volumes[dev_addr], drive_path, 1);
+    if (result != FR_OK) {
+        // CONWriteString("MSC filesystem mount failed\r\n");
+        return false;
+    }
+
+    char s[2];
+    if (FR_OK != f_getcwd(s, 2)) {
+        f_chdrive(drive_path);
+        f_chdir("/");
+        
+    }
+
+    FILINFO fno;      // File information object
+    DIR dir;          // Directory object
+    FRESULT res;      // Result code
+
+    res = f_opendir(&dir, "/"); // Open the root directory
+    if (res != FR_OK) {
+        printf("Failed to open directory: %d\n", res);
+        return;
+    }
+
+    while (1) {
+        res = f_readdir(&dir, &fno); // Read a directory item
+        if (res != FR_OK || fno.fname[0] == 0) break; // Break on error or end of directory
+
+        // Print the name of the file or directory
+        if (fno.fattrib & AM_DIR) {
+            printf("Directory: %s\n", fno.fname); // Print directory names
+        } else {
+            printf("File: %s\n", fno.fname); // Print file names
+        }
+    }
+
+    f_closedir(&dir);
+
+    inquiry_complete = true;
+
+  return true;
+}
+
+//------------- IMPLEMENTATION -------------//
+void tuh_msc_mount_cb(uint8_t dev_addr)
+{
+  printf("A MassStorage device is mounted\r\n");
+
+  uint8_t const lun = 0;
+  tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb, 0);
+}
+
+void tuh_msc_umount_cb(uint8_t dev_addr)
+{
+  (void) dev_addr;
+  printf("A MassStorage device is unmounted\r\n");
+}
+
+static void wait_for_disk_io(BYTE pdrv) {
+    while (msc_volume_busy[pdrv]) {
+        tuh_task();
+    }
+}
+
+static bool disk_io_complete(uint8_t dev_addr, tuh_msc_complete_data_t const *cb_data) {
+    (void)cb_data;
+    msc_volume_busy[dev_addr] = false;
+    return true;
+}
+
+DSTATUS disk_status(BYTE pdrv) {
+    uint8_t dev_addr = pdrv;
+    return tuh_msc_mounted(dev_addr) ? 0 : STA_NODISK;
+}
+
+DSTATUS disk_initialize(BYTE pdrv) {
+    (void)(pdrv);
+    return 0;
+}
+
+DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
+    uint8_t const dev_addr = pdrv;
+    uint8_t const lun = 0;
+    msc_volume_busy[pdrv] = true;
+    tuh_msc_read10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
+    wait_for_disk_io(pdrv);
+    return RES_OK;
+}
+
+DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
+    uint8_t const dev_addr = pdrv;
+    uint8_t const lun = 0;
+    msc_volume_busy[pdrv] = true;
+    tuh_msc_write10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
+    wait_for_disk_io(pdrv);
+    return RES_OK;
+}
+
+DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
+    uint8_t const dev_addr = pdrv;
+    uint8_t const lun = 0;
+    switch (cmd) {
+        case CTRL_SYNC:
+            return RES_OK;
+        case GET_SECTOR_COUNT:
+            *((DWORD *)buff) = (WORD)tuh_msc_get_block_count(dev_addr, lun);
+            return RES_OK;
+        case GET_SECTOR_SIZE:
+            *((WORD *)buff) = (WORD)tuh_msc_get_block_size(dev_addr, lun);
+            return RES_OK;
+        case GET_BLOCK_SIZE:
+            *((DWORD *)buff) = 1;  // 1 sector
+            return RES_OK;
+        default:
+            return RES_PARERR;
+    }
+}
+
+
+//-------------------
+
 void neo6502_usb_init(void) {
 
   board_init();
   tusb_init();
 
-  while (utils_millis()<1000){
+  tuh_init(0);
+
+  if (board_init_after_tusb) {
+    board_init_after_tusb();
+  }
+
+  while (utils_millis()<1000 || !inquiry_complete){
       sleep_ms(1);
       neo6502_usb_update();
   }

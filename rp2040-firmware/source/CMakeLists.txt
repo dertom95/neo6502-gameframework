@@ -41,10 +41,10 @@ add_executable(neo6502firmware
 if(BACKEND STREQUAL "PICO_NEO6502")
 	add_definitions(-D${BACKEND} -DCHIPS_IMPL)
 	list(APPEND BACKEND_SOURCE
-			 core/backend/neo6502/neo6502_gfx.c
+			 core/backend/neo6502/neo6502_gfx.c 
 	)
 
-	target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/backend/neo6502  )
+	target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/backend/neo6502 ${CMAKE_SOURCE_DIR}/3rd/ff  )
 
 endif()	
 
@@ -59,15 +59,28 @@ target_compile_definitions(neo6502firmware PRIVATE
 	DVI_N_TMDS_BUFFERS=8
 	)
 
+add_library(fatfs INTERFACE)
+target_sources(fatfs INTERFACE
+    ${CMAKE_SOURCE_DIR}/3rd/ff/ff.c
+    ${CMAKE_SOURCE_DIR}/3rd/ff/ffsystem.c
+    ${CMAKE_SOURCE_DIR}/3rd/ff/ffunicode.c
+    
+)
+target_include_directories(fatfs INTERFACE ${CMAKE_SOURCE_DIR}/3rd/ff/)
+
 target_link_libraries(neo6502firmware
 	pico_stdlib
 	pico_multicore
 	pico_util
 	libdvi
 	libsprite
-	tinyusb_host tinyusb_board
+    tinyusb_host
+    tinyusb_device
+    tinyusb_board
+    fatfs
 #	pico_pio_usb
 )
+
 
 target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core  )
 
