@@ -19,8 +19,12 @@ volatile uint16_t* my = NULL;
 volatile uint8_t* mbtn = NULL;
 volatile uint8_t* pxbuf = NULL;
 
-#define SCREEN_WIDTH 80
-#define SCREEN_HEIGHT 60
+// #define SCREEN_WIDTH 80
+// #define SCREEN_HEIGHT 60
+#define SCREEN_WIDTH 160
+#define SCREEN_HEIGHT 120
+// #define PX 1
+// #define PY 1
 #define PX (320/SCREEN_WIDTH)
 #define PY (240/SCREEN_HEIGHT)
 #define TICK_RATE (1000/30)
@@ -49,7 +53,7 @@ gfx_layer_30_30_t layer0 = {0};
 gfx_pixelbuffer_t pixelbuffer = {
     .width=SCREEN_WIDTH,
     .height=SCREEN_HEIGHT,
-    .x=10,
+    .x=0,
     .y=0,
     .pixel_size=flags_pack_4_4(PX,PY),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
@@ -57,7 +61,7 @@ gfx_pixelbuffer_t pixelbuffer = {
 
 // spritebuffer
 uint8_t spritebuffer;
-#define SPRITE_AMOUNT 16
+#define SPRITE_AMOUNT 4
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 gfx_tilesheet_data_t ts_misc;
 
@@ -70,15 +74,12 @@ int mod_init(){
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
 
-    gfx_set_font_from_asset(ASSET_FONT8);
-    gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
-
     gfx_pixelbuffer_create(&pixelbuffer);
     gfx_pixelbuffer_set_active(&pixelbuffer);
 
     gfx_draw_pixel(0,0,COL_RED);
-    gfx_draw_pixel(SCREEN_WIDTH-1,0,COL_GREEN);
-    gfx_draw_pixel(SCREEN_WIDTH-1,SCREEN_HEIGHT-1,COL_GREEN);
+    gfx_draw_pixel(SCREEN_WIDTH-1,0,COL_RED);
+    gfx_draw_pixel(SCREEN_WIDTH-1,SCREEN_HEIGHT-1,COL_RED);
     gfx_draw_pixel(0,SCREEN_HEIGHT-1,COL_RED);
 
     // tilemap
@@ -92,7 +93,7 @@ int mod_init(){
     asset_get_tilesheet(&ts_misc,ASSET_SPRITES_MISC);
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
-    for (uint8_t i=0; i<SPRITE_AMOUNT;i++){
+    for (uint8_t i=0; i<SPRITE_AMOUNT;i++){ 
         gfx_sprite_set_tileset(&sprites[i], &ts_misc,i%4);
         sprites[i].x=(i % 4) * 60;
         sprites[i].y=(i / 4) * 30;

@@ -48,7 +48,8 @@
                 "3rd/PicoDVI/software/libdvi",
                 "3rd/PicoDVI/software/libsprite",
                 "/opt/pico-sdk/src/host/pico_platform/include",
-                "/opt/pico-sdk/src/common/pico_util/include"
+                "/opt/pico-sdk/src/common/pico_util/include",
+                "/opt"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

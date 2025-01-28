@@ -4,7 +4,8 @@
 
 #ifdef PICO_NEO6502
 # include "core/backend/neo6502/neo6502.h"
-# include "pico/platform.h"
+//#include "pico/platform.h"
+#include "boards/pico.h"
 #endif
 #include <stddef.h>
 #include <stdint.h>

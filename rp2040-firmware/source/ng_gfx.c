@@ -5,7 +5,7 @@
 
 #ifdef PICO_NEO6502
 #include "core/backend/neo6502/neo6502.h"
-#include "pico/platform.h"
+#include "pico/stdlib.h"
 #endif
 
 // #include "zelda_mini_plus_walk_rgab5515.h"

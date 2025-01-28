@@ -1,6 +1,5 @@
 MEMORY {
     zp : ORIGIN = __rc31 + 1, LENGTH = 0x100 - (__rc31 + 1)
-    ram : ORIGIN = 0x0000, LENGTH = 0x10000 
     user_ram (rw) : ORIGIN = 0x0200, LENGTH = 0xfe00
 }
 

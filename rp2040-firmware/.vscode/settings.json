@@ -1,5 +1,8 @@
 {
     "files.associations": {
+        "*.sqlbook": "sql",
+        "*.ndjson": "jsonl",
+        "*.dbclient-js": "javascript",
         "wavaudio.h": "c",
         "tusb.h": "c",
         "tilemap.h": "c",
@@ -137,7 +140,9 @@
         "ng_defines.h": "c",
         "ng_api_shared.h": "c",
         "ng_mem.h": "c",
-        "fake65c02.h": "c"
+        "fake65c02.h": "c",
+        "affine_transform.h": "c",
+        "platform.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"],
     "editor.detectIndentation": false    

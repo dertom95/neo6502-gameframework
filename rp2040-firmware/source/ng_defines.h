@@ -28,7 +28,8 @@ typedef uint8_t* US_ADDRESS;
 #define __align4 __attribute__((aligned(4)))
 
 #ifdef PICO_NEO6502
-# include "pico/platform.h"
+#include "pico/stdlib.h"
+# include "boards/pico.h"
 #else
 # define __not_in_flash_func(FUNC) FUNC
 #endif
