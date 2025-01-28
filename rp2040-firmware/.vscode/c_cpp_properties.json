@@ -37,6 +37,7 @@
                 "/opt/pico-sdk/src/common/pico_stdlib/include",
                 "/home/ttrocha/_dev/terra1/retro/neo/neo6502-gameframework/rp2040-firmware/3rd/PicoDVI/software/libdvi",
                 "/home/ttrocha/_dev/terra1/retro/neo/neo6502-gameframework/rp2040-firmware/3rd/PicoDVI/software/libsprite",
+                "/opt/pico-sdk/src/rp2_common/hardware_flash/include",
                 "/opt/pico-sdk/src/rp2_common/hardware_gpio/include",
                 "/opt/pico-sdk/src/rp2_common/pico_multicore/include",
                 "/opt/pico-sdk/src/rp2_common/pico_flash/include",

@@ -2,12 +2,14 @@ set(BACKEND_SOURCE)
 set(BACKEND PICO_NEO6502)
 
 if(BACKEND STREQUAL "PICO_NEO6502")
-	add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA)
-	list(APPEND BACKEND_SOURCE
+#add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA)
+add_definitions(-D${BACKEND} -DCHIPS_IMPL )
+list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
 			 core/backend/neo6502/neo6502_io.c
 			 core/backend/neo6502/neo6502_utils.c
 			 core/backend/neo6502/neo6502_cpu.c
+             core/backend/neo6502/neo6502_file.c
 	)
 endif()	
 
@@ -66,7 +68,7 @@ target_sources(fatfs INTERFACE
     ${CMAKE_SOURCE_DIR}/3rd/ff/ffunicode.c
     
 )
-target_include_directories(fatfs INTERFACE ${CMAKE_SOURCE_DIR}/3rd/ff/)
+target_include_directories(fatfs INTERFACE ${CMAKE_SOURCE_DIR}/3rd/ff/ /opt/pico-sdk/src/rp2_common/hardware_flash/include)
 
 target_link_libraries(neo6502firmware
 	pico_stdlib
@@ -78,6 +80,7 @@ target_link_libraries(neo6502firmware
     tinyusb_device
     tinyusb_board
     fatfs
+    hardware_flash    
 #	pico_pio_usb
 )
 

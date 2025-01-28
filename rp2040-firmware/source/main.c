@@ -17,9 +17,9 @@
 
 
 // LOADER! Move this somewhere else! Once we can load from usb
-#define INCLUDE_DATA
-#include "../mod/export/assets.h"
-#include "../mod/export/assets.c"
+// #define INCLUDE_DATA
+// #include "../mod/export/assets.h"
+// #include "../mod/export/assets.c"
 //--------------------------------------
 
 
@@ -71,6 +71,8 @@ int32_t tps = 0;
 int32_t fps=0;
 uint32_t tick_counter = 0;
 
+void* assets_data = 0;
+size_t assets_size = 0;
 
 void main_init(){
     io_init();
@@ -79,8 +81,8 @@ void main_init(){
     gfx_init();  
    // game_init();
     // TODO: this have to be done by the loader! once it is established
-    assets_set_current_pack((void*)assets_data,sizeof(assets_data));
-
+    //assets_set_current_pack((void*)assets_data,sizeof(assets_data));
+    assets_set_current_pack(assets_data, assets_size);
 
 	loadROMS();
 

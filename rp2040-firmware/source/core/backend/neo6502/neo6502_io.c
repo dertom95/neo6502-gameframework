@@ -59,6 +59,8 @@
 uint8_t kbd_addr = 0;
 uint8_t kbd_inst = 0;
 
+extern bool finished_usb_startup;
+
 uint8_t const hid2ascii[] = {
   0x00, 	//0-3 empty
   0x00, 
@@ -410,17 +412,17 @@ void tuh_umount_cb(uint8_t dev_addr) {
 }
 #include <inttypes.h>
 
-//--------------------------------------------------------------------+
-// MACRO TYPEDEF CONSTANT ENUM DECLARATION
-//--------------------------------------------------------------------+
+// //--------------------------------------------------------------------+
+// // MACRO TYPEDEF CONSTANT ENUM DECLARATION
+// //--------------------------------------------------------------------+
 static scsi_inquiry_resp_t inquiry_resp;
-bool inquiry_complete = false;
+//bool finished_usb_startup = false;
 
 static FATFS msc_fatfs_volumes[CFG_TUH_DEVICE_MAX];
 //static volatile bool _disk_busy[CFG_TUH_DEVICE_MAX];
-static volatile bool msc_volume_busy[CFG_TUH_DEVICE_MAX];
+static volatile bool busy[CFG_TUH_DEVICE_MAX];
 
-bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data)
+/*bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data)
 {
   msc_cbw_t const* cbw = cb_data->cbw;
   msc_csw_t const* csw = cb_data->csw;
@@ -474,85 +476,85 @@ bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_da
 
     f_closedir(&dir);
 
-    inquiry_complete = true;
+    finished_usb_startup = true;
 
   return true;
 }
+*/
+// //------------- IMPLEMENTATION -------------//
+// void tuh_msc_mount_cb(uint8_t dev_addr)
+// {
+//   printf("A MassStorage device is mounted\r\n");
 
-//------------- IMPLEMENTATION -------------//
-void tuh_msc_mount_cb(uint8_t dev_addr)
-{
-  printf("A MassStorage device is mounted\r\n");
+//   uint8_t const lun = 0;
+//   tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb, 0);
+// }
 
-  uint8_t const lun = 0;
-  tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb, 0);
-}
+// void tuh_msc_umount_cb(uint8_t dev_addr)
+// {
+//   (void) dev_addr;
+//   printf("A MassStorage device is unmounted\r\n");
+// }
 
-void tuh_msc_umount_cb(uint8_t dev_addr)
-{
-  (void) dev_addr;
-  printf("A MassStorage device is unmounted\r\n");
-}
+// static void wait_for_disk_io(BYTE pdrv) {
+//     while (busy[pdrv]) {
+//         tuh_task();
+//     }
+// }
 
-static void wait_for_disk_io(BYTE pdrv) {
-    while (msc_volume_busy[pdrv]) {
-        tuh_task();
-    }
-}
+// static bool disk_io_complete(uint8_t dev_addr, tuh_msc_complete_data_t const *cb_data) {
+//     (void)cb_data;
+//     busy[dev_addr] = false;
+//     return true;
+// }
 
-static bool disk_io_complete(uint8_t dev_addr, tuh_msc_complete_data_t const *cb_data) {
-    (void)cb_data;
-    msc_volume_busy[dev_addr] = false;
-    return true;
-}
+// DSTATUS disk_status(BYTE pdrv) {
+//     uint8_t dev_addr = pdrv;
+//     return tuh_msc_mounted(dev_addr) ? 0 : STA_NODISK;
+// }
 
-DSTATUS disk_status(BYTE pdrv) {
-    uint8_t dev_addr = pdrv;
-    return tuh_msc_mounted(dev_addr) ? 0 : STA_NODISK;
-}
+// DSTATUS disk_initialize(BYTE pdrv) {
+//     (void)(pdrv);
+//     return 0;
+// }
 
-DSTATUS disk_initialize(BYTE pdrv) {
-    (void)(pdrv);
-    return 0;
-}
+// DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
+//     uint8_t const dev_addr = pdrv;
+//     uint8_t const lun = 0;
+//     busy[pdrv] = true;
+//     tuh_msc_read10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
+//     wait_for_disk_io(pdrv);
+//     return RES_OK;
+// }
 
-DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
-    uint8_t const dev_addr = pdrv;
-    uint8_t const lun = 0;
-    msc_volume_busy[pdrv] = true;
-    tuh_msc_read10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
-    wait_for_disk_io(pdrv);
-    return RES_OK;
-}
+// DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
+//     uint8_t const dev_addr = pdrv;
+//     uint8_t const lun = 0;
+//     busy[pdrv] = true;
+//     tuh_msc_write10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
+//     wait_for_disk_io(pdrv);
+//     return RES_OK;
+// }
 
-DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
-    uint8_t const dev_addr = pdrv;
-    uint8_t const lun = 0;
-    msc_volume_busy[pdrv] = true;
-    tuh_msc_write10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
-    wait_for_disk_io(pdrv);
-    return RES_OK;
-}
-
-DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
-    uint8_t const dev_addr = pdrv;
-    uint8_t const lun = 0;
-    switch (cmd) {
-        case CTRL_SYNC:
-            return RES_OK;
-        case GET_SECTOR_COUNT:
-            *((DWORD *)buff) = (WORD)tuh_msc_get_block_count(dev_addr, lun);
-            return RES_OK;
-        case GET_SECTOR_SIZE:
-            *((WORD *)buff) = (WORD)tuh_msc_get_block_size(dev_addr, lun);
-            return RES_OK;
-        case GET_BLOCK_SIZE:
-            *((DWORD *)buff) = 1;  // 1 sector
-            return RES_OK;
-        default:
-            return RES_PARERR;
-    }
-}
+// DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
+//     uint8_t const dev_addr = pdrv;
+//     uint8_t const lun = 0;
+//     switch (cmd) {
+//         case CTRL_SYNC:
+//             return RES_OK;
+//         case GET_SECTOR_COUNT:
+//             *((DWORD *)buff) = (WORD)tuh_msc_get_block_count(dev_addr, lun);
+//             return RES_OK;
+//         case GET_SECTOR_SIZE:
+//             *((WORD *)buff) = (WORD)tuh_msc_get_block_size(dev_addr, lun);
+//             return RES_OK;
+//         case GET_BLOCK_SIZE:
+//             *((DWORD *)buff) = 1;  // 1 sector
+//             return RES_OK;
+//         default:
+//             return RES_PARERR;
+//     }
+// }
 
 
 //-------------------
@@ -568,7 +570,7 @@ void neo6502_usb_init(void) {
     board_init_after_tusb();
   }
 
-  while (utils_millis()<1000 || !inquiry_complete){
+  while (utils_millis()<1000 || !finished_usb_startup){
       sleep_ms(1);
       neo6502_usb_update();
   }
