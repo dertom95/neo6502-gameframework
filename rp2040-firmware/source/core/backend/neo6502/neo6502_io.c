@@ -59,7 +59,7 @@
 uint8_t kbd_addr = 0;
 uint8_t kbd_inst = 0;
 
-extern bool finished_usb_startup;
+bool finished_usb_startup = false;
 
 uint8_t const hid2ascii[] = {
   0x00, 	//0-3 empty
@@ -564,7 +564,11 @@ void neo6502_usb_init(void) {
   board_init();
   tusb_init();
 
+#ifndef INCLUDE_DATA
   tuh_init(0);
+#else
+  finished_usb_startup = true;
+#endif
 
   if (board_init_after_tusb) {
     board_init_after_tusb();

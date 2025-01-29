@@ -64,8 +64,8 @@ def write_header_file(output_filename, filepaths, asset_offsets):
             define_name = "ASSET_" + os.path.splitext(os.path.basename(filepath))[0].upper()
             header_file.write(f"#define {define_name} {i}\n")
 
-        header_file.write(f"\nextern const uint32_t {base_name}_offsets[];\n")
-        header_file.write(f"extern const uint32_t {base_name}_sizes[];\n\n")
+        # header_file.write(f"\nextern const uint32_t {base_name}_offsets[];\n")
+        # header_file.write(f"extern const uint32_t {base_name}_sizes[];\n\n")
 
         header_file.write(f"#define {base_name.upper()}_AMOUNT {len(filepaths)}\n\n")
 
@@ -77,6 +77,7 @@ def write_header_file(output_filename, filepaths, asset_offsets):
 
     with open(base_folder+"/"+base_name + ".c", 'w') as offsets_file:
         offsets_file.write(f"#include \"{base_name}.h\"\n\n")
+        offsets_file.write("#ifdef INCLUDE_DATA\n")
         offsets_file.write(f"const uint32_t {base_name}_offsets[] = {{\n")
         for offset,length in asset_offsets:
             offsets_file.write(f"    {offset},\n")
@@ -87,7 +88,6 @@ def write_header_file(output_filename, filepaths, asset_offsets):
             offsets_file.write(f"    {length},\n")
         offsets_file.write("};\n\n")
         
-        offsets_file.write("#ifdef INCLUDE_DATA\n")
         offsets_file.write(f"const uint8_t {base_name}_data[] = {{\n")
         counter = 0
         with open(output_filename,"rb") as gen_file:

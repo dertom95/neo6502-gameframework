@@ -10,10 +10,6 @@
 #define ASSET_SPRITES_MISC 5
 #define ASSET_SPRITESHEET 6
 #define ASSET_TILEMAP 7
-
-extern const uint32_t assets_offsets[];
-extern const uint32_t assets_sizes[];
-
 #define ASSETS_AMOUNT 8
 
 #ifdef INCLUDE_DATA
