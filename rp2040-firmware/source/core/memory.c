@@ -5,7 +5,6 @@ extern "C" {
 // 
 // Author: Rien Matthijsse
 // 
-#include "pico/stdlib.h"
 #include "memory.h"
 #include "roms.h"
 #include "../ng_defines.h"

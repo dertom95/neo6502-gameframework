@@ -36,6 +36,26 @@ uint8_t px_height;
 
 int16_t x=0;
 
+#define KEY_COL_DOWN    (1 << 7)
+#define KEY_COL_UP      (1 << 6)
+#define KEY_LEFT    (1 << 5)
+#define KEY_LEFT2      (1 << 4)
+#define KEY_RIGHT2   (1 << 3)
+#define KEY_RIGHT    (1 << 2)
+
+
+keyboard_mapping_t kbm={
+    .keycodes = {
+        HID_KEY_0,
+        HID_KEY_1,
+        HID_KEY_A,
+        HID_KEY_Q,
+        HID_KEY_E,
+        HID_KEY_D,
+        0,
+        0},
+    .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_RELEASED
+};
 
 // tilemap
 gfx_tilesheet_data_t ts_spritesheet;
@@ -66,6 +86,9 @@ gfx_sprite_t sprites[SPRITE_AMOUNT];
 gfx_tilesheet_data_t ts_misc;
 
 int mod_init(){
+    io_keyboardmapping_register(&kbm,1);
+
+    sound_play_wav(ASSET_MUSIC_8,true);
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
@@ -120,11 +143,23 @@ void mod_update() {
     {
         return;
     }
+    char buf[24];
+    ng_snprintf(buf,24,"%d - %d - %d",kbm.key_pressed,kbm.key_down,kbm.key_released);
+    gfx_draw_text(0,0,buf,COL_ORANGE);
+    if ((kbm.key_pressed & KEY_COL_DOWN)>0){
+        x--;
+        // if (px_width>0){
+        //     px_width--;
+        // }
+        //pixelbuffer.x--;
+        sound_play_wav(ASSET_POWER_UP_8,false);
+    }
 
     x += dir;
 
     if (dir==1 && x > 300){
         dir = -1;
+
     }
     if (dir == -1 && x < 20){
         dir = 1;

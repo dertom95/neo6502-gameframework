@@ -19,7 +19,7 @@ typedef struct call_header_t {
 // function grp: 4
 
  // returns: void f-grp: f-id:1;
-void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
+void asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id);
  // returns: void f-grp: f-id:2;
 void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id);
 
@@ -334,5 +334,17 @@ typedef struct call_io_keyboardmapping_register_t {
 typedef struct call_io_keyboardmapping_unregister_t {
     call_header_t hdr;
 } call_io_keyboardmapping_unregister_t;
+
+// function grp: 5
+
+ // returns: void f-grp: f-id:1;
+void sound_play_wav(uint8_t asset_id, bool loop);
+
+// returns: void f-grp: f-id:1
+typedef struct call_sound_play_wav_t {
+    call_header_t hdr;
+    uint8_t asset_id;
+    bool loop;
+} call_sound_play_wav_t;
 
 #endif

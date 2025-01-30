@@ -312,6 +312,19 @@ uint8_t call_function()
         }
     }
 
+    if (header->func_type==5){
+        switch (header->func_id) {
+
+            case 1: {
+                call_sound_play_wav_t* call = (call_sound_play_wav_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  sound_play_wav(  call->asset_id  ,    call->loop    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+        }
+    }
+
     return FUNCTION_RETURN_ERROR;
 }
 

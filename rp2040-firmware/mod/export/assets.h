@@ -10,7 +10,10 @@
 #define ASSET_SPRITES_MISC 5
 #define ASSET_SPRITESHEET 6
 #define ASSET_TILEMAP 7
-#define ASSETS_AMOUNT 8
+#define ASSET_MUSIC_8 8
+#define ASSET_POWER_UP_8 9
+#define ASSET_SFX_8 10
+#define ASSETS_AMOUNT 11
 
 #ifdef INCLUDE_DATA
 extern const uint8_t assets_data[];

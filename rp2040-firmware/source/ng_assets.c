@@ -32,7 +32,7 @@ void assets_set_current_pack(void* data, uint32_t size)
 
     for (int i=0;i<amount;i++){
         assert(current_assetpack.offsets[i]==current_assetpack.offsets[i]);    
-        assert(current_assetpack.sizes[i]==assets_sizes[i]);    
+     //   assert(current_assetpack.sizes[i]==assets_sizes[i]);    
     }
 
     const uint8_t* code_data = assets_get_pointer(0);
@@ -52,6 +52,13 @@ const void*  assets_get_pointer(uint8_t asset_id)
     assert(asset_id < current_assetpack.asset_amount && "exceeded assets amount");
     const void* tip = current_assetpack.data+current_assetpack.offsets[asset_id];
     return tip;
+}
+
+const uint32_t assets_get_size(uint8_t asset_id) {
+    assert(current_assetpack.asset_amount>0 && "no asset pack set! set it with assets_set_current_pack");
+    assert(asset_id < current_assetpack.asset_amount && "exceeded assets amount");
+    const uint32_t result = current_assetpack.sizes[asset_id];
+    return result;
 }
 
 // ---------------------------

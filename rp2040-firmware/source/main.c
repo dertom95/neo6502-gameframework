@@ -41,7 +41,7 @@ int start_audio_test();
 //#define SOUND
 
 #ifdef SOUND
-#include "../src/the_softliner.h"
+//#include "../src/the_softliner.h"
 #endif
 
 // #define __BREAKPOINT__ raise(SIGINT);
@@ -97,7 +97,7 @@ void main_init(){
 #ifdef SOUND
 
     sound_init(11000);
-    sound_play_mod(&mod_the_softliner, 11000, true );
+    //sound_play_mod(&mod_the_softliner, 11000, true );
 #endif    
     ng_cpu_init();
 

@@ -20,25 +20,26 @@ keyboard_environment_t kenv={0};
 bool was_set = false;
 
 static void update_keymapping(keyboard_mapping_t* keymap){
-//   keymap->key_down=0;
-//   keymap->key_pressed=0;
-//   keymap->key_released=0;
+  //keymap->key_down=0;
+  keymap->key_pressed=0;
+  keymap->key_released=0;
 
   for (int i=0;i<8;i++){
     uint8_t keycode = keymap->keycodes[i];
     if (keycode==0){
       continue;
     }
+    uint8_t bit = (128>>i);
     // TODO: this can be more optimizied but I want it getting started! Let's start with overengineering later
     if (flags_isset(keymap->flags,KEYBMAP_FLAG_SCAN_KEY_PRESSED) && io_keyboard_is_pressed(keycode)){
-      keymap->key_pressed |= (128>>i);
+      keymap->key_pressed |= bit;
       was_set=true;
     }
     if (flags_isset(keymap->flags,KEYBMAP_FLAG_SCAN_KEY_DOWN) && io_keyboard_is_down(keycode)){
-      keymap->key_down |= (128>>i);
+      keymap->key_down |= bit;
     }
     if (flags_isset(keymap->flags,KEYBMAP_FLAG_SCAN_KEY_RELEASED) && io_keyboard_is_released(keycode)){
-      keymap->key_released |= (128>>i);
+      keymap->key_released |= bit;
     }
   }
 }

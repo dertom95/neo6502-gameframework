@@ -16,7 +16,7 @@ endif()
 message(BACKEND_SOURCE ${BACKEND_SOURCE})
 
 add_executable(neo6502firmware
-	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/audio.c
+	3rd/audio/audio.c
 	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
 
 	core/memory.c

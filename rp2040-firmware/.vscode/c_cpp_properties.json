@@ -50,6 +50,7 @@
                 "3rd/PicoDVI/software/libsprite",
                 "/opt/pico-sdk/src/host/pico_platform/include",
                 "/opt/pico-sdk/src/common/pico_util/include",
+                "/home/ttrocha/_dev/terra1/retro/neo/neo6502-gameframework/rp2040-firmware/source/3rd/audio",
                 "/opt"
             ],
             "browse": {

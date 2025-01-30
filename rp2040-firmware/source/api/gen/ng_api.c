@@ -6,7 +6,7 @@ const volatile uint8_t* mem_call_function = (uint8_t*)MM_FUNC_CALL;
 const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFFER_BEGIN;
 
 // returns: void f-grp:1 f-id:1
-void  asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
+void asset_get_tilesheet(gfx_tilesheet_data_t* ts_data,uint8_t asset_id){
     uint8_t result_code;
     call_asset_get_tilesheet_t* func_data;
     func_data = (call_asset_get_tilesheet_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -667,6 +667,24 @@ void   io_keyboardmapping_unregister(void){
     func_data = (call_io_keyboardmapping_unregister_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 2;
     func_data->hdr.func_id = 5;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
+// returns: void f-grp:1 f-id:1
+void sound_play_wav(uint8_t asset_id, bool loop){
+    uint8_t result_code;
+    call_sound_play_wav_t* func_data;
+    func_data = (call_sound_play_wav_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 1;
+    func_data->asset_id= asset_id;
+    func_data->loop= loop;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

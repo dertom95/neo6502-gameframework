@@ -585,8 +585,11 @@ uint8_t backend2hid(int keycode) {
 
 float mouse_factor;
 
+#include <stdio.h>
+
 static void keyboard_pressed(int _key, void* data)
 {
+  printf("pressed: %d\n",_key)  ;
   uint8_t key = backend2hid((uint8_t)_key);
   kb_pressed.keycode[kb_pressed.keycode_amount++]=key;
   kb_down.keycode[kb_down.keycode_amount++]=key;
@@ -594,6 +597,7 @@ static void keyboard_pressed(int _key, void* data)
 
 static void keyboard_released(int _key, void* data)
 {
+  printf("released: %d\n",_key)  ;
   uint8_t key = backend2hid((uint8_t)_key);
  
   kb_released.keycode[kb_released.keycode_amount++]=key;

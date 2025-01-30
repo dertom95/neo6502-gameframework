@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "ng_sound.h"
 
 #include <stdio.h>

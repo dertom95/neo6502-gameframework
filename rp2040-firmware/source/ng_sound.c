@@ -1,14 +1,16 @@
-#if 1
 #include "ng_sound.h"
+
+#ifdef PICO_NEO6502
 
 #include <stdio.h>
 #include <pico/stdlib.h>
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 
-#include "audio.h"
+#include "3rd/audio/audio.h"
 
 #include "ng_gfx.h"
+#include "ng_assets.h"
 
 #include "mod_data.h"
 #include "mod_play.h"
@@ -35,7 +37,18 @@ void sound_init(int freq)
   bi_decl(bi_1pin_with_name(SOUND_PIN, "Sound output"));
   
   audio_init(SOUND_PIN, freq);
-  init_tsf();
+
+ 
+  
+  //init_tsf();
+}
+
+void sound_play_wav(uint8_t asset_id, bool loop) {
+  const void* music_ptr = assets_get_pointer(asset_id);
+  const uint32_t music_size = assets_get_size(asset_id);
+  int source_music = loop 
+                        ? audio_play_loop(music_ptr,music_size,0)
+                        : audio_play_once(music_ptr,music_size);
 }
 
 void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop)
@@ -47,7 +60,13 @@ void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop)
 void sound_update()
 {
   //update_mod_player();
-  update_tsf();
+  //update_tsf();
   audio_mixer_step();
 }
+#else
+#include <stdbool.h>
+#include <stdint.h>
+void sound_init(int frequency) {}
+void sound_update(){}
+void sound_play_wav(uint8_t asset_id, bool loop){}
 #endif
