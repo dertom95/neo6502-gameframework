@@ -2,8 +2,8 @@ set(BACKEND_SOURCE)
 set(BACKEND PICO_NEO6502)
 
 if(BACKEND STREQUAL "PICO_NEO6502")
-#add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA)
-add_definitions(-D${BACKEND} -DCHIPS_IMPL )
+add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA -DSOUND)
+#add_definitions(-D${BACKEND} -DCHIPS_IMPL )
 list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
 			 core/backend/neo6502/neo6502_io.c
@@ -29,6 +29,7 @@ add_executable(neo6502firmware
     ng_gfx_tilemap.c
 	ng_cpu.c
 	ng_sound.c
+    ng_sound_tsf.c
 	ng_utils.c
 	ng_io.c
 	ng_mem.c

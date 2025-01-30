@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include "ng_sound.h"
 
 #include <stdio.h>
@@ -14,6 +14,9 @@
 #include "mod_play.h"
 
 #define SOUND_PIN  20  // sound output
+
+void init_tsf();
+void update_tsf();
 
 // Call the MOD player to fill the output audio buffer.
 // This must be called every 20 miliseconds or so, or more
@@ -32,6 +35,7 @@ void sound_init(int freq)
   bi_decl(bi_1pin_with_name(SOUND_PIN, "Sound output"));
   
   audio_init(SOUND_PIN, freq);
+  init_tsf();
 }
 
 void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop)
@@ -42,7 +46,8 @@ void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop)
 
 void sound_update()
 {
-  update_mod_player();
+  //update_mod_player();
+  update_tsf();
   audio_mixer_step();
 }
 #endif

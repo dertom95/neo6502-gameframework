@@ -34,7 +34,7 @@
 # include "pico/time.h"
 #endif
 
-
+int start_audio_test();
 
 #include<stdio.h>
 
@@ -94,11 +94,10 @@ void main_init(){
 	loadROMS();
 
 
-
 #ifdef SOUND
 
-    sound_init(SOUND_OUTPUT_FREQUENCY_11K);
-    sound_play_mod(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY_11K, true );
+    sound_init(11000);
+    sound_play_mod(&mod_the_softliner, 11000, true );
 #endif    
     ng_cpu_init();
 
@@ -108,9 +107,6 @@ void main_init(){
 
 //stdio_init_all();
 bool running = true;
-
-
-
 
 void main_loop(void* data)
 {
@@ -160,7 +156,7 @@ void main_loop(void* data)
 
 
         io_after_tick();
-            
+        
 
 
         // gfx_draw_pixel(mouse_x,mouse_y,current_col);
