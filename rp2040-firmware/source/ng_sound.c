@@ -23,9 +23,8 @@ void update_tsf();
 // Call the MOD player to fill the output audio buffer.
 // This must be called every 20 miliseconds or so, or more
 // often if SOUND_OUTPUT_FREQUENCY is increased.
-static void update_mod_player(void)
+static void update_mod_player(uint8_t * audio_buffer)
 {
-  uint8_t *audio_buffer = audio_get_buffer();
   if (audio_buffer) {
     mod_play_step(audio_buffer, AUDIO_BUFFER_SIZE);
   }
@@ -57,11 +56,17 @@ void sound_play_mod(const struct MOD_DATA* mod_data,int frequency, bool loop)
   mod_play_start(mod_data, frequency, loop ? 1 : 0);
 }
 
+bool mod_playing = true;
+
 void sound_update()
 {
-  //update_mod_player();
-  //update_tsf();
-  audio_mixer_step();
+  uint8_t *audio_buffer = audio_get_buffer();
+  if (audio_buffer){
+    update_mod_player(audio_buffer);
+    //update_tsf();
+    audio_mixer_step(audio_buffer, mod_playing);
+  }
+
 }
 #else
 #include <stdbool.h>
