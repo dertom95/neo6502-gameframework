@@ -41,8 +41,8 @@ int start_audio_test();
 //#define SOUND
 
 #ifdef SOUND
-#include "../src/mod_data.h"
-#include "../src/the_softliner.h"
+#include "3rd/audio/mod_data.h"
+#include "3rd/audio/the_softliner.h"
 #endif
 
 // #define __BREAKPOINT__ raise(SIGINT);

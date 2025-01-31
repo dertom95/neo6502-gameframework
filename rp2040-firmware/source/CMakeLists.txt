@@ -10,6 +10,7 @@ list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_utils.c
 			 core/backend/neo6502/neo6502_cpu.c
              core/backend/neo6502/neo6502_file.c
+             core/backend/neo6502/neo6502_audio.c
 	)
 endif()	
 
@@ -17,7 +18,7 @@ message(BACKEND_SOURCE ${BACKEND_SOURCE})
 
 add_executable(neo6502firmware
 	3rd/audio/audio.c
-	${CMAKE_SOURCE_DIR}/3rd/pico-mod-player/lib/mod_play.c
+	3rd/audio/mod_play.c
 
 	core/memory.c
 	core/backend/cpu/wdc65C02cpu.c

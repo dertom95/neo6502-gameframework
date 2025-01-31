@@ -12,8 +12,8 @@
 #include "ng_gfx.h"
 #include "ng_assets.h"
 
-#include "mod_data.h"
-#include "mod_play.h"
+#include "3rd/audio/mod_data.h"
+#include "3rd/audio/mod_play.h"
 
 #define SOUND_PIN  20  // sound output
 
@@ -35,7 +35,7 @@ void sound_init(int freq)
   bi_decl(bi_program_description("MOD test"));
   bi_decl(bi_1pin_with_name(SOUND_PIN, "Sound output"));
   
-  audio_init(SOUND_PIN, freq);
+  audio_init(freq);
 
  
   

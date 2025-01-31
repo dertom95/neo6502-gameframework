@@ -421,7 +421,7 @@ static unsigned char clamp(int sample)
   return sample;
 }
 
-static void __not_in_flash_func(play_samples)(unsigned char *out, unsigned int n_samples)
+static void play_samples(unsigned char *out, unsigned int n_samples)
 {
   for (unsigned int i = 0; i < n_samples; i++) {
     int out_sample = 0;
@@ -444,7 +444,7 @@ static void __not_in_flash_func(play_samples)(unsigned char *out, unsigned int n
   }
 }
 
-int __not_in_flash_func(mod_play_step)(unsigned char *out, unsigned int len)
+int mod_play_step(unsigned char *out, unsigned int len)
 {
   if (! state.mod) {
     memset(out, 128, len);
