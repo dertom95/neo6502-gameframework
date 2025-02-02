@@ -11,7 +11,7 @@ list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_cpu.c
              core/backend/neo6502/neo6502_file.c
              core/backend/neo6502/neo6502_audio.c
-             3rd/audio/audio.c
+             core/backend/neo6502/audio/audio.c
 	)
 endif()	
 

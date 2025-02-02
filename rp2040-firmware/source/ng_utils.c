@@ -60,6 +60,11 @@ void* id_get_ptr(uint8_t id){
     return idstore.pointers[id];
 }
 
+void id_assert_validity(uint8_t id){
+    assert(id < idstore.pointer_amount && "idstore: idx out of bounds");
+    assert(idstore.pointers[id]!=NULL && "id-store prt is not set!");    
+}
+
 void ll_add(linked_list_t** start, linked_list_t* element) {
     assert(start != NULL);
 

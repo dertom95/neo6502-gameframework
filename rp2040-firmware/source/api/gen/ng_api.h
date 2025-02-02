@@ -38,23 +38,61 @@ typedef struct call_asset_get_tilemap_t {
 
 // function grp: 5
 
+ // returns: uint8_t f-grp: f-id:5;
+uint8_t audio_wav_load(uint8_t asset_id);
  // returns: void f-grp: f-id:1;
-void audio_play_wav(uint8_t asset_id, bool loop);
+void audio_wav_play(uint8_t sound_id, bool loop, bool unique);
+ // returns: void f-grp: f-id:4;
+void audio_wav_stop(uint8_t sound_id);
  // returns: void f-grp: f-id:2;
-void audio_play_mod(uint8_t asset_id, bool loop);
+void audio_mod_play(uint8_t asset_id);
+ // returns: void f-grp: f-id:7;
+void audio_mod_pause(void);
+ // returns: void f-grp: f-id:8;
+void audio_mod_resume(void);
+ // returns: void f-grp: f-id:3;
+void audio_mod_stop();
+ // returns: uint8_t f-grp: f-id:6;
+uint8_t audio_mod_pos();
 
+// returns: uint8_t f-grp: f-id:5
+typedef struct call_audio_wav_load_t {
+    call_header_t hdr;
+    uint8_t asset_id;
+} call_audio_wav_load_t;
 // returns: void f-grp: f-id:1
-typedef struct call_audio_play_wav_t {
+typedef struct call_audio_wav_play_t {
     call_header_t hdr;
-    uint8_t asset_id;
+    uint8_t sound_id;
     bool loop;
-} call_audio_play_wav_t;
+    bool unique;
+} call_audio_wav_play_t;
+// returns: void f-grp: f-id:4
+typedef struct call_audio_wav_stop_t {
+    call_header_t hdr;
+    uint8_t sound_id;
+} call_audio_wav_stop_t;
 // returns: void f-grp: f-id:2
-typedef struct call_audio_play_mod_t {
+typedef struct call_audio_mod_play_t {
     call_header_t hdr;
     uint8_t asset_id;
-    bool loop;
-} call_audio_play_mod_t;
+} call_audio_mod_play_t;
+// returns: void f-grp: f-id:7
+typedef struct call_audio_mod_pause_t {
+    call_header_t hdr;
+} call_audio_mod_pause_t;
+// returns: void f-grp: f-id:8
+typedef struct call_audio_mod_resume_t {
+    call_header_t hdr;
+} call_audio_mod_resume_t;
+// returns: void f-grp: f-id:3
+typedef struct call_audio_mod_stop_t {
+    call_header_t hdr;
+} call_audio_mod_stop_t;
+// returns: uint8_t f-grp: f-id:6
+typedef struct call_audio_mod_pos_t {
+    call_header_t hdr;
+} call_audio_mod_pos_t;
 
 // function grp: 1
 

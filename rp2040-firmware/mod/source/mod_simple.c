@@ -38,10 +38,10 @@ int16_t x=0;
 
 #define KEY_COL_DOWN    (1 << 7)
 #define KEY_COL_UP      (1 << 6)
-#define KEY_LEFT    (1 << 5)
-#define KEY_LEFT2      (1 << 4)
-#define KEY_RIGHT2   (1 << 3)
-#define KEY_RIGHT    (1 << 2)
+#define KEY_LEFT        (1 << 5)
+#define KEY_LEFT2       (1 << 4)
+#define KEY_RIGHT2      (1 << 3)
+#define KEY_RIGHT       (1 << 2)
 
 
 keyboard_mapping_t kbm={
@@ -84,12 +84,15 @@ uint8_t spritebuffer;
 #define SPRITE_AMOUNT 4
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 gfx_tilesheet_data_t ts_misc;
+uint8_t powerup_sound = 0;
 
 int mod_init(){
+    powerup_sound = audio_wav_load(ASSET_POWER_UP_8);
+
     io_keyboardmapping_register(&kbm,1);
 
     //audio_play_wav(ASSET_MUSIC_8,true);
-    audio_play_mod(ASSET_DUNGEON2,false);
+    audio_mod_play(ASSET_GAME);
 
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
@@ -139,6 +142,9 @@ int mod_init(){
 uint16_t last_x =0;
 int8_t dir = 1;
 
+
+bool mod_playing = true;
+
 void mod_update() {
     // TODO: implement some kind of sleep
     if (*ms_delta<TICK_RATE)
@@ -146,7 +152,7 @@ void mod_update() {
         return;
     }
     char buf[24];
-    ng_snprintf(buf,24,"%d - %d - %d",kbm.key_pressed,kbm.key_down,kbm.key_released);
+    ng_snprintf(buf,24,"mod progress:%d",audio_mod_pos());
     gfx_draw_text(0,0,buf,COL_ORANGE);
     if ((kbm.key_pressed & KEY_COL_DOWN)>0){
         x--;
@@ -154,8 +160,19 @@ void mod_update() {
         //     px_width--;
         // }
         //pixelbuffer.x--;
-        audio_play_wav(ASSET_POWER_UP_8,false);
+        
+        audio_wav_play(powerup_sound,false, false);
     }
+
+    if ((kbm.key_pressed & KEY_COL_UP)>0){
+        if (mod_playing){
+            audio_mod_pause();
+        } else {
+            audio_mod_resume();
+        }
+        mod_playing = !mod_playing;
+    }
+
 
     x += dir;
 

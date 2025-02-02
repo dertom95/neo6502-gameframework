@@ -20,6 +20,7 @@ project.addDefine('INCLUDE_DATA');
 project.addFile('../../source/*.c');
 project.addFile('../../source/core/*.c');
 project.addFile('../../source/3rd/*.c');
+project.addFile('../../source/3rd/modplay/*.c');
 //project.addFile('../../source/game/*.c');
 project.addFile('../../source/core/backend/kinc/*.c');
 //project.addFile('../../test/gen_prg1.c')

@@ -40,15 +40,49 @@ void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id){
     }
 }   
 
-// returns: void f-grp:1 f-id:1
-void audio_play_wav(uint8_t asset_id, bool loop){
+// returns: uint8_t f-grp:1 f-id:5
+uint8_t audio_wav_load(uint8_t asset_id){
     uint8_t result_code;
-    call_audio_play_wav_t* func_data;
-    func_data = (call_audio_play_wav_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_audio_wav_load_t* func_data;
+    func_data = (call_audio_wav_load_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 5;
+    func_data->asset_id= asset_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+        return call_result;
+    }
+}   
+// returns: void f-grp:1 f-id:1
+void audio_wav_play(uint8_t sound_id, bool loop, bool unique){
+    uint8_t result_code;
+    call_audio_wav_play_t* func_data;
+    func_data = (call_audio_wav_play_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 5;
     func_data->hdr.func_id = 1;
-    func_data->asset_id= asset_id;
+    func_data->sound_id= sound_id;
     func_data->loop= loop;
+    func_data->unique= unique;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:4
+void audio_wav_stop(uint8_t sound_id){
+    uint8_t result_code;
+    call_audio_wav_stop_t* func_data;
+    func_data = (call_audio_wav_stop_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 4;
+    func_data->sound_id= sound_id;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -58,20 +92,80 @@ void audio_play_wav(uint8_t asset_id, bool loop){
     }
 }   
 // returns: void f-grp:1 f-id:2
-void audio_play_mod(uint8_t asset_id, bool loop){
+void audio_mod_play(uint8_t asset_id){
     uint8_t result_code;
-    call_audio_play_mod_t* func_data;
-    func_data = (call_audio_play_mod_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_audio_mod_play_t* func_data;
+    func_data = (call_audio_mod_play_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 5;
     func_data->hdr.func_id = 2;
     func_data->asset_id= asset_id;
-    func_data->loop= loop;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
 
     {
 
+    }
+}   
+// returns: void f-grp:1 f-id:7
+void audio_mod_pause(void){
+    uint8_t result_code;
+    call_audio_mod_pause_t* func_data;
+    func_data = (call_audio_mod_pause_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 7;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:8
+void audio_mod_resume(void){
+    uint8_t result_code;
+    call_audio_mod_resume_t* func_data;
+    func_data = (call_audio_mod_resume_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 8;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:3
+void audio_mod_stop(){
+    uint8_t result_code;
+    call_audio_mod_stop_t* func_data;
+    func_data = (call_audio_mod_stop_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 3;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: uint8_t f-grp:1 f-id:6
+uint8_t audio_mod_pos(){
+    uint8_t result_code;
+    call_audio_mod_pos_t* func_data;
+    func_data = (call_audio_mod_pos_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 6;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+        return call_result;
     }
 }   
 

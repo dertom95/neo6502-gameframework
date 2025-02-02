@@ -32,16 +32,62 @@ uint8_t call_function()
     if (header->func_type==5){
         switch (header->func_id) {
 
+            case 5: {
+                call_audio_wav_load_t* call = (call_audio_wav_load_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  audio_wav_load(  call->asset_id    );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 1: {
-                call_audio_play_wav_t* call = (call_audio_play_wav_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  audio_play_wav(  call->asset_id  ,    call->loop    );
+                call_audio_wav_play_t* call = (call_audio_wav_play_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_wav_play(  call->sound_id  ,    call->loop  ,    call->unique    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 4: {
+                call_audio_wav_stop_t* call = (call_audio_wav_stop_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_wav_stop(  call->sound_id    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 2: {
-                call_audio_play_mod_t* call = (call_audio_play_mod_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  audio_play_mod(  call->asset_id  ,    call->loop    );
+                call_audio_mod_play_t* call = (call_audio_mod_play_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_mod_play(  call->asset_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 7: {
+                call_audio_mod_pause_t* call = (call_audio_mod_pause_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_mod_pause();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 8: {
+                call_audio_mod_resume_t* call = (call_audio_mod_resume_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_mod_resume();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 3: {
+                call_audio_mod_stop_t* call = (call_audio_mod_stop_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_mod_stop();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 6: {
+                call_audio_mod_pos_t* call = (call_audio_mod_pos_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  audio_mod_pos();
+
+                *call_buffer_return=call_result;
 
                 return FUNCTION_RETURN_OK;
             }

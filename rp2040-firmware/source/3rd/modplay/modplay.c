@@ -412,7 +412,9 @@ ModPlayerStatus_t *ProcessMOD() {
 				mp.row = 0;
 				mp.order++;
 
-				if(mp.order >= mp.orders) mp.order = 0;
+				if(mp.order >= mp.orders) {
+                    mp.order = 0;
+                }
 			}
 		}
 	}
