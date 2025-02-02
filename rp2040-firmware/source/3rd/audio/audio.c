@@ -94,15 +94,9 @@ void audio_mixer_step(uint8_t *audio_buffer, bool mod_playing)
   if (! audio_buffer) return;
 
   // setup 16-bit mixer buffer
-  if (mod_playing){
-    for (int i=0;i<AUDIO_BUFFER_SIZE;i++){
-        mixer_buffer[i] = ((audio_buffer[i]-128) * 256) >> 8;
-    }
-  }
-  else {
+  if (!mod_playing){
     memset(mixer_buffer, 0, sizeof(mixer_buffer));
   }
-
 
   // mix to 16-bit mixer buffer
   for (int i = 0; i < AUDIO_MAX_SOURCES; i++) {

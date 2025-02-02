@@ -138,10 +138,40 @@ uint8_t combine_to_mono(int16_t left, int16_t right) {
     return (uint8_t)mono;
 }
 
+uint8_t combine_to_mono_uint8(int16_t left, int16_t right) {
+    // Step 1: Average the left and right channels
+    int32_t mono = (left + right) / 2;
+
+    // Step 2: Normalize to uint8_t range (0 to 255)
+    // Shift the range from [-32768, 32767] to [0, 255]
+    mono = (mono + 32768) * 255 / 65535;
+
+    // Step 3: Clamp the value to ensure it fits in uint8_t
+    if (mono < 0) mono = 0;
+    if (mono > 255) mono = 255;
+
+    return (uint8_t)mono;
+}
+
+int8_t combine_to_mono_int8(int16_t left, int16_t right) {
+    // Step 1: Average the left and right channels
+    int32_t mono = (left + right) / 2;
+
+    // Step 2: Normalize to int8_t range (-128 to 127)
+    // Scale from [-32768, 32767] to [-128, 127]
+    mono = mono * 127 / 32767;
+
+    // Step 3: Clamp the value to ensure it fits in int8_t
+    if (mono < -128) mono = -128;
+    if (mono > 127) mono = 127;
+
+    return (int8_t)mono;
+}
+
 // Call the MOD player to fill the output audio buffer.
 // This must be called every 20 miliseconds or so, or more
 // often if SOUND_OUTPUT_FREQUENCY is increased.
-static void update_mod_player(uint8_t* tip_mixerbuffer)
+static void update_mod_player(uint8_t* audio_buffer)
 {
     mod_player_status = RenderMOD(modBuffer,AUDIO_BUFFER_SIZE);
     // int16_t* tip = modBuffer;
@@ -157,11 +187,11 @@ static void update_mod_player(uint8_t* tip_mixerbuffer)
     // } 
 
     int16_t* tip = modBuffer;
-    //uint8_t* tip_mixerbuffer = audio_get_buffer();
+    int16_t* tip_mixerbuffer = audio_get_mixerbuffer();
     for (int i=0;i<AUDIO_BUFFER_SIZE;i++){
         int16_t left_channel = *tip++;
         int16_t right_channel = *tip++;
-        uint8_t combine = combine_to_mono(left_channel,right_channel);
+        int16_t combine = (int16_t)combine_to_mono_int8(left_channel,right_channel);
         //int8_t combine = left_channel;
 
         *tip_mixerbuffer = combine;
