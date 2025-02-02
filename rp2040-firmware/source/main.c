@@ -1,5 +1,5 @@
 #include "ng_gfx.h"
-#include "ng_sound.h"
+#include "ng_audio.h"
 #include "ng_utils.h"
 #include "ng_io.h"
 #include "ng_cpu.h"
@@ -41,8 +41,8 @@ int start_audio_test();
 //#define SOUND
 
 #ifdef SOUND
-#include "3rd/audio/mod_data.h"
-#include "3rd/audio/the_softliner.h"
+//#include "3rd/audio/mod_data.h"
+//#include "3rd/audio/the_softliner.h"
 #endif
 
 // #define __BREAKPOINT__ raise(SIGINT);
@@ -97,8 +97,8 @@ void main_init(){
 
 #ifdef SOUND
 
-    sound_init(11000);
-    sound_play_mod(&mod_the_softliner, 11000, true );
+    ng_audio_init();
+    //sound_play_mod(&mod_the_softliner, 11000, true );
 #endif    
     ng_cpu_init();
 
@@ -167,7 +167,7 @@ void main_loop(void* data)
 
     #ifdef SOUND
         if (current_millis - last_sound_ms > 15){
-            sound_update();
+            audio_update();
             last_sound_ms = current_millis;
         }
     #endif

@@ -29,6 +29,26 @@ uint8_t call_function()
         }
     }
 
+    if (header->func_type==5){
+        switch (header->func_id) {
+
+            case 1: {
+                call_audio_play_wav_t* call = (call_audio_play_wav_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_play_wav(  call->asset_id  ,    call->loop    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 2: {
+                call_audio_play_mod_t* call = (call_audio_play_mod_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  audio_play_mod(  call->asset_id  ,    call->loop    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+        }
+    }
+
     if (header->func_type==1){
         switch (header->func_id) {
 
@@ -305,19 +325,6 @@ uint8_t call_function()
             case 5: {
                 call_io_keyboardmapping_unregister_t* call = (call_io_keyboardmapping_unregister_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   io_keyboardmapping_unregister();
-
-                return FUNCTION_RETURN_OK;
-            }
-
-        }
-    }
-
-    if (header->func_type==5){
-        switch (header->func_id) {
-
-            case 1: {
-                call_sound_play_wav_t* call = (call_sound_play_wav_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  sound_play_wav(  call->asset_id  ,    call->loop    );
 
                 return FUNCTION_RETURN_OK;
             }

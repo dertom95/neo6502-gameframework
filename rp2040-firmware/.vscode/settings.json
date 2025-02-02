@@ -142,7 +142,13 @@
         "ng_mem.h": "c",
         "fake65c02.h": "c",
         "affine_transform.h": "c",
-        "platform.h": "c"
+        "platform.h": "c",
+        "span": "cpp",
+        "regex": "cpp",
+        "format": "cpp",
+        "ng_audio.h": "c",
+        "shared_mutex": "c",
+        "modplay.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"],
     "editor.detectIndentation": false    

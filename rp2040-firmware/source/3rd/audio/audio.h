@@ -14,6 +14,7 @@ extern "C" {
 
 void audio_init(int sample_freq);
 uint8_t *audio_get_buffer(void);
+int16_t *audio_get_mixerbuffer(void);
 
 int audio_play_once(const uint8_t *samples, int len);
 int audio_play_loop(const uint8_t *samples, int len, int loop_start);
@@ -21,7 +22,7 @@ int audio_play_loop(const uint8_t *samples, int len, int loop_start);
 void audio_source_stop(int source_id);
 void audio_source_set_volume(int source_id, uint16_t volume);
 
-void audio_mixer_step(uint8_t *audio_buffer, bool fill_mixer_with_buffer);
+void audio_mixer_step(uint8_t *audio_buffer, bool clear_mixerbuffer);
 
 #ifdef __cplusplus
 }

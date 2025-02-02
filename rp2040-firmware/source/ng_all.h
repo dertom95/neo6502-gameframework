@@ -8,7 +8,7 @@
 #include "ng_gfx.h"
 #include "ng_io.h"
 #include "ng_mem.h"
-#include "ng_sound.h"
+#include "ng_audio.h"
 #include "ng_utils.h"
 #include "api/ng_config.h"
 

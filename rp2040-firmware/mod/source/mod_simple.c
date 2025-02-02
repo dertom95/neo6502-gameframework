@@ -88,7 +88,9 @@ gfx_tilesheet_data_t ts_misc;
 int mod_init(){
     io_keyboardmapping_register(&kbm,1);
 
-    sound_play_wav(ASSET_MUSIC_8,true);
+    //audio_play_wav(ASSET_MUSIC_8,true);
+    audio_play_mod(ASSET_DUNGEON2,false);
+
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
@@ -152,7 +154,7 @@ void mod_update() {
         //     px_width--;
         // }
         //pixelbuffer.x--;
-        sound_play_wav(ASSET_POWER_UP_8,false);
+        audio_play_wav(ASSET_POWER_UP_8,false);
     }
 
     x += dir;

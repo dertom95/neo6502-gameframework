@@ -7,6 +7,7 @@ project.cStd = "c99"
 //await project.addProject('/home/ttrocha/_dev/extprojects/incubation/kinc/Kinc');
 await project.addProject('tmp/Kinc');
 project.addDefine('__KINC__');
+project.addDefine('SOUND');
 
 // use the mod directly
 // project.addDefine('_MOD_NATIVE_');

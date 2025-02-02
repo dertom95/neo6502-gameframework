@@ -36,6 +36,26 @@ typedef struct call_asset_get_tilemap_t {
     uint8_t asset_id;
 } call_asset_get_tilemap_t;
 
+// function grp: 5
+
+ // returns: void f-grp: f-id:1;
+void audio_play_wav(uint8_t asset_id, bool loop);
+ // returns: void f-grp: f-id:2;
+void audio_play_mod(uint8_t asset_id, bool loop);
+
+// returns: void f-grp: f-id:1
+typedef struct call_audio_play_wav_t {
+    call_header_t hdr;
+    uint8_t asset_id;
+    bool loop;
+} call_audio_play_wav_t;
+// returns: void f-grp: f-id:2
+typedef struct call_audio_play_mod_t {
+    call_header_t hdr;
+    uint8_t asset_id;
+    bool loop;
+} call_audio_play_mod_t;
+
 // function grp: 1
 
  // returns: void f-grp: f-id:12;
@@ -334,17 +354,5 @@ typedef struct call_io_keyboardmapping_register_t {
 typedef struct call_io_keyboardmapping_unregister_t {
     call_header_t hdr;
 } call_io_keyboardmapping_unregister_t;
-
-// function grp: 5
-
- // returns: void f-grp: f-id:1;
-void sound_play_wav(uint8_t asset_id, bool loop);
-
-// returns: void f-grp: f-id:1
-typedef struct call_sound_play_wav_t {
-    call_header_t hdr;
-    uint8_t asset_id;
-    bool loop;
-} call_sound_play_wav_t;
 
 #endif

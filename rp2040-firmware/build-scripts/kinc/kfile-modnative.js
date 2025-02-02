@@ -7,6 +7,7 @@ project.cStd = "c99"
 //await project.addProject('/home/ttrocha/_dev/extprojects/incubation/kinc/Kinc');
 await project.addProject('tmp/Kinc');
 project.addDefine('__KINC__');
+project.addDefine('SOUND');
 
 // use the mod directly
 project.addDefine('_MOD_NATIVE_');
@@ -18,7 +19,7 @@ project.addDefine('INCLUDE_DATA');
 
 //project.addDefine('DATA_FROM_MEMORY');
 project.addFile('../../source/*.c');
-project.addFile('../../source/3rd/*.c');
+project.addFile('../../source/3rd/modplay/*.c');
 project.addFile('../../source/core/*.c');
 //project.addFile('../../source/game/*.c');
 project.addFile('../../source/core/backend/kinc/*.c');

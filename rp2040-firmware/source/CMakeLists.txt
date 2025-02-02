@@ -11,14 +11,14 @@ list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_cpu.c
              core/backend/neo6502/neo6502_file.c
              core/backend/neo6502/neo6502_audio.c
+             3rd/audio/audio.c
 	)
 endif()	
 
 message(BACKEND_SOURCE ${BACKEND_SOURCE})
 
 add_executable(neo6502firmware
-	3rd/audio/audio.c
-	3rd/audio/mod_play.c
+    3rd/modplay/modplay.c
 
 	core/memory.c
 	core/backend/cpu/wdc65C02cpu.c
@@ -29,7 +29,7 @@ add_executable(neo6502firmware
     ng_gfx_pixelbuffer.c
     ng_gfx_tilemap.c
 	ng_cpu.c
-	ng_sound.c
+	#ng_sound.c
     ng_sound_tsf.c
 	ng_utils.c
 	ng_io.c

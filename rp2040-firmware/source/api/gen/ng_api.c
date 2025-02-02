@@ -40,6 +40,41 @@ void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id){
     }
 }   
 
+// returns: void f-grp:1 f-id:1
+void audio_play_wav(uint8_t asset_id, bool loop){
+    uint8_t result_code;
+    call_audio_play_wav_t* func_data;
+    func_data = (call_audio_play_wav_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 1;
+    func_data->asset_id= asset_id;
+    func_data->loop= loop;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:2
+void audio_play_mod(uint8_t asset_id, bool loop){
+    uint8_t result_code;
+    call_audio_play_mod_t* func_data;
+    func_data = (call_audio_play_mod_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 5;
+    func_data->hdr.func_id = 2;
+    func_data->asset_id= asset_id;
+    func_data->loop= loop;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
 // returns: void f-grp:1 f-id:12
 void gfx_renderqueue_add_id(uint8_t id){
     uint8_t result_code;
@@ -667,24 +702,6 @@ void   io_keyboardmapping_unregister(void){
     func_data = (call_io_keyboardmapping_unregister_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 2;
     func_data->hdr.func_id = 5;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-
-// returns: void f-grp:1 f-id:1
-void sound_play_wav(uint8_t asset_id, bool loop){
-    uint8_t result_code;
-    call_sound_play_wav_t* func_data;
-    func_data = (call_sound_play_wav_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 5;
-    func_data->hdr.func_id = 1;
-    func_data->asset_id= asset_id;
-    func_data->loop= loop;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

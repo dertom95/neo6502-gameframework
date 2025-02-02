@@ -1,4 +1,5 @@
 #include "../../../3rd/audio/audio.h"
+#include "../../../ng_audio.h"
 
 #include "pico/stdlib.h"
 #include "hardware/dma.h"
@@ -6,6 +7,20 @@
 #include "hardware/pwm.h"
 #include "hardware/sync.h"
 #include "hardware/clocks.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <pico/stdlib.h>
+#include "hardware/gpio.h"
+#include "pico/binary_info.h"
+
+#include "../../../3rd/audio/audio.h"
+#include "../../../3rd/modplay/modplay.h"
+
+#include "../../../ng_gfx.h"
+#include "../../../ng_assets.h"
+
+#define SAMPLERATE 11025
 
 #define AUDIO_PIN 20
 
@@ -25,7 +40,7 @@ static void __isr __time_critical_func(dma_handler)()
   dma_hw->ints1 = 1u << trigger_dma_chan;
 }
 
-void audio_init(int sample_freq)
+void ng_audio_init()
 {
   gpio_set_function(AUDIO_PIN, GPIO_FUNC_PWM);
 
@@ -33,7 +48,7 @@ void audio_init(int sample_freq)
   int audio_pin_chan = pwm_gpio_to_channel(AUDIO_PIN);
 
   uint f_clk_sys = frequency_count_khz(CLOCKS_FC0_SRC_VALUE_CLK_SYS);
-  float clock_div = ((float)f_clk_sys * 1000.0f) / 254.0f / (float) sample_freq / (float) REPETITION_RATE;
+  float clock_div = ((float)f_clk_sys * 1000.0f) / 254.0f / (float) SAMPLERATE / (float) REPETITION_RATE;
 
   pwm_config config = pwm_get_default_config();
   pwm_config_set_clkdiv(&config, clock_div);
@@ -96,4 +111,93 @@ void audio_init(int sample_freq)
   
   // kick things off with the trigger DMA channel
   dma_channel_start(trigger_dma_chan);
+}
+
+#define MODBUFFER_SIZE (AUDIO_BUFFER_SIZE*2)
+short modBuffer[MODBUFFER_SIZE];
+
+ModPlayerStatus_t* mod_player_status = NULL;
+bool mod_loop = false;
+#define SOUND_PIN  20  // sound output
+
+void init_tsf();
+void update_tsf();
+
+uint8_t combine_to_mono(int16_t left, int16_t right) {
+    // Step 1: Average the left and right channels
+    int32_t mono = (left + right) / 2;
+
+    // Step 2: Normalize to uint8_t range (0 to 255)
+    // Shift the range from [-32768, 32767] to [0, 255]
+    mono = (mono + 32768) * 255 / 65535;
+
+    // Step 3: Clamp the value to ensure it fits in uint8_t
+    if (mono < 0) mono = 0;
+    if (mono > 255) mono = 255;
+
+    return (uint8_t)mono;
+}
+
+// Call the MOD player to fill the output audio buffer.
+// This must be called every 20 miliseconds or so, or more
+// often if SOUND_OUTPUT_FREQUENCY is increased.
+static void update_mod_player(uint8_t* tip_mixerbuffer)
+{
+    mod_player_status = RenderMOD(modBuffer,AUDIO_BUFFER_SIZE);
+    // int16_t* tip = modBuffer;
+    // int16_t* tip_mixerbuffer = audio_get_mixerbuffer();
+    // for (int i=0;i<AUDIO_BUFFER_SIZE;i++){
+    //     int16_t left_channel = *tip++;
+    //     int16_t right_channel = *tip++;
+    //     //int16_t combine = (left_channel + right_channel) >> 2;
+    //     int16_t combine = left_channel;
+
+    //     *tip_mixerbuffer = combine >> 2;
+    //     tip_mixerbuffer++;
+    // } 
+
+    int16_t* tip = modBuffer;
+    //uint8_t* tip_mixerbuffer = audio_get_buffer();
+    for (int i=0;i<AUDIO_BUFFER_SIZE;i++){
+        int16_t left_channel = *tip++;
+        int16_t right_channel = *tip++;
+        uint8_t combine = combine_to_mono(left_channel,right_channel);
+        //int8_t combine = left_channel;
+
+        *tip_mixerbuffer = combine;
+        tip_mixerbuffer++;
+    } 
+
+}
+
+void audio_play_wav(uint8_t asset_id, bool loop) {
+  const void* music_ptr = assets_get_pointer(asset_id);
+  const uint32_t music_size = assets_get_size(asset_id);
+  int source_music = loop 
+                        ? audio_play_loop(music_ptr,music_size,0)
+                        : audio_play_once(music_ptr,music_size);
+}
+
+void audio_play_mod(uint8_t asset_id, bool loop)
+{
+    void* ptr = assets_get_pointer(asset_id);
+    const uint32_t size = assets_get_size(asset_id);
+    
+    mod_player_status = InitMOD(ptr,SAMPLERATE);
+    mod_loop = loop;
+  //mod_play_start(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY, 1);
+  // mod_play_start(mod_data, frequency, loop ? 1 : 0);
+}
+
+bool mod_playing = true;
+
+void audio_update()
+{
+  uint8_t *audio_buffer = audio_get_buffer();
+  if (audio_buffer){
+    update_mod_player(audio_buffer);
+    //update_tsf();
+    audio_mixer_step(audio_buffer, mod_playing);
+  }
+
 }
