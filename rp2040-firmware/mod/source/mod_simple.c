@@ -161,7 +161,7 @@ void mod_update() {
         // }
         //pixelbuffer.x--;
         
-        audio_wav_play(powerup_sound,false, false);
+        audio_wav_play(powerup_sound,false);
     }
 
     if ((kbm.key_pressed & KEY_COL_UP)>0){

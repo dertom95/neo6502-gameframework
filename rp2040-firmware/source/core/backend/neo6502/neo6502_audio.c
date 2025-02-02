@@ -1,4 +1,3 @@
-#include "../../../3rd/audio/audio.h"
 #include "../../../ng_audio.h"
 
 #include "pico/stdlib.h"
@@ -14,7 +13,7 @@
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
 
-#include "../../../3rd/audio/audio.h"
+#include "audio/audio.h"
 #include "../../../3rd/modplay/modplay.h"
 
 #include "../../../ng_gfx.h"
@@ -31,6 +30,19 @@ extern volatile int cur_audio_buffer;
 extern uint32_t *single_sample_ptr;
 extern uint32_t single_sample;
 
+typedef struct sound_resource_data_t {
+    void* data;
+    uint32_t size;
+    uint8_t source;
+    uint8_t unused1;
+    uint8_t unused2;
+    uint8_t unused3;
+} sound_resource_data_t;
+
+
+#define MAX_SOUNDS 10
+sound_resource_data_t sounds[MAX_SOUNDS]={0};
+
 static void __isr __time_critical_func(dma_handler)()
 {
   cur_audio_buffer = 1 - cur_audio_buffer;
@@ -40,7 +52,7 @@ static void __isr __time_critical_func(dma_handler)()
   dma_hw->ints1 = 1u << trigger_dma_chan;
 }
 
-void ng_audio_init()
+void ng_audio_init_backend()
 {
   gpio_set_function(AUDIO_PIN, GPIO_FUNC_PWM);
 
@@ -138,20 +150,20 @@ uint8_t combine_to_mono(int16_t left, int16_t right) {
     return (uint8_t)mono;
 }
 
-uint8_t combine_to_mono_uint8(int16_t left, int16_t right) {
-    // Step 1: Average the left and right channels
-    int32_t mono = (left + right) / 2;
+// uint8_t combine_to_mono_uint8(int16_t left, int16_t right) {
+//     // Step 1: Average the left and right channels
+//     int32_t mono = (left + right) / 2;
 
-    // Step 2: Normalize to uint8_t range (0 to 255)
-    // Shift the range from [-32768, 32767] to [0, 255]
-    mono = (mono + 32768) * 255 / 65535;
+//     // Step 2: Normalize to uint8_t range (0 to 255)
+//     // Shift the range from [-32768, 32767] to [0, 255]
+//     mono = (mono + 32768) * 255 / 65535;
 
-    // Step 3: Clamp the value to ensure it fits in uint8_t
-    if (mono < 0) mono = 0;
-    if (mono > 255) mono = 255;
+//     // Step 3: Clamp the value to ensure it fits in uint8_t
+//     if (mono < 0) mono = 0;
+//     if (mono > 255) mono = 255;
 
-    return (uint8_t)mono;
-}
+//     return (uint8_t)mono;
+// }
 
 int8_t combine_to_mono_int8(int16_t left, int16_t right) {
     // Step 1: Average the left and right channels
@@ -174,17 +186,6 @@ int8_t combine_to_mono_int8(int16_t left, int16_t right) {
 static void update_mod_player(uint8_t* audio_buffer)
 {
     mod_player_status = RenderMOD(modBuffer,AUDIO_BUFFER_SIZE);
-    // int16_t* tip = modBuffer;
-    // int16_t* tip_mixerbuffer = audio_get_mixerbuffer();
-    // for (int i=0;i<AUDIO_BUFFER_SIZE;i++){
-    //     int16_t left_channel = *tip++;
-    //     int16_t right_channel = *tip++;
-    //     //int16_t combine = (left_channel + right_channel) >> 2;
-    //     int16_t combine = left_channel;
-
-    //     *tip_mixerbuffer = combine >> 2;
-    //     tip_mixerbuffer++;
-    // } 
 
     int16_t* tip = modBuffer;
     int16_t* tip_mixerbuffer = audio_get_mixerbuffer();
@@ -192,7 +193,6 @@ static void update_mod_player(uint8_t* audio_buffer)
         int16_t left_channel = *tip++;
         int16_t right_channel = *tip++;
         int16_t combine = (int16_t)combine_to_mono_int8(left_channel,right_channel);
-        //int8_t combine = left_channel;
 
         *tip_mixerbuffer = combine;
         tip_mixerbuffer++;
@@ -200,26 +200,67 @@ static void update_mod_player(uint8_t* audio_buffer)
 
 }
 
-void audio_play_wav(uint8_t asset_id, bool loop) {
-  const void* music_ptr = assets_get_pointer(asset_id);
-  const uint32_t music_size = assets_get_size(asset_id);
-  int source_music = loop 
-                        ? audio_play_loop(music_ptr,music_size,0)
-                        : audio_play_once(music_ptr,music_size);
+
+
+static sound_resource_data_t* find_free_soundres(void){
+    for (int i=0;i<MAX_SOUNDS;i++){
+        sound_resource_data_t* data = &sounds[i];
+        if (data->size==0){
+            return data;
+        }
+    }
+    assert(false || "no free sound resource exceeded sounds resources");
 }
 
-void audio_play_mod(uint8_t asset_id, bool loop)
+uint8_t audio_wav_load(uint8_t asset_id){
+    const void* music_ptr = assets_get_pointer(asset_id);
+    const uint32_t music_size = assets_get_size(asset_id);
+
+    sound_resource_data_t* sound_resource = find_free_soundres();
+    *sound_resource = (sound_resource_data_t){
+        .data = music_ptr,
+        .size = music_size
+    };
+
+    uint8_t id = id_store(sound_resource);
+    return id;
+}
+
+void audio_wav_play(uint8_t sound_id, bool loop) {
+    sound_resource_data_t* wavdata = id_get_ptr(sound_id);
+
+    int source_music = loop 
+                        ? audio_play_loop(wavdata->data,wavdata->size,0)
+                        : audio_play_once(wavdata->data,wavdata->size);
+    wavdata->source = (uint8_t)source_music;
+}
+
+void audio_wav_stop(uint8_t sound_id){
+    sound_resource_data_t* wavdata = id_get_ptr(sound_id);
+    uint8_t source_id = wavdata->source;
+    audio_source_stop(source_id);
+}
+
+void audio_mod_play(uint8_t asset_id)
 {
-    void* ptr = assets_get_pointer(asset_id);
-    const uint32_t size = assets_get_size(asset_id);
-    
+    const void* ptr = assets_get_pointer(asset_id);
+    //const uint32_t size = assets_get_size(asset_id);
+    audiostate_set(AUDIOSTATE_MOD_IS_PLAYING);
     mod_player_status = InitMOD(ptr,SAMPLERATE);
-    mod_loop = loop;
-  //mod_play_start(&mod_the_softliner, SOUND_OUTPUT_FREQUENCY, 1);
-  // mod_play_start(mod_data, frequency, loop ? 1 : 0);
 }
 
-bool mod_playing = true;
+void audio_mod_stop(){
+    audio_mod_pause();
+    mod_player_status = NULL;
+}
+
+
+uint8_t counter = 0;
+uint8_t audio_mod_pos() {
+    assert(mod_player_status!=NULL);
+    uint8_t pos = (uint8_t)((mod_player_status->order*100 / mod_player_status->orders));
+    return pos;
+}
 
 void audio_update()
 {
@@ -227,7 +268,8 @@ void audio_update()
   if (audio_buffer){
     update_mod_player(audio_buffer);
     //update_tsf();
-    audio_mixer_step(audio_buffer, mod_playing);
+    bool mod_playing = audiostate_is_set(AUDIOSTATE_MOD_IS_PLAYING);
+    audio_mixer_step(audio_buffer, !mod_playing);
   }
 
 }

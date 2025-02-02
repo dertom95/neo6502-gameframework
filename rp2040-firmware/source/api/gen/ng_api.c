@@ -58,7 +58,7 @@ uint8_t audio_wav_load(uint8_t asset_id){
     }
 }   
 // returns: void f-grp:1 f-id:1
-void audio_wav_play(uint8_t sound_id, bool loop, bool unique){
+void audio_wav_play(uint8_t sound_id, bool loop){
     uint8_t result_code;
     call_audio_wav_play_t* func_data;
     func_data = (call_audio_wav_play_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -66,7 +66,6 @@ void audio_wav_play(uint8_t sound_id, bool loop, bool unique){
     func_data->hdr.func_id = 1;
     func_data->sound_id= sound_id;
     func_data->loop= loop;
-    func_data->unique= unique;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

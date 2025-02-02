@@ -14,25 +14,7 @@
 #define MODBUFFER_SIZE 16383
 short modBuffer[MODBUFFER_SIZE];
 
-typedef struct audio_state_t {
-    uint8_t flags;
-    uint8_t unused1;    
-    uint8_t unused2;    
-    uint8_t unused3;    
-
-    ModPlayerStatus_t* mod_player_status;
-} audio_state_t;
-
-static audio_state_t audiostate;
-
-#define audiostate_is_set(STATE) (bit_is_set_all(audiostate.flags,AUDIOSTATE_MOD_IS_PLAYING))
-#define audiostate_set(STATE) (bit_set(audiostate.flags,STATE))
-#define audiostate_unset(STATE) (bit_unset(audiostate.flags,STATE))
-#define AUDIOSTATE_MOD_IS_PLAYING (1 << 0)
-
-static void init_state(){
-    audiostate =(audio_state_t){0};
-}
+ModPlayerStatus_t* mod_player_status;
 
 static void mixaudio_callback(kinc_a2_buffer_t *buffer, uint32_t samples, void* userdata){
     int write_location = buffer->write_location;
@@ -52,8 +34,8 @@ static void mixaudio_callback(kinc_a2_buffer_t *buffer, uint32_t samples, void* 
     // }
 
     assert(MODBUFFER_SIZE>samples*2);
-    assert(audiostate.mod_player_status);
-    audiostate.mod_player_status = RenderMOD(modBuffer, samples);
+    assert(mod_player_status);
+    mod_player_status = RenderMOD(modBuffer, samples);
 
 
     short* tipMod = modBuffer;
@@ -89,7 +71,7 @@ static void mixaudio_callback(kinc_a2_buffer_t *buffer, uint32_t samples, void* 
     assert(tip_a1_right==buffer->channels[1]+buffer->write_location);
 }
 
-void ng_audio_init() {
+void ng_audio_init_backend() {
     kinc_a1_init();
     kinc_a2_init();
     kinc_a2_set_callback(mixaudio_callback,NULL);
@@ -108,10 +90,10 @@ uint8_t audio_wav_load(uint8_t asset_id){
     return sound_id;
 }
 
-void audio_wav_play(uint8_t sound_id, bool loop, bool unique){
+void audio_wav_play(uint8_t sound_id, bool loop){
     id_assert_validity(sound_id);
     kinc_a1_sound_t* sound = id_get_ptr(sound_id);
-    kinc_a1_play_sound(sound,loop, 1.0f, unique);
+    kinc_a1_play_sound(sound,loop, 1.0f, false);
 }
 
 void audio_wav_stop(uint8_t sound_id){
@@ -124,27 +106,18 @@ void audio_mod_play(uint8_t asset_id){
     const uint8_t* ptr = assets_get_pointer(asset_id);
     const uint32_t size = assets_get_size(asset_id);
     audiostate_set(AUDIOSTATE_MOD_IS_PLAYING);
-    audiostate.mod_player_status = InitMOD(ptr,44100);
-}
-
-void audio_mod_pause(){
-    assert(audiostate_is_set(AUDIOSTATE_MOD_IS_PLAYING));
-    audiostate_unset(AUDIOSTATE_MOD_IS_PLAYING);
+    mod_player_status = InitMOD(ptr,44100);
 }
 
 void audio_mod_stop(){
     audio_mod_pause();
-    audiostate.mod_player_status = NULL;
+    mod_player_status = NULL;
 }
 
-void audio_mod_resume(){
-    assert(audiostate.mod_player_status != NULL);
-    audiostate_set(AUDIOSTATE_MOD_IS_PLAYING);
-}
 
 uint8_t counter = 0;
 uint8_t audio_mod_pos() {
-    assert(audiostate.mod_player_status!=NULL);
-    uint8_t pos = (uint8_t)((audiostate.mod_player_status->order*100 / audiostate.mod_player_status->orders));
+    assert(mod_player_status!=NULL);
+    uint8_t pos = (uint8_t)((mod_player_status->order*100 / mod_player_status->orders));
     return pos;
 }

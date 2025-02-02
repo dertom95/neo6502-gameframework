@@ -41,7 +41,7 @@ typedef struct call_asset_get_tilemap_t {
  // returns: uint8_t f-grp: f-id:5;
 uint8_t audio_wav_load(uint8_t asset_id);
  // returns: void f-grp: f-id:1;
-void audio_wav_play(uint8_t sound_id, bool loop, bool unique);
+void audio_wav_play(uint8_t sound_id, bool loop);
  // returns: void f-grp: f-id:4;
 void audio_wav_stop(uint8_t sound_id);
  // returns: void f-grp: f-id:2;
@@ -65,7 +65,6 @@ typedef struct call_audio_wav_play_t {
     call_header_t hdr;
     uint8_t sound_id;
     bool loop;
-    bool unique;
 } call_audio_wav_play_t;
 // returns: void f-grp: f-id:4
 typedef struct call_audio_wav_stop_t {

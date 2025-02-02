@@ -43,7 +43,7 @@ uint8_t call_function()
 
             case 1: {
                 call_audio_wav_play_t* call = (call_audio_wav_play_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  audio_wav_play(  call->sound_id  ,    call->loop  ,    call->unique    );
+                  audio_wav_play(  call->sound_id  ,    call->loop    );
 
                 return FUNCTION_RETURN_OK;
             }

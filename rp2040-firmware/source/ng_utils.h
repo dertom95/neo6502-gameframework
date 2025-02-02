@@ -2,6 +2,7 @@
 #define __NG_UTILS_H__
 
 #include <stdint.h>
+#include <assert.h>
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
