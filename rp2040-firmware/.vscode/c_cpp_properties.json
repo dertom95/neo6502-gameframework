@@ -65,7 +65,7 @@
             "defines": [
                 "PICO_NEO6502",
                 "CHIPS_IMPL",
-                "INCLUDE_DATA"
+                //"INCLUDE_DATA"
             ],
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",

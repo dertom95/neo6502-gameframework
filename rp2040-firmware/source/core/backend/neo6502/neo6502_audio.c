@@ -266,9 +266,11 @@ void audio_update()
 {
   uint8_t *audio_buffer = audio_get_buffer();
   if (audio_buffer){
-    update_mod_player(audio_buffer);
-    //update_tsf();
     bool mod_playing = audiostate_is_set(AUDIOSTATE_MOD_IS_PLAYING);
+    if (mod_playing){
+        update_mod_player(audio_buffer);
+    }
+    //update_tsf();
     audio_mixer_step(audio_buffer, !mod_playing);
   }
 

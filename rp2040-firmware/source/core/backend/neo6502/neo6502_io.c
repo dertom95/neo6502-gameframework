@@ -560,7 +560,7 @@ static volatile bool busy[CFG_TUH_DEVICE_MAX];
 //-------------------
 
 void neo6502_usb_init(void) {
-
+  sleep_ms(2);
   board_init();
   tusb_init();
 
