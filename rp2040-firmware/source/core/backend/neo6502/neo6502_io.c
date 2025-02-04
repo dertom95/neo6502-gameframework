@@ -405,7 +405,9 @@ typedef struct gamepad_mapping_t {
 
 gamepad_mapping_t gamepad_mappings[] = {
     {GAMEPAD_IDENTIFIER(1133,49688),gamepad_device_logitec_rumblepad2}, // logictec rumblepad2
-    {GAMEPAD_IDENTIFIER(121,6),gamepad_device_tracer_glider}
+    {GAMEPAD_IDENTIFIER(121,6),gamepad_device_tracer_glider}, // tracer glider
+    {GAMEPAD_IDENTIFIER(3727,8),gamepad_device_tracer_glider}, // CSL PS3-Gamepad Clone
+    
 };
 
 static gamepad_mapping_t* gamepad_find_mapping(uint16_t vendor_id, uint16_t product_id){
@@ -561,6 +563,7 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
             if (gamepad_find_registration(dev_addr,instance,&gamepad_registration)){
                 gamepad_registration->gamepad_cb(gamepad_registration,gamepad_report);
             }
+            break;
         }
         case HID_ITF_PROTOCOL_KEYBOARD: {
             current_report = *(hid_keyboard_report_t*)report;

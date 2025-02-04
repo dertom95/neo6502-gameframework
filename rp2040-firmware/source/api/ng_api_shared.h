@@ -75,9 +75,9 @@ typedef struct TU_ATTR_PACKED
 
 // buttons
 #define GP_BTN_TOP          (1 << 0)
-#define GP_BTN_LEFT         (1 << 1)
-#define GP_BTN_RIGHT        (1 << 2)
-#define GP_BTN_BOTTOM       (1 << 3)
+#define GP_BTN_BOTTOM       (1 << 1)
+#define GP_BTN_LEFT         (1 << 2)
+#define GP_BTN_RIGHT        (1 << 3)
 #define GP_BTN_REAR_LEFT    (1 << 4)
 #define GP_BTN_REAR_RIGHT   (1 << 5)
 #define GP_BTN_START        (1 << 6)
