@@ -306,7 +306,6 @@ uint8_t const hid2asciiShift[] = {
 static hid_keyboard_report_t previous_report = { 0, 0, {0} }; // previous report to check key released
 static hid_keyboard_report_t current_report = { 0, 0, {0} }; // current report
 
-
 // look up new key in previous keys
 bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
 {
@@ -320,27 +319,165 @@ bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
   return false;
 }
 
+typedef struct gamepad_registration_t gamepad_registration_t;
+
+typedef void (*gamepad_function_t)(gamepad_registration_t*, hid_gamepad_report_t*);
+
+typedef struct gamepad_registration_t {
+    uint16_t identifier;
+    uint8_t gamepad_idx;
+    uint8_t unused1;
+    gamepad_function_t gamepad_cb;
+} gamepad_registration_t;
+
+void gamepad_device_logitec_rumblepad2(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
+    gamepad_state_t current_state = {0};
+    current_state.controls = GP_STATE_IN_USE;
+
+    uint8_t dpad = report->rx & 0b1111;
+    switch (dpad){
+        case 0 : current_state.controls |= GP_D_UP ; break;
+        case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
+        case 2 : current_state.controls |= GP_D_RIGHT; break;
+        case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
+        case 4 : current_state.controls |= GP_D_DOWN; break;
+        case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
+        case 6 : current_state.controls |= GP_D_LEFT; break;
+        case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
+        case 8 : current_state.controls |= 0; break; // jaja
+        default: // error
+    }
+
+    current_state.buttons |= bit_is_set_some(report->rx, 128) ? GP_BTN_TOP : 0; 
+    current_state.buttons |= bit_is_set_some(report->rx, 64) ? GP_BTN_RIGHT : 0; 
+    current_state.buttons |= bit_is_set_some(report->rx, 32) ? GP_BTN_BOTTOM : 0; 
+    current_state.buttons |= bit_is_set_some(report->rx, 16) ? GP_BTN_LEFT : 0; 
+
+    current_state.buttons |= bit_is_set_some(report->ry, 1) ? GP_BTN_REAR_LEFT : 0; 
+    current_state.buttons |= bit_is_set_some(report->ry, 2) ? GP_BTN_REAR_RIGHT : 0; 
+    current_state.buttons |= bit_is_set_some(report->ry, 16) ? GP_BTN_SELECT : 0; 
+    current_state.buttons |= bit_is_set_some(report->ry, 32) ? GP_BTN_START : 0; 
+
+    mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
+}
+
+
+gamepad_registration_t gamepad_registration[GAMEPAD_MAX_DEVICES] = {0};
+uint8_t gamepads_registered = 0;
+#define DEVICE_IDENTIFIER(dev_addr,instance) (dev_addr << 8 | instance)
+
+static bool gamepad_find_free_device(uint8_t* device_idx){
+    for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
+        gamepad_state_t* gamepad_state = &mm_gamepad_state[i];
+        if (!bit_is_set_some(gamepad_state->controls,GP_STATE_IN_USE)){
+            *device_idx = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+// register new gamepad
+void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, uint16_t product_id){
+    uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
+
+    for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
+        gamepad_registration_t* registration = &gamepad_registration[i];
+        if (registration->identifier != 0){
+            // already in use
+            continue;
+        }
+        gamepads_registered++;
+        if (gamepad_find_free_device(&registration->gamepad_idx)){
+            registration->gamepad_cb = gamepad_device_logitec_rumblepad2;
+            registration->identifier = device_identifier;
+            bit_set(mm_gamepad_state[registration->gamepad_idx].controls,GP_STATE_IN_USE);
+            break;
+        } else {
+            // NO FREE DEVICE! 
+            // TODO: error handling!?
+        }
+    }
+}
+
+void gamepad_unregister(uint8_t dev_addr, uint8_t instance){
+    uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
+
+    for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
+        gamepad_registration_t* registration = &gamepad_registration[i];
+        if (registration->identifier == device_identifier){
+            bit_unset(mm_gamepad_state[registration->gamepad_idx].controls,GP_STATE_IN_USE);
+            gamepads_registered--;
+            assert(gamepads_registered>=0);
+            // already in use
+            *registration = (gamepad_registration_t){0};
+            return;
+        }
+    }
+}
+
+
+static bool gamepad_find_registration(uint8_t dev_addr, uint8_t instance, gamepad_registration_t** registration){
+    uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
+
+    for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
+        *registration = &gamepad_registration[i];
+        if ((*registration)->identifier == device_identifier){
+            // already in use
+            return true;
+        }
+    }
+    return false;
+}
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_report, uint16_t desc_len) {
-  #ifndef HOLLOW
-  switch(tuh_hid_interface_protocol(dev_addr, instance)) {
-    case HID_ITF_PROTOCOL_KEYBOARD:
-      kbd_addr = dev_addr;
-      kbd_inst = instance;
-      tuh_hid_receive_report(dev_addr, instance);
-      _keyboard_connected = true;
-    break;
-    
-    case HID_ITF_PROTOCOL_MOUSE:
-      tuh_hid_receive_report(dev_addr, instance);
-      _mouse_connected = true;
-    break;
-  }
-  #endif
+    #ifndef HOLLOW
+    switch(tuh_hid_interface_protocol(dev_addr, instance)) {
+        case HID_ITF_PROTOCOL_KEYBOARD:{
+            kbd_addr = dev_addr;
+            kbd_inst = instance;
+            _keyboard_connected = true;
+            break;
+        }
+        case HID_ITF_PROTOCOL_MOUSE:{
+            _mouse_connected = true;
+            break;
+        }
+        case HID_ITF_PROTOCOL_NONE: {
+            uint16_t vid, pid;
+            tuh_vid_pid_get(dev_addr, &vid, &pid);
+            gamepad_register(dev_addr,instance,vid,pid);
+            break;
+        }    
+    }
+    // request next report
+    tuh_hid_receive_report(dev_addr, instance);
+    #endif
 }
 
+
 void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
+    switch(tuh_hid_interface_protocol(dev_addr, instance)) {
+        case HID_ITF_PROTOCOL_KEYBOARD:{
+            kbd_addr = 0;
+            kbd_inst = 0;
+            _keyboard_connected = false;
+            break;
+        }
+        case HID_ITF_PROTOCOL_MOUSE:{
+            _mouse_connected = false;
+            break;
+        }
+        case HID_ITF_PROTOCOL_NONE: {
+            gamepad_unregister(dev_addr,instance);
+            break;
+        }    
+    }
 }
+
+
+
+
 
 
 
@@ -349,46 +486,53 @@ bool keyboard_receive = false;
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* report, uint16_t len) {
   #ifndef HOLLOW
 
-  switch(tuh_hid_interface_protocol(dev_addr, instance)) {
-    case HID_ITF_PROTOCOL_KEYBOARD: {
-      tuh_hid_receive_report(dev_addr, instance);
-      current_report = *(hid_keyboard_report_t*)report;
-      uint8_t keycode = *mm_keyboard_last_pressed_keycode = current_report.keycode[0];
+    switch(tuh_hid_interface_protocol(dev_addr, instance)) {
+        case HID_ITF_PROTOCOL_NONE: {
+            hid_gamepad_report_t* gamepad_report = (hid_gamepad_report_t*)report;
+            *mm_gamepad = *((gamepad_t*)gamepad_report); // remove this! only for testing
+            
+            gamepad_registration_t* gamepad_registration;
+            if (gamepad_find_registration(dev_addr,instance,&gamepad_registration)){
+                gamepad_registration->gamepad_cb(gamepad_registration,gamepad_report);
+            }
+        }
+        case HID_ITF_PROTOCOL_KEYBOARD: {
+            current_report = *(hid_keyboard_report_t*)report;
+            uint8_t keycode = *mm_keyboard_last_pressed_keycode = current_report.keycode[0];
 
-      if ((keycode<=0x64) && (keycode>=4)) {	//if valid HID code
-        if (current_report.modifier & 0x22) {			//if Shift
-          *mm_keyboard_last_pressed_char = hid2asciiShift[keycode];
-        } else if (current_report.modifier & 0x11) {		//if Ctrl
-            if (keycode <= 0x1A)
-              *mm_keyboard_last_pressed_char = hid2asciiCtrl[keycode];
-            else
-              *mm_keyboard_last_pressed_char = hid2ascii[keycode];
-          } else {
-              *mm_keyboard_last_pressed_char = hid2ascii[keycode];		//no Ctrl no Shift 
-          }
-      };
-      break;
+            if ((keycode<=0x64) && (keycode>=4)) {	//if valid HID code
+            if (current_report.modifier & 0x22) {			//if Shift
+                *mm_keyboard_last_pressed_char = hid2asciiShift[keycode];
+            } else if (current_report.modifier & 0x11) {		//if Ctrl
+                if (keycode <= 0x1A)
+                    *mm_keyboard_last_pressed_char = hid2asciiCtrl[keycode];
+                else
+                    *mm_keyboard_last_pressed_char = hid2ascii[keycode];
+                } else {
+                    *mm_keyboard_last_pressed_char = hid2ascii[keycode];		//no Ctrl no Shift 
+                }
+            };
+            break;
+        }
+        case HID_ITF_PROTOCOL_MOUSE:{
+            hid_mouse_report_t* mouse = (hid_mouse_report_t*)report;
+            *mm_mouse_x += mouse->x;
+            *mm_mouse_y += mouse->y;
+            *mm_mouse_btn_state = mouse->buttons;
+            *mm_mouse_wheel = mouse->wheel;
+
+            if (*mm_mouse_x < 0) *mm_mouse_x=0;
+            if (*mm_mouse_x > 320) *mm_mouse_x=320;
+            if (*mm_mouse_y < 0) *mm_mouse_y=0;
+            if (*mm_mouse_y > 240)*mm_mouse_y=240;
+            
+            //tuh_hid_receive_report(dev_addr, instance);
+            break;
+        }
     }
-    case HID_ITF_PROTOCOL_MOUSE:{
-      tuh_hid_receive_report(dev_addr, instance);
+    tuh_hid_receive_report(dev_addr, instance);
 
-      hid_mouse_report_t* mouse = (hid_mouse_report_t*)report;
-      *mm_mouse_x += mouse->x;
-      *mm_mouse_y += mouse->y;
-      *mm_mouse_btn_state = mouse->buttons;
-      *mm_mouse_wheel = mouse->wheel;
-
-      if (*mm_mouse_x < 0) *mm_mouse_x=0;
-      if (*mm_mouse_x > 320) *mm_mouse_x=320;
-      if (*mm_mouse_y < 0) *mm_mouse_y=0;
-      if (*mm_mouse_y > 240)*mm_mouse_y=240;
-      
-      //tuh_hid_receive_report(dev_addr, instance);
-      break;
-    }
-  }
-
-  #endif
+#endif
 }
 
 bool io_keyboard_connected(void)

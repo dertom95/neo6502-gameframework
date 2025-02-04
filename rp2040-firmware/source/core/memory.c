@@ -41,6 +41,8 @@ uint8_t* mm_mouse_btn_state=NULL;
 int8_t*  mm_mouse_wheel=NULL;
 uint8_t* mm_keyboard_last_pressed_keycode = NULL;
 char*    mm_keyboard_last_pressed_char = NULL;
+gamepad_t* mm_gamepad = NULL;
+gamepad_state_t* mm_gamepad_state = NULL;
 
 
 
@@ -77,6 +79,14 @@ void memory_init() {
   mm_mouse_y = MEM6502_I16PTR(MM_MOUSE_Y);
   *mm_mouse_y=0;
 
+  mm_gamepad = MEM6502_U8PTR(MM_GAMEPAD);
+  *mm_gamepad = (gamepad_t){0};
+    
+  mm_gamepad_state = MEM6502_U8PTR(MM_GAMEPAD1_STATE);
+  for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
+    mm_gamepad_state[i]=(gamepad_state_t){0};
+  }
+  
 
   // lets install some ROMS
   // if (loadROMS()) {

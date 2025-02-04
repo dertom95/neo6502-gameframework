@@ -51,6 +51,43 @@ typedef struct ng_mem_block_t
 #define PXBFLAG_DIRTY (1 << 0)
 #define PXBFLAG_VISIBLE (1 << 1)
 
+typedef struct TU_ATTR_PACKED
+{
+  int8_t  x;         ///< Delta x  movement of left analog-stick
+  int8_t  y;         ///< Delta y  movement of left analog-stick
+  int8_t  z;         ///< Delta z  movement of right analog-joystick
+  int8_t  rz;        ///< Delta Rz movement of right analog-joystick
+  uint8_t  rx;        ///< Delta Rx movement of analog left trigger
+  uint8_t  ry;        ///< Delta Ry movement of analog right trigger
+  uint8_t hat;       ///< Buttons mask for currently pressed buttons in the DPad/hat
+  uint16_t buttons;  ///< Buttons mask for currently pressed buttons
+  uint16_t buttons2;  ///< Buttons mask for currently pressed buttons
+} gamepad_t;
+
+
+
+// directions
+#define GP_D_UP    (1 << 0)
+#define GP_D_DOWN  (1 << 1)
+#define GP_D_LEFT  (1 << 2)
+#define GP_D_RIGHT (1 << 3)
+#define GP_STATE_IN_USE  (1 << 7)
+
+// buttons
+#define GP_BTN_TOP          (1 << 0)
+#define GP_BTN_LEFT         (1 << 1)
+#define GP_BTN_RIGHT        (1 << 2)
+#define GP_BTN_BOTTOM       (1 << 3)
+#define GP_BTN_REAR_LEFT    (1 << 4)
+#define GP_BTN_REAR_RIGHT   (1 << 5)
+#define GP_BTN_START        (1 << 6)
+#define GP_BTN_SELECT       (1 << 7)
+
+typedef struct gamepad_state_t {
+    uint8_t controls; // see GP_D_* defines
+    uint8_t buttons; // see GP_BTN_* defines
+} gamepad_state_t;
+
 typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
 {
     uint8_t obj_id;
@@ -224,6 +261,11 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 // #define MM_          (MM_SB + 0x09)   /* uint8 */              /* FREE */
 #define MM_CYCLE_TICKS (MM_SB + 0x0a) /* uint16_t*/
 #define MM_MS_DELTA (MM_SB + 0x0c)    /* uint16_t*/
+#define MM_GAMEPAD (MM_SB + 0x0e) /* gamepad_t 11bytes*/
+#define MM_GAMEPAD1_STATE (MM_SB + 0x1a) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE (MM_GAMEPAD2_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE (MM_GAMEPAD3_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 
 #define MM_FUNCS MEMORY_MAP_FUNC_START /* memory-location where the memory-mapping starts */
 #define MM_FUNC_CALL (MM_FUNCS + 0x00)   /* uint8 */

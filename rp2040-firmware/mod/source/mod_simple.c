@@ -18,6 +18,8 @@ volatile uint16_t* mx = NULL;
 volatile uint16_t* my = NULL;
 volatile uint8_t* mbtn = NULL;
 volatile uint8_t* pxbuf = NULL;
+volatile gamepad_t* gamepad = NULL;
+volatile gamepad_state_t* gamepad_state = NULL;
 
 // #define SCREEN_WIDTH 80
 // #define SCREEN_HEIGHT 60
@@ -92,12 +94,14 @@ int mod_init(){
     io_keyboardmapping_register(&kbm,1);
 
     //audio_play_wav(ASSET_MUSIC_8,true);
-    audio_mod_play(ASSET_GAME);
+   // audio_mod_play(ASSET_GAME);
 
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
+    gamepad = (gamepad_t*)MEMPTR(MM_GAMEPAD);
+    gamepad_state = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE);
 
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
@@ -131,7 +135,7 @@ int mod_init(){
 
     // renderqueue
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
-    gfx_renderqueue_add_id(spritebuffer);
+ //   gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -151,9 +155,31 @@ void mod_update() {
     {
         return;
     }
-    char buf[24];
-    ng_snprintf(buf,24,"mod progress:%d",audio_mod_pos());
+    char buf[50];
+/*
+  int8_t  x;         ///< Delta x  movement of left analog-stick
+  int8_t  y;         ///< Delta y  movement of left analog-stick
+  int8_t  z;         ///< Delta z  movement of right analog-joystick
+  int8_t  rz;        ///< Delta Rz movement of right analog-joystick
+  int8_t  rx;        ///< Delta Rx movement of analog left trigger
+  int8_t  ry;        ///< Delta Ry movement of analog right trigger
+  uint8_t hat;       ///< Buttons mask for currently pressed buttons in the DPad/hat
+  uint16_t buttons;  ///< Buttons mask for currently pressed buttons
+  uint16_t buttons2;
+  */
+
+    ng_snprintf(buf,40,"x%d y%d z%d",gamepad->x,gamepad->y,gamepad->z);
     gfx_draw_text(0,0,buf,COL_ORANGE);
+
+    ng_snprintf(buf,40,"rz%d rx%d ry%d",gamepad->rz,gamepad->rx,gamepad->ry);
+    gfx_draw_text(0,10,buf,COL_ORANGE);
+
+    ng_snprintf(buf,40,"h%d b%d b%d",gamepad->hat,gamepad->buttons,gamepad->buttons2);
+    gfx_draw_text(0,20,buf,COL_ORANGE);
+
+    ng_snprintf(buf,40,"c:%d b:%d",gamepad_state->controls,gamepad_state->buttons);
+    gfx_draw_text(0,40,buf,COL_ORANGE);
+
     if ((kbm.key_pressed & KEY_COL_DOWN)>0){
         x--;
         // if (px_width>0){

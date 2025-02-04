@@ -2,8 +2,8 @@ set(BACKEND_SOURCE)
 set(BACKEND PICO_NEO6502)
 
 if(BACKEND STREQUAL "PICO_NEO6502")
-#add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA -DSOUND)
-add_definitions(-D${BACKEND} -DCHIPS_IMPL  -DSOUND)
+add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA -DSOUND)
+#add_definitions(-D${BACKEND} -DCHIPS_IMPL  -DSOUND)
 list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
 			 core/backend/neo6502/neo6502_io.c
