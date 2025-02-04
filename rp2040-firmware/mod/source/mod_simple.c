@@ -20,6 +20,7 @@ volatile uint8_t* mbtn = NULL;
 volatile uint8_t* pxbuf = NULL;
 volatile gamepad_t* gamepad = NULL;
 volatile gamepad_state_t* gamepad_state = NULL;
+volatile gamepad_state_t* gamepad_state2 = NULL;
 
 // #define SCREEN_WIDTH 80
 // #define SCREEN_HEIGHT 60
@@ -102,6 +103,7 @@ int mod_init(){
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     gamepad = (gamepad_t*)MEMPTR(MM_GAMEPAD);
     gamepad_state = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE);
+    gamepad_state2 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD2_STATE);
 
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
@@ -168,17 +170,20 @@ void mod_update() {
   uint16_t buttons2;
   */
 
-    ng_snprintf(buf,40,"x%d y%d z%d",gamepad->x,gamepad->y,gamepad->z);
+    ng_snprintf(buf,40,"x%d y%d z%d   ",gamepad->x,gamepad->y,gamepad->z);
     gfx_draw_text(0,0,buf,COL_ORANGE);
 
-    ng_snprintf(buf,40,"rz%d rx%d ry%d",gamepad->rz,gamepad->rx,gamepad->ry);
+    ng_snprintf(buf,40,"rz%d rx%d ry%d   ",gamepad->rz,gamepad->rx,gamepad->ry);
     gfx_draw_text(0,10,buf,COL_ORANGE);
 
-    ng_snprintf(buf,40,"h%d b%d b%d",gamepad->hat,gamepad->buttons,gamepad->buttons2);
+    ng_snprintf(buf,40,"h%d b%d b%d   ",gamepad->hat,gamepad->buttons,gamepad->buttons2);
     gfx_draw_text(0,20,buf,COL_ORANGE);
 
-    ng_snprintf(buf,40,"c:%d b:%d",gamepad_state->controls,gamepad_state->buttons);
+    ng_snprintf(buf,40,"c:%d b:%d   ",gamepad_state->controls,gamepad_state->buttons);
     gfx_draw_text(0,40,buf,COL_ORANGE);
+
+    ng_snprintf(buf,40,"c:%d b:%d   ",gamepad_state2->controls,gamepad_state2->buttons);
+    gfx_draw_text(0,50,buf,COL_ORANGE);
 
     if ((kbm.key_pressed & KEY_COL_DOWN)>0){
         x--;

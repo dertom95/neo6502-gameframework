@@ -53,10 +53,10 @@ typedef struct ng_mem_block_t
 
 typedef struct TU_ATTR_PACKED
 {
-  int8_t  x;         ///< Delta x  movement of left analog-stick
-  int8_t  y;         ///< Delta y  movement of left analog-stick
-  int8_t  z;         ///< Delta z  movement of right analog-joystick
-  int8_t  rz;        ///< Delta Rz movement of right analog-joystick
+  uint8_t  x;         ///< Delta x  movement of left analog-stick
+  uint8_t  y;         ///< Delta y  movement of left analog-stick
+  uint8_t  z;         ///< Delta z  movement of right analog-joystick
+  uint8_t  rz;        ///< Delta Rz movement of right analog-joystick
   uint8_t  rx;        ///< Delta Rx movement of analog left trigger
   uint8_t  ry;        ///< Delta Ry movement of analog right trigger
   uint8_t hat;       ///< Buttons mask for currently pressed buttons in the DPad/hat

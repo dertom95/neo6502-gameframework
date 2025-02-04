@@ -361,10 +361,67 @@ void gamepad_device_logitec_rumblepad2(gamepad_registration_t* gamepad_registrat
     mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
 }
 
+void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
+    gamepad_state_t current_state = {0};
+    current_state.controls = GP_STATE_IN_USE;
+
+    uint8_t dpad = report->ry & 0b1111;
+    switch (dpad){
+        case 0 : current_state.controls |= GP_D_UP ; break;
+        case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
+        case 2 : current_state.controls |= GP_D_RIGHT; break;
+        case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
+        case 4 : current_state.controls |= GP_D_DOWN; break;
+        case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
+        case 6 : current_state.controls |= GP_D_LEFT; break;
+        case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
+        case 15 : current_state.controls |= 0; break; // jaja
+        default: // error
+    }
+
+    uint8_t action_buttons = (report->ry) & 0b11110000;
+
+    current_state.buttons |= bit_is_set_some(action_buttons, 16) ? GP_BTN_TOP : 0; 
+    current_state.buttons |= bit_is_set_some(action_buttons, 32) ? GP_BTN_RIGHT : 0; 
+    current_state.buttons |= bit_is_set_some(action_buttons, 64) ? GP_BTN_BOTTOM : 0; 
+    current_state.buttons |= bit_is_set_some(action_buttons, 128) ? GP_BTN_LEFT : 0; 
+
+    current_state.buttons |= bit_is_set_some(report->hat, 1) ? GP_BTN_REAR_LEFT : 0; 
+    current_state.buttons |= bit_is_set_some(report->hat, 2) ? GP_BTN_REAR_RIGHT : 0; 
+    current_state.buttons |= bit_is_set_some(report->hat, 16) ? GP_BTN_SELECT : 0; 
+    current_state.buttons |= bit_is_set_some(report->hat, 32) ? GP_BTN_START : 0; 
+
+    mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
+}
+
+#define DEVICE_IDENTIFIER(dev_addr,instance) (dev_addr << 8 | instance)
+#define GAMEPAD_IDENTIFIER(vendor_id,product_id) (vendor_id << 16 | product_id)
+
+// TODO: Can I find similarities to make a mapping struct instead of one function per gamepad. (Looking easy enough, not sure it stays like this for other gamepads)
+typedef struct gamepad_mapping_t {
+    uint32_t gamepad_identifier;
+    gamepad_function_t function;
+} gamepad_mapping_t;
+
+gamepad_mapping_t gamepad_mappings[] = {
+    {GAMEPAD_IDENTIFIER(1133,49688),gamepad_device_logitec_rumblepad2}, // logictec rumblepad2
+    {GAMEPAD_IDENTIFIER(121,6),gamepad_device_tracer_glider}
+};
+
+static gamepad_mapping_t* gamepad_find_mapping(uint16_t vendor_id, uint16_t product_id){
+    uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id,product_id);
+    for (int i=0;i<(sizeof(gamepad_mappings) / sizeof(gamepad_mappings[0]));i++){
+        gamepad_mapping_t* mapping = &gamepad_mappings[i];
+        if (mapping->gamepad_identifier == gamepad_identifier){
+            return mapping;
+        }
+    }
+    // COULDN't FIND GAMEPAD
+    return NULL;
+}
 
 gamepad_registration_t gamepad_registration[GAMEPAD_MAX_DEVICES] = {0};
 uint8_t gamepads_registered = 0;
-#define DEVICE_IDENTIFIER(dev_addr,instance) (dev_addr << 8 | instance)
 
 static bool gamepad_find_free_device(uint8_t* device_idx){
     for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
@@ -379,6 +436,15 @@ static bool gamepad_find_free_device(uint8_t* device_idx){
 
 // register new gamepad
 void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, uint16_t product_id){
+    uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id,product_id);
+
+    gamepad_mapping_t* mapping = gamepad_find_mapping(vendor_id,product_id);
+
+    if (mapping == NULL){
+        // SORRY, UNKNOWN GAMEPAD!
+        return;
+    }
+
     uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
 
     for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
@@ -389,7 +455,7 @@ void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, ui
         }
         gamepads_registered++;
         if (gamepad_find_free_device(&registration->gamepad_idx)){
-            registration->gamepad_cb = gamepad_device_logitec_rumblepad2;
+            registration->gamepad_cb = mapping->function;
             registration->identifier = device_identifier;
             bit_set(mm_gamepad_state[registration->gamepad_idx].controls,GP_STATE_IN_USE);
             break;
