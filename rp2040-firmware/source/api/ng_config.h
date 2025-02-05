@@ -4,6 +4,8 @@
 #include "../ng_defines.h"
 #include "ng_api_shared.h"
 
+#define GAMEPAD_MAX_DEVICES 4
+
 #define SCREEN_WIDTH 320
 #define SCREEN_WIDTH_HALF 160
 #define SCREEN_HEIGHT 240

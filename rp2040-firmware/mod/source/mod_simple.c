@@ -21,7 +21,8 @@ volatile uint8_t* pxbuf = NULL;
 volatile gamepad_t* gamepad = NULL;
 volatile gamepad_state_t* gamepad_state = NULL;
 volatile gamepad_state_t* gamepad_state2 = NULL;
-
+volatile gamepad_state_t* gamepad_state3 = NULL;
+volatile gamepad_state_t* gamepad_state4 = NULL;
 // #define SCREEN_WIDTH 80
 // #define SCREEN_HEIGHT 60
 #define SCREEN_WIDTH 160
@@ -95,15 +96,17 @@ int mod_init(){
     io_keyboardmapping_register(&kbm,1);
 
     //audio_play_wav(ASSET_MUSIC_8,true);
-   // audio_mod_play(ASSET_GAME);
+    audio_mod_play(ASSET_GAME);
 
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mx =  (uint16_t*)MEMPTR(MM_MOUSE_X);
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     gamepad = (gamepad_t*)MEMPTR(MM_GAMEPAD);
-    gamepad_state = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE);
+    gamepad_state  = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE);
     gamepad_state2 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD2_STATE);
+    gamepad_state3 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD3_STATE);
+    gamepad_state4 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD4_STATE);
 
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);
@@ -137,7 +140,7 @@ int mod_init(){
 
     // renderqueue
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
- //   gfx_renderqueue_add_id(spritebuffer);
+    gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -184,7 +187,10 @@ void mod_update() {
 
     ng_snprintf(buf,40,"c:%d b:%d   ",gamepad_state2->controls,gamepad_state2->buttons);
     gfx_draw_text(0,50,buf,COL_ORANGE);
-
+    ng_snprintf(buf,50,"c:%d b:%d   ",gamepad_state3->controls,gamepad_state3->buttons);
+    gfx_draw_text(0,60,buf,COL_ORANGE);    
+    ng_snprintf(buf,40,"c:%d b:%d   ",gamepad_state4->controls,gamepad_state4->buttons);
+    gfx_draw_text(0,70,buf,COL_ORANGE);
     if ((kbm.key_pressed & KEY_COL_DOWN)>0){
         x--;
         // if (px_width>0){

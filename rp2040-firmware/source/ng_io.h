@@ -11,9 +11,11 @@ typedef struct keyboard_environment_t {
   keyboard_mapping_t* keyboardmappings;
 } keyboard_environment_t;
 
-typedef struct gamepad_controls_t {
-    uint16_t id; // dev(hi)|instance(lo)
-} gamepad_controls_t;
+typedef struct gamepad_registration_t gamepad_registration_t;
+
+typedef void (*gamepad_function_t)(gamepad_registration_t*, void*);
+
+
 
 extern bool _keyboard_connected;
 extern bool _mouse_connected;

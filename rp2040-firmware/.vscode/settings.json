@@ -149,7 +149,8 @@
         "ng_audio.h": "c",
         "shared_mutex": "c",
         "modplay.h": "c",
-        "usbh.h": "c"
+        "usbh.h": "c",
+        "gamepad.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"],
     "editor.detectIndentation": false    

@@ -319,16 +319,17 @@ bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
   return false;
 }
 
-typedef struct gamepad_registration_t gamepad_registration_t;
-
-typedef void (*gamepad_function_t)(gamepad_registration_t*, hid_gamepad_report_t*);
-
 typedef struct gamepad_registration_t {
     uint16_t identifier;
     uint8_t gamepad_idx;
     uint8_t unused1;
     gamepad_function_t gamepad_cb;
 } gamepad_registration_t;
+
+typedef struct gamepad_mapping_t {
+    uint32_t gamepad_identifier;
+    gamepad_function_t function;
+} gamepad_mapping_t;
 
 void gamepad_device_logitec_rumblepad2(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
     gamepad_state_t current_state = {0};
@@ -393,6 +394,7 @@ void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, 
 
     mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
 }
+
 
 #define DEVICE_IDENTIFIER(dev_addr,instance) (dev_addr << 8 | instance)
 #define GAMEPAD_IDENTIFIER(vendor_id,product_id) (vendor_id << 16 | product_id)

@@ -33,6 +33,7 @@
 
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
+#include <kinc/input/gamepad.h>
 
 extern keyboard_environment_t kenv;
 
@@ -51,6 +52,8 @@ typedef struct hid_keyboard_report_t
 hid_keyboard_report_t kb_pressed;
 hid_keyboard_report_t kb_down;
 hid_keyboard_report_t kb_released;
+
+
 
 uint8_t HID2KINC_0[]={
 KINC_KEY_UNKNOWN             , //0x00
@@ -631,6 +634,278 @@ static void callback_mouse_wheel_updated(int window,int delta, void* data){
   *mm_mouse_wheel = delta;
 }
 
+typedef struct {
+    uint32_t identifier;
+    uint8_t axis_lr;       // Axis for left-right control
+    uint8_t axis_ud;       // Axis for up-down control
+    int8_t lr_invert;      // -1 if left is positive, 1 if right is positive
+    int8_t ud_invert;      // -1 if up is positive, 1 if down is positive
+    uint8_t button_map[10]; // Mapping of button numbers to expected buttons
+} gamepad_mapping_t;
+
+gamepad_mapping_t gamepad_mappings[]={
+    {  // CSL PS3-Controller clone
+        .identifier=4065002617,
+        .axis_lr=0,
+        .lr_invert=1,
+        .axis_ud=1,
+        .ud_invert=-1,
+        .button_map={
+            [0]=GP_BTN_TOP,
+            [1]=GP_BTN_RIGHT,
+            [2]=GP_BTN_BOTTOM,
+            [3]=GP_BTN_LEFT,
+            [4]=GP_BTN_REAR_LEFT,
+            [5]=GP_BTN_REAR_RIGHT,
+            [8]=GP_BTN_SELECT,
+            [9]=GP_BTN_START
+        }
+    },
+    {  // MicronTek / Tracer Glider
+        .identifier=3362886800,
+        .axis_lr=0,
+        .lr_invert=1,
+        .axis_ud=1,
+        .ud_invert=-1,
+        .button_map={
+            [0]=GP_BTN_TOP,
+            [1]=GP_BTN_RIGHT,
+            [2]=GP_BTN_BOTTOM,
+            [3]=GP_BTN_LEFT,
+            [4]=GP_BTN_REAR_LEFT,
+            [5]=GP_BTN_REAR_RIGHT,
+            [8]=GP_BTN_SELECT,
+            [9]=GP_BTN_START
+        }
+    },    
+    { // XBox X/S
+        .identifier=3367356690,
+        .axis_lr=6,
+        .lr_invert=1,
+        .axis_ud=7,
+        .ud_invert=-1,
+        .button_map={
+            [3]=GP_BTN_TOP,
+            [1]=GP_BTN_RIGHT,
+            [0]=GP_BTN_BOTTOM,
+            [2]=GP_BTN_LEFT,
+            [4]=GP_BTN_REAR_LEFT,
+            [5]=GP_BTN_REAR_RIGHT,
+            [6]=GP_BTN_SELECT,
+            [7]=GP_BTN_START
+        }
+    },
+    { // Logitech RumblePad 2
+        .identifier=422644551,
+        .axis_lr=0,
+        .lr_invert=1,
+        .axis_ud=1,
+        .ud_invert=-1,
+        .button_map={
+            [3]=GP_BTN_TOP,
+            [2]=GP_BTN_RIGHT,
+            [1]=GP_BTN_BOTTOM,
+            [0]=GP_BTN_LEFT,
+            [4]=GP_BTN_REAR_LEFT,
+            [5]=GP_BTN_REAR_RIGHT,
+            [8]=GP_BTN_SELECT,
+            [9]=GP_BTN_START
+        }
+    },
+};
+
+gamepad_mapping_t* gamepad2mapping[GAMEPAD_MAX_DEVICES];
+
+uint32_t hash_function(const char* str1) {
+    const uint32_t prime1 = 31;
+    const uint32_t prime2 = 37;
+    uint32_t hash = 0;
+    int i;
+
+    for (i = 0; str1[i] != '\0' && i < 10; i++) {
+        hash = hash * prime1 + (uint32_t)str1[i];
+    }
+
+    return hash;
+}
+
+#define GP_REPORT_TYPE_AXIS (1 << 0)
+#define GP_REPORT_TYPE_BTN  (1 << 1)
+typedef struct kinc_gamepad_report_t {
+    uint8_t flags;
+    uint8_t number;
+    int8_t value;
+} kinc_gamepad_report_t;
+
+/*
+void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, void* _report){
+    kinc_gamepad_report_t* report = (kinc_gamepad_report_t*)_report;
+    gamepad_state_t* gamepad_state = &mm_gamepad_state[gamepad_registration->gamepad_idx];
+
+    if (bit_is_set_some(report->flags,GP_REPORT_TYPE_AXIS)){
+        uint8_t axis = report->number;
+        if (axis == 0){
+            // left<->right
+            if (report->value==-1){
+                gamepad_state->controls |= GP_D_LEFT;
+            }
+            else if (report->value==1){
+                gamepad_state->controls |= GP_D_RIGHT;
+            }
+            else {
+                gamepad_state->controls &= ~(GP_D_RIGHT | GP_D_LEFT);
+            }
+        }
+        else if (axis == 1){
+            // up<->down
+            // left<->right
+            if (report->value==-1){
+                gamepad_state->controls |= GP_D_DOWN;
+            }
+            else if (report->value==1){
+                gamepad_state->controls |= GP_D_UP;
+            }
+            else {
+                gamepad_state->controls &= ~(GP_D_UP | GP_D_DOWN);
+            }
+        }
+    }
+    else if (bit_is_set_some(report->flags,GP_REPORT_TYPE_BTN)){
+        if (report->value==1){
+            switch (report->number){
+                case 0: gamepad_state->buttons |= GP_BTN_TOP; break;
+                case 1: gamepad_state->buttons |= GP_BTN_RIGHT; break;
+                case 2: gamepad_state->buttons |= GP_BTN_BOTTOM; break;
+                case 3: gamepad_state->buttons |= GP_BTN_LEFT; break;
+                case 4: gamepad_state->buttons |= GP_BTN_REAR_LEFT; break;
+                case 5: gamepad_state->buttons |= GP_BTN_REAR_RIGHT; break;
+                case 8: gamepad_state->buttons |= GP_BTN_SELECT; break;
+                case 9: gamepad_state->buttons |= GP_BTN_START; break;
+            }
+        } else {
+            switch (report->number){
+                case 0: gamepad_state->buttons &= ~GP_BTN_TOP; break;
+                case 1: gamepad_state->buttons &= ~GP_BTN_RIGHT; break;
+                case 2: gamepad_state->buttons &= ~GP_BTN_BOTTOM; break;
+                case 3: gamepad_state->buttons &= ~GP_BTN_LEFT; break;
+                case 4: gamepad_state->buttons &= ~GP_BTN_REAR_LEFT; break;
+                case 5: gamepad_state->buttons &= ~GP_BTN_REAR_RIGHT; break;
+                case 8: gamepad_state->buttons &= ~GP_BTN_SELECT; break;
+                case 9: gamepad_state->buttons &= ~GP_BTN_START; break;
+            }
+        }
+    }
+}*/
+
+
+
+
+void gamepad_device_handler(gamepad_mapping_t* mapping, int gamepad_idx, void* _report) {
+    kinc_gamepad_report_t* report = (kinc_gamepad_report_t*)_report;
+    gamepad_state_t* gamepad_state = &mm_gamepad_state[gamepad_idx];
+
+    if (bit_is_set_some(report->flags, GP_REPORT_TYPE_AXIS)) {
+        uint8_t axis = report->number;
+
+        if (axis == mapping->axis_lr) {
+            // Handle left-right axis
+            if (report->value * mapping->lr_invert == -1) {
+                gamepad_state->controls |= GP_D_LEFT;
+            } else if (report->value * mapping->lr_invert == 1) {
+                gamepad_state->controls |= GP_D_RIGHT;
+            } else {
+                gamepad_state->controls &= ~(GP_D_LEFT | GP_D_RIGHT);
+            }
+        } else if (axis == mapping->axis_ud) {
+            // Handle up-down axis
+            if (report->value * mapping->ud_invert == -1) {
+                gamepad_state->controls |= GP_D_UP;
+            } else if (report->value * mapping->ud_invert == 1) {
+                gamepad_state->controls |= GP_D_DOWN;
+            } else {
+                gamepad_state->controls &= ~(GP_D_UP | GP_D_DOWN);
+            }
+        }
+    } else if (bit_is_set_some(report->flags, GP_REPORT_TYPE_BTN)) {
+        uint8_t button = report->number;
+
+        if (button < sizeof(mapping->button_map)) {
+            uint32_t mapped_button = mapping->button_map[button];
+
+            if (report->value == 1) {
+                // Button pressed
+                gamepad_state->buttons |= mapped_button;
+            } else {
+                // Button released
+                gamepad_state->buttons &= ~mapped_button;
+            }
+        }
+    }
+}
+
+
+
+
+static gamepad_mapping_t* gamepad_find_mapping(int gamepad){
+    const char* vendor = kinc_gamepad_vendor(gamepad);
+    const char* product = kinc_gamepad_product_name(gamepad);    
+    uint32_t gamepad_identifier = hash_function(product);
+    for (int i=0;i<(sizeof(gamepad_mappings) / sizeof(gamepad_mappings[0]));i++){
+        gamepad_mapping_t* mapping = &gamepad_mappings[i];
+        if (mapping->identifier == gamepad_identifier){
+            return mapping;
+        }
+    }
+    // COULDN't FIND GAMEPAD
+    return NULL;
+}
+
+static void callback_gamepad_connected(int gamepad,void* userdata){
+    const char* vendor = kinc_gamepad_vendor(gamepad);
+    const char* product = kinc_gamepad_product_name(gamepad);
+    uint32_t hash = hash_function(product);
+    printf("Connected: %s | %s => %u\n",vendor,product,hash);
+    gamepad_mapping_t* mapping = gamepad_find_mapping(gamepad);
+    if (mapping == NULL ){
+        return;
+    }
+    gamepad2mapping[gamepad] = mapping;
+}
+
+static void callback_gamepad_disconnected(int gamepad,void* userdata){
+    gamepad2mapping[gamepad]=NULL;
+}
+
+gamepad_state_t gamepad_state_current;
+
+static void callback_gamepad_axiscallback(int gamepad,int axis, float value, void* userdata){
+    printf("gamepad:%d axis:%d value:%f\n",gamepad,axis,value);
+    gamepad_mapping_t* mapping = gamepad2mapping[gamepad];
+    if (mapping==NULL){
+        return;
+    }
+    kinc_gamepad_report_t report = {
+        .flags = GP_REPORT_TYPE_AXIS,
+        .number = axis,
+        .value = (int8_t)value
+    };
+    gamepad_device_handler(mapping,gamepad,(void*)&report);
+}
+
+static void callback_gamepad_buttoncallback(int gamepad, int button, float value, void* userdata){
+    printf("gamepad:%d btn:%d value:%f\n",gamepad,button,value);
+    gamepad_mapping_t* mapping = gamepad2mapping[gamepad];
+    if (mapping==NULL){
+        return;
+    }    
+    kinc_gamepad_report_t report = {
+        .flags = GP_REPORT_TYPE_BTN,
+        .number = button,
+        .value = (int8_t)value
+    };
+    gamepad_device_handler(mapping,gamepad,(void*)&report);  
+}
+
 void io_backend_init()
 {
   kinc_keyboard_set_key_down_callback(&keyboard_pressed, NULL);
@@ -648,11 +923,19 @@ void io_backend_init()
 
 // void kinc_mouse_set_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, int /*movement_x*/, int /*movement_y*/, void * /*data*/), void *data) {
 
-  kinc_mouse_set_move_callback(&callback_mouse_moved,NULL);
-  kinc_mouse_set_press_callback(&callback_mouse_button_pressed, NULL);
-  kinc_mouse_set_release_callback(&callback_mouse_button_released, NULL);
-  kinc_mouse_set_scroll_callback(&callback_mouse_wheel_updated, NULL);
+    kinc_mouse_set_move_callback(&callback_mouse_moved,NULL);
+    kinc_mouse_set_press_callback(&callback_mouse_button_pressed, NULL);
+    kinc_mouse_set_release_callback(&callback_mouse_button_released, NULL);
+    kinc_mouse_set_scroll_callback(&callback_mouse_wheel_updated, NULL);
+
+    kinc_gamepad_set_connect_callback(callback_gamepad_connected, NULL);
+    kinc_gamepad_set_disconnect_callback(callback_gamepad_disconnected,NULL);
+    kinc_gamepad_set_axis_callback(callback_gamepad_axiscallback, NULL);
+    kinc_gamepad_set_button_callback(callback_gamepad_buttoncallback, NULL);
 }
+
+
+
 
 void io_backend_before_tick(void){
   
