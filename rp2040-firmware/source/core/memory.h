@@ -28,7 +28,7 @@ extern int8_t*  mm_mouse_wheel;
 extern uint8_t* mm_keyboard_last_pressed_keycode;
 extern char*    mm_keyboard_last_pressed_char;
 extern gamepad_t* mm_gamepad;
-
+extern uint8_t* mm_gamepad_info;
 extern gamepad_state_t* mm_gamepad_state;
 
 

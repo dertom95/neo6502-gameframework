@@ -19,6 +19,7 @@ volatile uint16_t* my = NULL;
 volatile uint8_t* mbtn = NULL;
 volatile uint8_t* pxbuf = NULL;
 volatile gamepad_t* gamepad = NULL;
+volatile uint8_t* gamepad_info = NULL;
 volatile gamepad_state_t* gamepad_state = NULL;
 volatile gamepad_state_t* gamepad_state2 = NULL;
 volatile gamepad_state_t* gamepad_state3 = NULL;
@@ -103,6 +104,7 @@ int mod_init(){
     my =  (uint16_t*)MEMPTR(MM_MOUSE_Y);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     gamepad = (gamepad_t*)MEMPTR(MM_GAMEPAD);
+    gamepad_info = (uint8_t*)MEMPTR(MM_GAMEPAD_INFO);
     gamepad_state  = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE);
     gamepad_state2 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD2_STATE);
     gamepad_state3 = (gamepad_state_t*)MEMPTR(MM_GAMEPAD3_STATE);
@@ -140,7 +142,7 @@ int mod_init(){
 
     // renderqueue
     gfx_renderqueue_add_id(pixelbuffer.obj_id);
-    gfx_renderqueue_add_id(spritebuffer);
+    //gfx_renderqueue_add_id(spritebuffer);
 
     gfx_renderqueue_apply();
 
@@ -191,6 +193,8 @@ void mod_update() {
     gfx_draw_text(0,60,buf,COL_ORANGE);    
     ng_snprintf(buf,40,"c:%d b:%d   ",gamepad_state4->controls,gamepad_state4->buttons);
     gfx_draw_text(0,70,buf,COL_ORANGE);
+    ng_snprintf(buf,40,"gp:%d",*gamepad_info);
+    gfx_draw_text(0,80,buf,COL_ORANGE);
     if ((kbm.key_pressed & KEY_COL_DOWN)>0){
         x--;
         // if (px_width>0){

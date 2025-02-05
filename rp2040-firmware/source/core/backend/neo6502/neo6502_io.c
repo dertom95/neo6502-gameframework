@@ -319,98 +319,199 @@ bool find_key_in_report(hid_keyboard_report_t const *report, uint8_t keycode)
   return false;
 }
 
+
+
+// typedef struct gamepad_mapping_t {
+//     uint32_t gamepad_identifier;
+//     gamepad_function_t function;
+// } gamepad_mapping_t;
+
+typedef struct {
+    uint8_t dpad_offset;       // Offset in the report for the dpad
+    uint8_t dp[16];
+    uint8_t action_button_masks[4];   // Masks for individual buttons
+    uint8_t button_offset;     // Offset in the report for buttons
+    uint8_t button_masks[4];   // Masks for individual buttons
+} gamepad_input_mapping_t;
+
+typedef struct {
+    uint32_t gamepad_identifier;          // Unique identifier for the gamepad
+    gamepad_input_mapping_t input_map;    // Input mapping for the gamepad
+} gamepad_mapping_t;
+
 typedef struct gamepad_registration_t {
     uint16_t identifier;
     uint8_t gamepad_idx;
     uint8_t unused1;
-    gamepad_function_t gamepad_cb;
+    gamepad_input_mapping_t* gamepad_mapping;
 } gamepad_registration_t;
-
-typedef struct gamepad_mapping_t {
-    uint32_t gamepad_identifier;
-    gamepad_function_t function;
-} gamepad_mapping_t;
-
-void gamepad_device_logitec_rumblepad2(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
-    gamepad_state_t current_state = {0};
-    current_state.controls = GP_STATE_IN_USE;
-
-    uint8_t dpad = report->rx & 0b1111;
-    switch (dpad){
-        case 0 : current_state.controls |= GP_D_UP ; break;
-        case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
-        case 2 : current_state.controls |= GP_D_RIGHT; break;
-        case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
-        case 4 : current_state.controls |= GP_D_DOWN; break;
-        case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
-        case 6 : current_state.controls |= GP_D_LEFT; break;
-        case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
-        case 8 : current_state.controls |= 0; break; // jaja
-        default: // error
-    }
-
-    current_state.buttons |= bit_is_set_some(report->rx, 128) ? GP_BTN_TOP : 0; 
-    current_state.buttons |= bit_is_set_some(report->rx, 64) ? GP_BTN_RIGHT : 0; 
-    current_state.buttons |= bit_is_set_some(report->rx, 32) ? GP_BTN_BOTTOM : 0; 
-    current_state.buttons |= bit_is_set_some(report->rx, 16) ? GP_BTN_LEFT : 0; 
-
-    current_state.buttons |= bit_is_set_some(report->ry, 1) ? GP_BTN_REAR_LEFT : 0; 
-    current_state.buttons |= bit_is_set_some(report->ry, 2) ? GP_BTN_REAR_RIGHT : 0; 
-    current_state.buttons |= bit_is_set_some(report->ry, 16) ? GP_BTN_SELECT : 0; 
-    current_state.buttons |= bit_is_set_some(report->ry, 32) ? GP_BTN_START : 0; 
-
-    mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
-}
-
-void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
-    gamepad_state_t current_state = {0};
-    current_state.controls = GP_STATE_IN_USE;
-
-    uint8_t dpad = report->ry & 0b1111;
-    switch (dpad){
-        case 0 : current_state.controls |= GP_D_UP ; break;
-        case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
-        case 2 : current_state.controls |= GP_D_RIGHT; break;
-        case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
-        case 4 : current_state.controls |= GP_D_DOWN; break;
-        case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
-        case 6 : current_state.controls |= GP_D_LEFT; break;
-        case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
-        case 15 : current_state.controls |= 0; break; // jaja
-        default: // error
-    }
-
-    uint8_t action_buttons = (report->ry) & 0b11110000;
-
-    current_state.buttons |= bit_is_set_some(action_buttons, 16) ? GP_BTN_TOP : 0; 
-    current_state.buttons |= bit_is_set_some(action_buttons, 32) ? GP_BTN_RIGHT : 0; 
-    current_state.buttons |= bit_is_set_some(action_buttons, 64) ? GP_BTN_BOTTOM : 0; 
-    current_state.buttons |= bit_is_set_some(action_buttons, 128) ? GP_BTN_LEFT : 0; 
-
-    current_state.buttons |= bit_is_set_some(report->hat, 1) ? GP_BTN_REAR_LEFT : 0; 
-    current_state.buttons |= bit_is_set_some(report->hat, 2) ? GP_BTN_REAR_RIGHT : 0; 
-    current_state.buttons |= bit_is_set_some(report->hat, 16) ? GP_BTN_SELECT : 0; 
-    current_state.buttons |= bit_is_set_some(report->hat, 32) ? GP_BTN_START : 0; 
-
-    mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
-}
-
 
 #define DEVICE_IDENTIFIER(dev_addr,instance) (dev_addr << 8 | instance)
 #define GAMEPAD_IDENTIFIER(vendor_id,product_id) (vendor_id << 16 | product_id)
 
-// TODO: Can I find similarities to make a mapping struct instead of one function per gamepad. (Looking easy enough, not sure it stays like this for other gamepads)
-typedef struct gamepad_mapping_t {
-    uint32_t gamepad_identifier;
-    gamepad_function_t function;
-} gamepad_mapping_t;
-
 gamepad_mapping_t gamepad_mappings[] = {
-    {GAMEPAD_IDENTIFIER(1133,49688),gamepad_device_logitec_rumblepad2}, // logictec rumblepad2
-    {GAMEPAD_IDENTIFIER(121,6),gamepad_device_tracer_glider}, // tracer glider
-    {GAMEPAD_IDENTIFIER(3727,8),gamepad_device_tracer_glider}, // CSL PS3-Gamepad Clone
-    
+    {GAMEPAD_IDENTIFIER(1133, 49688), { // Logitech Rumblepad 2
+        .dpad_offset = offsetof(hid_gamepad_report_t, rx),
+        .dp = {
+            [0] = GP_D_UP,
+            [1] = GP_D_UP | GP_D_RIGHT,
+            [2] = GP_D_RIGHT,
+            [3] = GP_D_DOWN | GP_D_RIGHT,
+            [4] = GP_D_DOWN,
+            [5] = GP_D_DOWN | GP_D_LEFT,
+            [6] = GP_D_LEFT,
+            [7] = GP_D_UP | GP_D_LEFT,
+            [8] = 0,
+        },
+        .action_button_masks = {128, 32, 16, 64}, // Top, Botto, Left ,right
+        .button_offset = offsetof(hid_gamepad_report_t, ry),
+        .button_masks = {1, 2, 16, 32} // Rear Left, Rear Right, Select, Start
+    }},    
+    {GAMEPAD_IDENTIFIER(121, 6), { // Tracer Glider
+        
+            .dpad_offset = offsetof(hid_gamepad_report_t, ry),
+            .dp = {
+                [0] = GP_D_UP,
+                [1] = GP_D_UP | GP_D_RIGHT,
+                [2] = GP_D_RIGHT,
+                [3] = GP_D_DOWN | GP_D_RIGHT,
+                [4] = GP_D_DOWN,
+                [5] = GP_D_DOWN | GP_D_LEFT,
+                [6] = GP_D_LEFT,
+                [7] = GP_D_UP | GP_D_LEFT,
+                [15] = 0,
+            },
+            .action_button_masks = {16, 64, 128, 32}, // Top, Botto, Left ,right
+            .button_offset = offsetof(hid_gamepad_report_t, hat),
+            .button_masks = {1, 2, 16, 32} // Rear Left, Rear Right, Select, Start
+    }},   
+    // {GAMEPAD_IDENTIFIER(121, 6), { // Tracer Glider
+    //     .dpad_offset = offsetof(hid_gamepad_report_t, ry),
+    //     .button_masks = {16, 32, 64, 128}, // Top, Right, Bottom, Left, Rear Left, Rear Right, Select, Start
+    //     .button_offset = offsetof(hid_gamepad_report_t, ry),
+    //     .button_masks = {1, 2, 16, 32} // Top, Right, Bottom, Left, Rear Left, Rear Right, Select, Start
+    // }},
+    // {GAMEPAD_IDENTIFIER(3727, 8), { // CSL PS3-Gamepad Clone
+    //     .dpad_offset = offsetof(hid_gamepad_report_t, ry),
+    //     .button_masks = {16, 32, 64, 128}, // Top, Right, Bottom, Left, Rear Left, Rear Right, Select, Start
+    //     .button_offset = offsetof(hid_gamepad_report_t, hat),
+    //     .button_masks = {1, 2, 16, 32} // Top, Right, Bottom, Left, Rear Left, Rear Right, Select, Start
+    // }},
 };
+
+//         case 0 : current_state.controls |= GP_D_UP ; break;
+//         case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
+//         case 2 : current_state.controls |= GP_D_RIGHT; break;
+//         case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
+//         case 4 : current_state.controls |= GP_D_DOWN; break;
+//         case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
+//         case 6 : current_state.controls |= GP_D_LEFT; break;
+//         case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
+//         case 8 : current_state.controls |= 0; break; // jaja
+
+void process_gamepad_input(uint8_t gamepad_id, gamepad_input_mapping_t* input_map,hid_gamepad_report_t* report) {
+    gamepad_state_t current_state = {0};
+    //current_state.controls = GP_STATE_IN_USE;
+
+    // Process D-Pad
+    uint8_t dpad = *((uint8_t*)report + input_map->dpad_offset) & 0b1111;
+    current_state.controls = input_map->dp[dpad];
+
+    // Process action Buttons
+    uint8_t action_buttons = *((uint8_t*)report + input_map->dpad_offset) & 0b11110000;
+    for (int i = 0; i < 4; i++) {
+        if (action_buttons & input_map->action_button_masks[i]) {
+            current_state.buttons |= (1 << i); // Map to corresponding button bit
+        }
+    }
+
+    uint8_t buttons = *((uint8_t*)report + input_map->button_offset);
+    for (int i = 0; i < 4; i++) {
+        if (buttons & input_map->button_masks[i]) {
+            current_state.buttons |= (0b10000 << i); // Map to corresponding button bit
+        }
+    }
+
+    // Update gamepad state
+    mm_gamepad_state[gamepad_id] = current_state;
+}
+
+
+
+// void gamepad_device_logitec_rumblepad2(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
+//     gamepad_state_t current_state = {0};
+//     current_state.controls = GP_STATE_IN_USE;
+
+//     uint8_t dpad = report->rx & 0b1111;
+//     switch (dpad){
+//         case 0 : current_state.controls |= GP_D_UP ; break;
+//         case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
+//         case 2 : current_state.controls |= GP_D_RIGHT; break;
+//         case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
+//         case 4 : current_state.controls |= GP_D_DOWN; break;
+//         case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
+//         case 6 : current_state.controls |= GP_D_LEFT; break;
+//         case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
+//         case 8 : current_state.controls |= 0; break; // jaja
+//         default: // error
+//     }
+
+//     current_state.buttons |= bit_is_set_some(report->rx, 128) ? GP_BTN_TOP : 0; 
+//     current_state.buttons |= bit_is_set_some(report->rx, 64) ? GP_BTN_RIGHT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->rx, 32) ? GP_BTN_BOTTOM : 0; 
+//     current_state.buttons |= bit_is_set_some(report->rx, 16) ? GP_BTN_LEFT : 0; 
+
+//     current_state.buttons |= bit_is_set_some(report->ry, 1) ? GP_BTN_REAR_LEFT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->ry, 2) ? GP_BTN_REAR_RIGHT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->ry, 16) ? GP_BTN_SELECT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->ry, 32) ? GP_BTN_START : 0; 
+
+//     mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
+// }
+
+// void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, hid_gamepad_report_t* report){
+//     gamepad_state_t current_state = {0};
+//     current_state.controls = GP_STATE_IN_USE;
+
+//     uint8_t dpad = report->ry & 0b1111;
+//     switch (dpad){
+//         case 0 : current_state.controls |= GP_D_UP ; break;
+//         case 1 : current_state.controls |= GP_D_UP | GP_D_RIGHT; break;
+//         case 2 : current_state.controls |= GP_D_RIGHT; break;
+//         case 3 : current_state.controls |= GP_D_DOWN | GP_D_RIGHT; break;
+//         case 4 : current_state.controls |= GP_D_DOWN; break;
+//         case 5 : current_state.controls |= GP_D_DOWN | GP_D_LEFT; break;
+//         case 6 : current_state.controls |= GP_D_LEFT; break;
+//         case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
+//         case 15 : current_state.controls |= 0; break; // jaja
+//         default: // error
+//     }
+
+//     uint8_t action_buttons = (report->ry) & 0b11110000;
+
+//     current_state.buttons |= bit_is_set_some(action_buttons, 16) ? GP_BTN_TOP : 0; 
+//     current_state.buttons |= bit_is_set_some(action_buttons, 32) ? GP_BTN_RIGHT : 0; 
+//     current_state.buttons |= bit_is_set_some(action_buttons, 64) ? GP_BTN_BOTTOM : 0; 
+//     current_state.buttons |= bit_is_set_some(action_buttons, 128) ? GP_BTN_LEFT : 0; 
+
+//     current_state.buttons |= bit_is_set_some(report->hat, 1) ? GP_BTN_REAR_LEFT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->hat, 2) ? GP_BTN_REAR_RIGHT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->hat, 16) ? GP_BTN_SELECT : 0; 
+//     current_state.buttons |= bit_is_set_some(report->hat, 32) ? GP_BTN_START : 0; 
+
+//     mm_gamepad_state[gamepad_registration->gamepad_idx] = current_state;
+// }
+
+
+// TODO: Can I find similarities to make a mapping struct instead of one function per gamepad. (Looking easy enough, not sure it stays like this for other gamepads)
+
+
+// gamepad_mapping_t gamepad_mappings[] = {
+//     {GAMEPAD_IDENTIFIER(1133,49688),gamepad_device_logitec_rumblepad2}, // logictec rumblepad2
+//     {GAMEPAD_IDENTIFIER(121,6),gamepad_device_tracer_glider}, // tracer glider
+//     {GAMEPAD_IDENTIFIER(3727,8),gamepad_device_tracer_glider}, // CSL PS3-Gamepad Clone
+    
+// };
 
 static gamepad_mapping_t* gamepad_find_mapping(uint16_t vendor_id, uint16_t product_id){
     uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id,product_id);
@@ -427,48 +528,37 @@ static gamepad_mapping_t* gamepad_find_mapping(uint16_t vendor_id, uint16_t prod
 gamepad_registration_t gamepad_registration[GAMEPAD_MAX_DEVICES] = {0};
 uint8_t gamepads_registered = 0;
 
-static bool gamepad_find_free_device(uint8_t* device_idx){
-    for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
-        gamepad_state_t* gamepad_state = &mm_gamepad_state[i];
-        if (!bit_is_set_some(gamepad_state->controls,GP_STATE_IN_USE)){
-            *device_idx = i;
-            return true;
-        }
-    }
-    return false;
-}
+void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, uint16_t product_id) {
+    uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id, product_id);
 
-// register new gamepad
-void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, uint16_t product_id){
-    uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id,product_id);
-
-    gamepad_mapping_t* mapping = gamepad_find_mapping(vendor_id,product_id);
-
-    if (mapping == NULL){
-        // SORRY, UNKNOWN GAMEPAD!
+    gamepad_mapping_t* mapping = gamepad_find_mapping(vendor_id, product_id);
+    if (mapping == NULL) {
+        // Unknown gamepad
         return;
     }
 
-    uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
+    uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr, instance);
 
-    for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
-        gamepad_registration_t* registration = &gamepad_registration[i];
-        if (registration->identifier != 0){
-            // already in use
+    for (uint8_t gamepad_id = 0; gamepad_id < GAMEPAD_MAX_DEVICES; gamepad_id++) {
+        gamepad_registration_t* registration = &gamepad_registration[gamepad_id];
+        if (registration->identifier != 0) {
+            // Already in use
             continue;
         }
         gamepads_registered++;
-        if (gamepad_find_free_device(&registration->gamepad_idx)){
-            registration->gamepad_cb = mapping->function;
-            registration->identifier = device_identifier;
-            bit_set(mm_gamepad_state[registration->gamepad_idx].controls,GP_STATE_IN_USE);
-            break;
-        } else {
-            // NO FREE DEVICE! 
-            // TODO: error handling!?
-        }
+
+        *mm_gamepad_info |= (1 << gamepad_id);
+
+        registration->identifier = device_identifier;
+        registration->gamepad_idx = gamepad_id;
+        registration->gamepad_mapping = &mapping->input_map;
+        //bit_set(mm_gamepad_state[registration->gamepad_idx].controls, GP_STATE_IN_USE);
+
+        // Pass the mapping to the callback
+        break;
     }
 }
+
 
 void gamepad_unregister(uint8_t dev_addr, uint8_t instance){
     uint16_t device_identifier = DEVICE_IDENTIFIER(dev_addr,instance);
@@ -480,6 +570,7 @@ void gamepad_unregister(uint8_t dev_addr, uint8_t instance){
             gamepads_registered--;
             assert(gamepads_registered>=0);
             // already in use
+            *mm_gamepad_info &= ~(1 << registration->gamepad_idx );
             *registration = (gamepad_registration_t){0};
             return;
         }
@@ -546,11 +637,6 @@ void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
 }
 
 
-
-
-
-
-
 bool keyboard_receive = false;
 
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* report, uint16_t len) {
@@ -563,7 +649,7 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
             
             gamepad_registration_t* gamepad_registration;
             if (gamepad_find_registration(dev_addr,instance,&gamepad_registration)){
-                gamepad_registration->gamepad_cb(gamepad_registration,gamepad_report);
+                process_gamepad_input(gamepad_registration->gamepad_idx, gamepad_registration->gamepad_mapping, gamepad_report);
             }
             break;
         }
@@ -636,140 +722,6 @@ static scsi_inquiry_resp_t inquiry_resp;
 static FATFS msc_fatfs_volumes[CFG_TUH_DEVICE_MAX];
 //static volatile bool _disk_busy[CFG_TUH_DEVICE_MAX];
 static volatile bool busy[CFG_TUH_DEVICE_MAX];
-
-/*bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data)
-{
-  msc_cbw_t const* cbw = cb_data->cbw;
-  msc_csw_t const* csw = cb_data->csw;
-
-  if (csw->status != 0)
-  {
-    return false;
-  }
-
-
-    uint16_t vid, pid;
-    tuh_vid_pid_get(dev_addr, &vid, &pid);
-   // CONWriteString("USB Key found %04x %04x\r",vid,pid);
-
-    char drive_path[3] = "0:";
-    drive_path[0] += dev_addr;
-    FRESULT result = f_mount(&msc_fatfs_volumes[dev_addr], drive_path, 1);
-    if (result != FR_OK) {
-        // CONWriteString("MSC filesystem mount failed\r\n");
-        return false;
-    }
-
-    char s[2];
-    if (FR_OK != f_getcwd(s, 2)) {
-        f_chdrive(drive_path);
-        f_chdir("/");
-        
-    }
-
-    FILINFO fno;      // File information object
-    DIR dir;          // Directory object
-    FRESULT res;      // Result code
-
-    res = f_opendir(&dir, "/"); // Open the root directory
-    if (res != FR_OK) {
-        printf("Failed to open directory: %d\n", res);
-        return;
-    }
-
-    while (1) {
-        res = f_readdir(&dir, &fno); // Read a directory item
-        if (res != FR_OK || fno.fname[0] == 0) break; // Break on error or end of directory
-
-        // Print the name of the file or directory
-        if (fno.fattrib & AM_DIR) {
-            printf("Directory: %s\n", fno.fname); // Print directory names
-        } else {
-            printf("File: %s\n", fno.fname); // Print file names
-        }
-    }
-
-    f_closedir(&dir);
-
-    finished_usb_startup = true;
-
-  return true;
-}
-*/
-// //------------- IMPLEMENTATION -------------//
-// void tuh_msc_mount_cb(uint8_t dev_addr)
-// {
-//   printf("A MassStorage device is mounted\r\n");
-
-//   uint8_t const lun = 0;
-//   tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb, 0);
-// }
-
-// void tuh_msc_umount_cb(uint8_t dev_addr)
-// {
-//   (void) dev_addr;
-//   printf("A MassStorage device is unmounted\r\n");
-// }
-
-// static void wait_for_disk_io(BYTE pdrv) {
-//     while (busy[pdrv]) {
-//         tuh_task();
-//     }
-// }
-
-// static bool disk_io_complete(uint8_t dev_addr, tuh_msc_complete_data_t const *cb_data) {
-//     (void)cb_data;
-//     busy[dev_addr] = false;
-//     return true;
-// }
-
-// DSTATUS disk_status(BYTE pdrv) {
-//     uint8_t dev_addr = pdrv;
-//     return tuh_msc_mounted(dev_addr) ? 0 : STA_NODISK;
-// }
-
-// DSTATUS disk_initialize(BYTE pdrv) {
-//     (void)(pdrv);
-//     return 0;
-// }
-
-// DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count) {
-//     uint8_t const dev_addr = pdrv;
-//     uint8_t const lun = 0;
-//     busy[pdrv] = true;
-//     tuh_msc_read10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
-//     wait_for_disk_io(pdrv);
-//     return RES_OK;
-// }
-
-// DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count) {
-//     uint8_t const dev_addr = pdrv;
-//     uint8_t const lun = 0;
-//     busy[pdrv] = true;
-//     tuh_msc_write10(dev_addr, lun, buff, sector, (uint16_t)count, disk_io_complete, 0);
-//     wait_for_disk_io(pdrv);
-//     return RES_OK;
-// }
-
-// DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff) {
-//     uint8_t const dev_addr = pdrv;
-//     uint8_t const lun = 0;
-//     switch (cmd) {
-//         case CTRL_SYNC:
-//             return RES_OK;
-//         case GET_SECTOR_COUNT:
-//             *((DWORD *)buff) = (WORD)tuh_msc_get_block_count(dev_addr, lun);
-//             return RES_OK;
-//         case GET_SECTOR_SIZE:
-//             *((WORD *)buff) = (WORD)tuh_msc_get_block_size(dev_addr, lun);
-//             return RES_OK;
-//         case GET_BLOCK_SIZE:
-//             *((DWORD *)buff) = 1;  // 1 sector
-//             return RES_OK;
-//         default:
-//             return RES_PARERR;
-//     }
-// }
 
 
 //-------------------

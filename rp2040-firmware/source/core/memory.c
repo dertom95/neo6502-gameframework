@@ -43,6 +43,7 @@ uint8_t* mm_keyboard_last_pressed_keycode = NULL;
 char*    mm_keyboard_last_pressed_char = NULL;
 gamepad_t* mm_gamepad = NULL;
 gamepad_state_t* mm_gamepad_state = NULL;
+uint8_t* mm_gamepad_info = NULL;
 
 
 
@@ -87,6 +88,8 @@ void memory_init() {
     mm_gamepad_state[i]=(gamepad_state_t){0};
   }
   
+  mm_gamepad_info = MEM6502_I8PTR(MM_GAMEPAD_INFO);
+  *mm_gamepad_info = 0;
 
   // lets install some ROMS
   // if (loadROMS()) {

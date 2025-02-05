@@ -65,6 +65,11 @@ typedef struct TU_ATTR_PACKED
 } gamepad_t;
 
 
+// gamepad info
+#define GPI_GAMEPAD1_ACTIVE (1 << 0)
+#define GPI_GAMEPAD2_ACTIVE (1 << 1)
+#define GPI_GAMEPAD3_ACTIVE (1 << 2)
+#define GPI_GAMEPAD4_ACTIVE (1 << 3)
 
 // directions
 #define GP_D_UP    (1 << 0)
@@ -262,7 +267,8 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define MM_CYCLE_TICKS (MM_SB + 0x0a) /* uint16_t*/
 #define MM_MS_DELTA (MM_SB + 0x0c)    /* uint16_t*/
 #define MM_GAMEPAD (MM_SB + 0x0e) /* gamepad_t 11bytes*/
-#define MM_GAMEPAD1_STATE (MM_SB + 0x1a) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD_INFO (MM_SB + 0x1a) /* gamepad infos 1byte*/
+#define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO + 0x01) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD3_STATE (MM_GAMEPAD2_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD4_STATE (MM_GAMEPAD3_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/

@@ -870,10 +870,12 @@ static void callback_gamepad_connected(int gamepad,void* userdata){
         return;
     }
     gamepad2mapping[gamepad] = mapping;
+    *mm_gamepad_info |= (1 << gamepad);
 }
 
 static void callback_gamepad_disconnected(int gamepad,void* userdata){
     gamepad2mapping[gamepad]=NULL;
+    *mm_gamepad_info &= ~(1 << gamepad);
 }
 
 gamepad_state_t gamepad_state_current;
