@@ -150,7 +150,9 @@
         "shared_mutex": "c",
         "modplay.h": "c",
         "usbh.h": "c",
-        "gamepad.h": "c"
+        "gamepad.h": "c",
+        "ng_all.h": "c",
+        "flappy.h": "c"
     },
     "cmake.configureArgs": ["-DPICO_=1"],
     "editor.detectIndentation": false    

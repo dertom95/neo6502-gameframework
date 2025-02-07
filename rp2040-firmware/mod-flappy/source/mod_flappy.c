@@ -8,11 +8,13 @@
 # include "../../source/ng_all.h"
 #else
 # include <ng_config.h>
-# include <gen/ng_api.c>
+# include "../../source/ng_all.h"
 #endif
 
 #include "export/assets.h"
 #include <ng_api_shared.h>
+
+#include "flappy.h"
 
 // peeks'n'pokes
 // mouse btn
@@ -68,12 +70,12 @@ gfx_pixelbuffer_t pixelbuffer = {
 #define SPRITE_AMOUNT (1 + PILLAR_AMOUNT)
 gfx_sprite_t sprites[SPRITE_AMOUNT];
 
-gfx_sprite_t* sprite_bird=&sprites[0];
+gfx_sprite_t* sprite_bird=&sprites[4];
 gfx_sprite_t* sprite_pillars[PILLAR_AMOUNT]={
+    &sprites[0],
     &sprites[1],
     &sprites[2],
-    &sprites[3],
-    &sprites[4]
+    &sprites[3]
 };
 
 gfx_tilesheet_data_t ts_bird,ts_pillar,ts_bg;
@@ -97,6 +99,8 @@ int mod_init(){
     init_system();
     init_gfx();
     init_audio();
+
+    flappy_init();
 }
 
 uint16_t last_x =0;
@@ -145,6 +149,7 @@ void mod_update() {
     ng_snprintf(text_bf,40,"M-BTN:%d Key:%d",*mbtn,kbm.key_pressed);
     gfx_draw_text(4,2,text_bf,COL_ORANGE);
 
+    flappy_tick();
 
     kbm.key_down=0;
     kbm.key_pressed=0;
@@ -187,6 +192,7 @@ void init_gfx_bird(){
     gfx_spriteanimator_set_animation(sprite_bird_anim, 0, /*ANIMATIONFLAG_STOPPED |*/ ANIMATIONFLAG_LOOP);
     sprite_bird->x=120;
     sprite_bird->y=120;
+    sprite_bird->pixel_size=flags_pack_4_4(2,2);
     sprite_bird->flags = SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER;
     gfx_sprite_apply_data(sprite_bird);
 }
