@@ -27,7 +27,7 @@ project.addFile('../../source/core/backend/kinc/*.c');
 // MOD - NATIVE - FILE
 //project.addFile('../../mod/source/mod_pixelbuffer.c');
 //project.addFile('../../mod/source/mod_simple.c');
-project.addFile('../../mod-flappy/source/mod_flappy.c');
+project.addFile('../../mod-flappy/source/*.c');
 
 project.addFile('../../source/api/*.c');
 //project.addFile('../../test/gen_prg1.c')

@@ -22,11 +22,11 @@ volatile uint8_t* mbtn = NULL;
 volatile uint16_t* ms_delta = NULL;
 
 
-#define TICK_RATE (1000/30)
+#define TICK_RATE (1000/60)
 #define delay 120
 
 
-#define KEY_SPACE    (1 << 7)
+#define KEY_ACTION    (1 << 7)
 
 keyboard_mapping_t kbm={
     .keycodes = {
@@ -82,12 +82,8 @@ gfx_tilesheet_data_t ts_bird,ts_pillar,ts_bg;
 
 int8_t anim=0;
 
-int seed = 13;
 
-int random() {
-    seed = seed * 1103515245 + 12345;
-    return (unsigned int)(seed / 65536) % 32768;
-}
+
 
 int16_t x=0;
 
@@ -144,6 +140,10 @@ void mod_update() {
     // sprite_oldguy->x=*mx;
     // sprite_oldguy->y=*my;
     // flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY | SPRITEFLAG_FLIP_H);
+
+    if (bit_is_set_all(kbm.key_pressed,KEY_ACTION)){
+        flappy_on_actionbutton();
+    }
 
     char text_bf[40];
     ng_snprintf(text_bf,40,"M-BTN:%d Key:%d",*mbtn,kbm.key_pressed);
@@ -225,6 +225,41 @@ void init_audio(void){
     audio_mod_play(ASSET_GAME);
 }
 
+void draw_stuff()
+{
+    gamedata_t* gd = get_gamedata();
+    //draw pipes
+    for(int i = 0; i < 2; i++)
+    {
+        gfx_sprite_t* pillar_sprite_top = &sprite_pillars[2*i];
+        gfx_sprite_t* pillar_sprite_bottom = &sprite_pillars[2*i + 1];
+        
+        pillar_sprite_top->x = gd->pipe_x[i];
+        pillar_sprite_top->y = gd->pipe_y[i] - H;
+        gfx_sprite_apply_data(pillar_sprite_top); // TODO: why apply? 
+
+        pillar_sprite_bottom->x = gd->pipe_x[i];
+        pillar_sprite_bottom->y = gd->pipe_y[i] + GAP;
+        gfx_sprite_apply_data(pillar_sprite_bottom);
+    }
+
+    sprite_bird->x = PLYR_X;
+    sprite_bird->y = gd->player_y;
+
+    char buf[40];
+
+    if(gd->gamestate != GS_READY) {
+        ng_snprintf(buf,sizeof(buf),"a:%d",gd->score);
+        gfx_draw_text(0,0,buf,COL_BLACK);
+    }
+    if(gd->gamestate == GS_READY) {
+        gfx_draw_text(40,40,"Press any key",COL_BLACK);
+    }
+    if(gd->gamestate == GAMEOVER) {
+        ng_snprintf(buf,40,"High score: %d",gd->score);
+        gfx_draw_text(40,40,buf,COL_BLACK);
+    }
+}
 
 #ifndef _MOD_NATIVE_
 int main(){
