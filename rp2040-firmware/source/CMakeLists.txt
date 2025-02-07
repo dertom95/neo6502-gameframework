@@ -2,7 +2,12 @@ set(BACKEND_SOURCE)
 set(BACKEND PICO_NEO6502)
 
 if(BACKEND STREQUAL "PICO_NEO6502")
-add_definitions(-D${BACKEND} -DCHIPS_IMPL -DINCLUDE_DATA -DSOUND)
+add_definitions(-D${BACKEND} -DCHIPS_IMPL -DSOUND)
+
+# Create an option for INCLUDE_DATA (default is OFF)
+#option(INCLUDE_DATA "Include additional data directories" ON)
+set(INCLUDE_DATA ON CACHE BOOL "Include additional data directories")
+
 #add_definitions(-D${BACKEND} -DCHIPS_IMPL  -DSOUND)
 list(APPEND BACKEND_SOURCE
 			 core/backend/neo6502/neo6502_gfx.c
@@ -14,6 +19,8 @@ list(APPEND BACKEND_SOURCE
              core/backend/neo6502/audio/audio.c
 	)
 endif()	
+
+set(MOD_DIR "${CMAKE_SOURCE_DIR}/mod-flappy" CACHE STRING "Path to the mod directory")
 
 message(BACKEND_SOURCE ${BACKEND_SOURCE})
 
@@ -49,14 +56,13 @@ if(BACKEND STREQUAL "PICO_NEO6502")
 	)
 
 	target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/backend/neo6502 ${CMAKE_SOURCE_DIR}/3rd/ff  )
-
 endif()	
 
 
-target_compile_options(neo6502firmware PRIVATE -Wall -g)
+#target_compile_options(neo6502firmware PRIVATE -Wall -g)
 
 add_definitions(-DNDEBUG)
-#target_compile_options(neo6502firmware PRIVATE -Wall -O3)
+target_compile_options(neo6502firmware PRIVATE -Wall -O3)
 
 target_compile_definitions(neo6502firmware PRIVATE
 #	DVI_DEFAULT_SERIAL_CONFIG=${DVI_DEFAULT_SERIAL_CONFIG}
@@ -70,7 +76,28 @@ target_sources(fatfs INTERFACE
     ${CMAKE_SOURCE_DIR}/3rd/ff/ffunicode.c
     
 )
-target_include_directories(fatfs INTERFACE ${CMAKE_SOURCE_DIR}/3rd/ff/ /opt/pico-sdk/src/rp2_common/hardware_flash/include)
+target_include_directories(fatfs INTERFACE 
+                                ${CMAKE_SOURCE_DIR}/3rd/ff/ 
+                                /opt/pico-sdk/src/rp2_common/hardware_flash/include
+)
+
+
+# Check if the option is enabled
+if(INCLUDE_DATA)
+    # Add the preprocessor definition
+    add_definitions(-DINCLUDE_DATA)
+
+    #really don't know why but it only compiles if I add the mod-folder to fatfs :D (Well,ok! I won't ask quesitons!)
+    target_include_directories(fatfs INTERFACE 
+        ${MOD_DIR}  
+    )
+    # Print a message for debugging
+    message(STATUS "INCLUDE_DATA is enabled. Added -DINCLUDE_DATA and include directories.")
+else()
+    # Print a message for debugging
+    message(STATUS "INCLUDE_DATA is disabled. Skipping -DINCLUDE_DATA and include directories.")
+endif()
+
 
 target_link_libraries(neo6502firmware
 	pico_stdlib

@@ -1,4 +1,6 @@
 # helper calls
+MOD_DIR := mod-flappy
+
 
 build:
 	cmake -B build-cmake -G "Unix Makefiles"
@@ -29,17 +31,18 @@ kinc-6502-build: kinc_get mod-assets-create gluecode-create
 kinc-modnative-build: kinc_get
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-modnative.js --to ../../build-kinc --target linux --graphics opengl --compile		
 
+
 mod-assets-create:
 	# todo: get rid of intermediate step to pack assets twice (once without code and once with code compiled)
-	cd mod && make assets-pack
+	cd $(MOD_DIR) && make assets-pack
 
 mod-assets-create-only-code:
-	cd mod && make assets-pack-only-compile
-
-mc: mod-assets-create-only-code
+	cd $(MOD_DIR) && make assets-pack-only-compile
 
 mod-source-compile:
-	cd mod && make source-compile
+	cd $(MOD_DIR) && make source-compile
+
+mc: mod-assets-create-only-code
 
 gluecode-create:
 	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_*.h --output tools/generator/input/glue.xml

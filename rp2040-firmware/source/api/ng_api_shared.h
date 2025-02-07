@@ -31,6 +31,7 @@ typedef struct keyboard_mapping_t
 typedef struct ng_mem_block_t
 {
     uint16_t flags; // free[15-7] | segment_id bits[6-4] | usage_type bits[3-0]
+    uint16_t unused1;
     uint32_t size;
     uint8_t *data; // pointer to the actual data
 } ng_mem_block_t;

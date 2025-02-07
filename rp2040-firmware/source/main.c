@@ -19,8 +19,8 @@
 // LOADER! Move this somewhere else! Once we can load from usb
 // #define INCLUDE_DATA
 #ifdef INCLUDE_DATA
-# include "../mod/export/assets.h"
-# include "../mod/export/assets.c"
+# include "export/assets.h"
+# include "export/assets.c"
 #endif
 //--------------------------------------
 

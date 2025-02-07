@@ -3,7 +3,7 @@
 
 #include "ng_defines.h"
 
-#include "../mod/export/assets.h"
+//#include "export/assets.h"
 #include "api/ng_api_shared.h"
 
 typedef struct assetpack_t {

@@ -5,13 +5,13 @@
             "name": "6502-src",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/source/api",
+                "${workspaceFolder}/source/api"
             ],
             "defines": ["__NG6502__"],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c89",
-            "intelliSenseMode": "gcc-x64"
-        },        
+            "compilerPath": "/opt/llvm-mos/bin/mos-common-clang",
+            "cStandard": "c99",
+            "intelliSenseMode": "clang-x64"
+        },     
         {
             "name": "Kinc",
             "includePath": [

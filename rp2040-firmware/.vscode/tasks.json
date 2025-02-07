@@ -38,7 +38,32 @@
             "kind": "build",
             "isDefault": true
           },
+        },
+        {
+            "label": "Compile mod-flappy",
+            "type": "shell",
+            "command": "make source-compile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/mod-flappy"
+            }
+        },
+        {
+            "label": "Compile/Pack mod-flappy",
+            "type": "shell",
+            "command": "make mod-assets-create-only-code",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         }        
+                      
 
     ]
 }

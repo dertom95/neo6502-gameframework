@@ -1,6 +1,7 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 #include<stdint.h>
+#error "a"
 
 #define ASSET_CODE 0
 #define ASSET_COLOR_PALETTE 1

@@ -87,6 +87,9 @@ def encode_tiles_format1(image_filename, tile_width, tile_height, colors, transp
                 else:
                     # Convert the RGB value to the closest color index
                     color_index = closest_color(pixel[:3], colors)
+                    if color_index == transparent_idx:
+                        print(f"closest color results in transparent-palette-idx:"+transparent_idx+"! Transparent-Idx should be amount of colors+1 (but <=255)")
+                        raise("closest color results in transparent-palette-idx")
 
                 # Append the color index as a single byte to the byte array
                 byte_array.append(color_index & 0xFF)
@@ -111,7 +114,7 @@ def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transp
 
     # Pack and append the values to the byte array with little endian byte order
     ts_type = (0 << 0) + (1 << 2)  # format
-    ts_flags = 8  # TODO
+    ts_flags = 8  # TODO: not sure why 8!? :thinking:
     byte_array.extend(struct.pack('<B', ts_type))  # TODO
     byte_array.extend(struct.pack('<B', tile_width))
     byte_array.extend(struct.pack('<B', tile_height))
@@ -162,6 +165,9 @@ def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transp
                 else:
                     # Convert the RGB value to the closest color index
                     color_index = closest_color(pixel[:3], colors)
+                    if color_index == transparent_idx:
+                        print(f"ERROR:closest color results in transparent-palette-idx:{transparent_idx}! Transparent-Idx should be amount of colors+1 (but <=255)")
+                        raise("ERROR:closest color results in transparent-palette-idx")
 
                 # Append the color index as a single byte to the byte array
                 image_data.append(color_index & 0xFF)
@@ -187,17 +193,19 @@ def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transp
 
 def remove_transparent_border(tile_image):
     # Get the alpha channel from the tile image
-    alpha_channel = tile_image.split()[3]
-
+    splits_channels = tile_image.split()
+    if len(splits_channels)==4:
+        alpha_channel = splits_channels[3]
     # Get the bounding box of the non-transparent region of the tile
-    bbox = alpha_channel.getbbox()
+        bbox = alpha_channel.getbbox()
 
-    # Crop the tile image to the non-transparent region
-    cropped_tile = tile_image.crop(bbox)
-
-    return cropped_tile,bbox
-
-
+        # Crop the tile image to the non-transparent region
+        cropped_tile = tile_image.crop(bbox)
+        return cropped_tile,bbox
+    else:
+        # no alpha channel
+        bbox = splits_channels[0].getbbox()
+        return tile_image,bbox
 
 
 def convert_image_to_array(image_filename, tile_width, tile_height, array_name, colors, output_filename, transparaent_idx=255):

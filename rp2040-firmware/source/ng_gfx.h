@@ -183,6 +183,8 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:30*/void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
 /*api:1:31*/void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
 /*api:1:32*/void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
+// write bitmap-asset to the current pixelbuffer to the specified pixel pos. px_size_4_4 to specify the pixelsize
+// TODO: void gfx_draw_bitmap(int16_t x, int16_t y, uint8_t asset_id,uint8_t px_size_4_4);
 
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 1:33
 

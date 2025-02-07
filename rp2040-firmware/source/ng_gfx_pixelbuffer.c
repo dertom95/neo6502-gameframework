@@ -346,6 +346,7 @@ void gfx_draw_tile(int16_t _x, int16_t _y, uint8_t tile_number) {
     gfx_tilesheet_t* ts = current_tilesheet_info.ts;
     gfx_tilesheet_data_t* tsdata = &ts->data;
 
+    // TODO: Is this needed when I draw to the pixelbuffer? I should only take assets into the RAM if renderer on the beam
     uint8_t *tile_ptr = gfx_tilesheet_get_chached_tile(ts,tile_number);
 
     uint8_t format = flags_mask_value(tsdata->type, ASSET_TYPE_FILEFORMAT_MASK);
@@ -388,10 +389,17 @@ void gfx_draw_tile(int16_t _x, int16_t _y, uint8_t tile_number) {
 
             if (current_idx!=255){
                 gfx_draw_pixel(x,y,current_idx);
+            } else {
+                int a=0;
             }
         }
     }
 }
+
+void gfx_draw_bitmap(int16_t x, int16_t y, uint8_t asset_id,uint8_t px_size_4_4){
+
+}
+
 //// void gfx_draw_tilemap(int16_t x,int16_t y, gfx_tilemap_data_t* tilemap) {
 void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap_layer){
     gfx_internal_tilemap_t* tm_internal = id_get_ptr(tilemap_layer->tm_handle);
