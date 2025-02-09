@@ -24,7 +24,7 @@ volatile gamepad_state_t* gamepad_pressed = NULL;
 volatile uint8_t* mouse_btn_state_pressed = NULL;
 
 
-#define TICK_RATE (1000/10)
+#define TICK_RATE (1000/30)
 #define delay 120
 
 
@@ -264,24 +264,31 @@ void draw_stuff()
     sprite_bird->y = gd->player_y;
     gfx_sprite_apply_data(sprite_bird);
 
-    char buf[40];
+    char buf[41];
 
-    if(gd->gamestate != GS_READY && (last_gamestate!=GS_ALIVE || last_score!=gd->score)) {
-        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d        ",gd->score,gd->best);
+    if(gd->gamestate == GS_ALIVE && (last_gamestate!=GS_ALIVE || last_score!=gd->score)) {
+        if (last_gamestate != GS_ALIVE){
+            pixelbuffer_ui.x = 0;
+            pixelbuffer_ui.y = 0;
+            gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
+        }
+        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d                ",gd->score,gd->best);
         gfx_draw_text(0,0,buf,COL_ORANGE);
         last_score = gd->score;
     }
-    if(gd->gamestate == GS_READY && last_gamestate!=GS_READY) {
+    else if(gd->gamestate == GS_READY && last_gamestate!=GS_READY) {
         gfx_draw_text(0,0,"Press any key            ",COL_ORANGE);
     }
-    if(gd->gamestate == GAMEOVER && last_gamestate!=GAMEOVER) {
-        if (gd->score > gd->best) {
-            ng_snprintf(buf,40,"Great! New High score: %d           ",gd->score);
-            gfx_draw_text(0,0,buf,COL_ORANGE);
-        } else {
-            ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d     ",gd->score,gd->best);
-            gfx_draw_text(0,0,buf,COL_ORANGE);
-        }
+    else if(gd->gamestate == GAMEOVER && last_gamestate!=GAMEOVER) {
+        ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d     ",gd->score,gd->best);
+        gfx_draw_text(0,0,buf,COL_ORANGE);
+    }
+    else if(gd->gamestate == GAMEOVER_HIGHSCORE && last_gamestate!=GAMEOVER_HIGHSCORE) {
+        ng_snprintf(buf,40,"Great! New High score: %d         ",gd->score);
+        gfx_draw_text(0,0,buf,COL_ORANGE);
+        pixelbuffer_ui.x = 40;
+        pixelbuffer_ui.y = 115;
+        gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
     }
     
     last_gamestate = gd->gamestate;

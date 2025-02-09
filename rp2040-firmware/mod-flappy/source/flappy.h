@@ -6,6 +6,7 @@
 #define GS_READY 1
 #define GS_ALIVE 2
 #define GAMEOVER 3
+#define GAMEOVER_HIGHSCORE 4
 
 #define W 320
 #define H 240

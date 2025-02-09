@@ -94,6 +94,7 @@ void game_over()
     gd.idle_time = 0;
     if(gd.best < gd.score) {
         gd.best = gd.score;
+        gd.gamestate = GAMEOVER_HIGHSCORE;
     }
 }
 
