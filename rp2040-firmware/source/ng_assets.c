@@ -95,6 +95,6 @@ void asset_get_tilemap(gfx_tilemap_t* tilemap,uint8_t asset_id){
     internal_tilemap->tilemap_data=tilemap;
     internal_tilemap->layers=(gfx_tilemap_layer_t**)internal_tilemap->mem.data;
     internal_tilemap->rawdata = (void*)flashdata;
-    ng_memblock_wipe(&internal_tilemap->mem);
+    ng_memblock_wipe(&internal_tilemap->mem,0);
     tilemap->handle = id_store(internal_tilemap);
 }

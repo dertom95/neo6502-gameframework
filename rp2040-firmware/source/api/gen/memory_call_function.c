@@ -284,14 +284,14 @@ uint8_t call_function()
 
             case 8: {
                 call_gfx_draw_char_t* call = (call_gfx_draw_char_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_draw_char(  swap16(call->x)  ,    swap16(call->y)  ,    call->ch  ,    call->color_idx    );
+                  gfx_draw_char(  swap16(call->x)  ,    swap16(call->y)  ,    call->ch  ,    call->color_idx  ,    call->bg_index    );
 
                 return FUNCTION_RETURN_OK;
             }
 
             case 14: {
                 call_gfx_draw_text_t* call = (call_gfx_draw_text_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx    );
+                  gfx_draw_text(  swap16(call->x)  ,    swap16(call->y)  ,   (char*)(&mem[ call->txt ]) ,    call->color_idx  ,    call->bg_index    );
 
                 return FUNCTION_RETURN_OK;
             }

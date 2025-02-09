@@ -109,17 +109,25 @@ uint8_t ng_mem_block_get_segmentid(ng_mem_block_t* block)
 
 uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block)
 {
-    uint32_t result = (mem_block->size << 1);
+    //uint32_t result = (mem_block->size << 1); // TODO: WTF did I do there?
+    uint32_t result = (mem_block->size);
     return result;
 }
 
 // wipe the block with 0
-void ng_memblock_wipe(ng_mem_block_t* mem_block)
+void ng_memblock_wipe(ng_mem_block_t* mem_block,uint8_t value)
 {
     uint32_t size = ng_memblock_get_size(mem_block);
-    memset(mem_block->data,0,size);
+    memset(mem_block->data,value,size);
 }
 
+void ng_memblock_wipe_withvalue(ng_mem_block_t* mem_block, uint8_t value_to_write)
+{
+    // TODO: check if I can make it more performant to write 32bit instead
+    // uint32_t value = value_to_write << 24 | value_to_write << 16 | value_to_write << 8 | value_to_write;
+    uint32_t size = ng_memblock_get_size(mem_block);
+    memset(mem_block->data,value_to_write,size);
+}
 
 
 

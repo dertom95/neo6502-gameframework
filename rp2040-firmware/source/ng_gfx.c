@@ -444,16 +444,21 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     uint16_t color = color_palette[last_idx];
 
                     // first write subpixels (only scenario having px-size>1 and x-pos negative)
-                    switch(output_subpixels_start){
-                        case 8: *(write_buf++)=color;
-                        case 7: *(write_buf++)=color;
-                        case 6: *(write_buf++)=color;
-                        case 5: *(write_buf++)=color;
-                        case 4: *(write_buf++)=color;
-                        case 3: *(write_buf++)=color;
-                        case 2: *(write_buf++)=color;
-                        case 1: *(write_buf++)=color;
+                    if (last_idx != COL_TRANSPARENT){
+                        switch(output_subpixels_start){
+                            case 8: *(write_buf++)=color;
+                            case 7: *(write_buf++)=color;
+                            case 6: *(write_buf++)=color;
+                            case 5: *(write_buf++)=color;
+                            case 4: *(write_buf++)=color;
+                            case 3: *(write_buf++)=color;
+                            case 2: *(write_buf++)=color;
+                            case 1: *(write_buf++)=color;
+                        }
+                    } else {
+                        write_buf+=output_subpixels_start;
                     }
+
                     // I know, I know looks totally silly but it produces the fastest code. 
                     if (px_width==8){
                         while (input_pixels_to_read--)
@@ -463,8 +468,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            } else {
+                                write_buf+=8;
+                            }
                         }                
                     }
                     else if (px_width==7){
@@ -475,8 +484,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            } else {
+                                write_buf+=7;
+                            }
                         }                
                     }
                     else if (px_width==6){
@@ -487,8 +500,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                            } else {
+                                write_buf+=8;
+                            }
                         }                
                     }
                     else if (px_width==5){
@@ -499,8 +516,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;*(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;*(write_buf++)=color;
+                            } else {
+                                write_buf+=5;                                
+                            }
                         }                
                     }
                     else if (px_width==4){
@@ -511,8 +532,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;*(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;*(write_buf++)=color;
+                            } else {
+                                write_buf+=4;                                
+                            }
                         }                
                     }
                     else if (px_width==3){
@@ -523,8 +548,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;*(write_buf++)=color;
-                            *(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;*(write_buf++)=color;
+                                *(write_buf++)=color;
+                            } else {
+                                write_buf+=3;                                
+                            }
                         }                
                     }
                     else if (px_width==2){
@@ -535,8 +564,12 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;
-                            *(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;
+                                *(write_buf++)=color;
+                            } else {
+                                write_buf+=2;                                
+                            }
                         }                
                     }
                     else if (px_width==1){
@@ -547,7 +580,11 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                                 last_idx = data;
                                 color = color_palette[data];
                             }
-                            *(write_buf++)=color;
+                            if (data != COL_TRANSPARENT){
+                                *(write_buf++)=color;
+                            } else {
+                                write_buf++;              
+                            }
                         }                
                     }
 

@@ -112,10 +112,17 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 	
 	bool success = ng_mem_allocate_block(SEGMENT_GFX_DATA, size, MEM_USAGE_PIXELBUFFER, &block->mem );
 	if (success){
+        ng_memblock_wipe(&block->mem,COL_TRANSPARENT);
 		initial_data->obj_id = id_store(block);
 
         gfx_pixelbuffer_apply_data(initial_data);
 	}
+}
+
+void gfx_pixelbuffer_wipe(gfx_pixelbuffer_t* pxb, uint8_t wipe_value)
+{
+    ng_mem_block_t* px_datablock = id_get_ptr(pxb->obj_id);
+    ng_memblock_wipe(px_datablock,wipe_value);
 }
 
 void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pixelbuffer)
@@ -226,7 +233,7 @@ const uint8_t* _char2fontbuffer(uint8_t ch)
 
 
 
-void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
+void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index)
 {
     if (!active_pixelbuffer){
         return;
@@ -252,7 +259,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 			if (current_font_line & mask){
 				*buffer_tip = color_idx;
 			} else {
-				*buffer_tip = COL_TRANSPARENT;
+				*buffer_tip = bg_index;
 			}
 			mask = mask << 1;
 			buffer_tip++;
@@ -260,7 +267,7 @@ void gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx)
 	}
 }
 
-void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx)
+void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t bg_index)
 {
 	uint16_t initial_x = x;
 	uint8_t initial_color = color_idx;
@@ -290,14 +297,13 @@ void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx)
 					}
 				}
 			default:
-				gfx_draw_char(x,y,ch,color_idx);
+				gfx_draw_char(x,y,ch,color_idx,bg_index);
 				x+=8;
 				break;
 		}
 	}
 }
-
-void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...) {
+void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...) {
 	va_list arg;
     va_start(arg, format);
     char temp[64];
@@ -310,9 +316,9 @@ void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format,
         va_start(arg, format);
         vsnprintf(newtemp, sizeof(temp), format, arg);
         va_end(arg);
-	    gfx_draw_text(x,y,newtemp, color_idx);
+	    gfx_draw_text(x,y,newtemp, color_idx, bg_index);
     } else {
-		gfx_draw_text(x,y,temp, color_idx);
+		gfx_draw_text(x,y,temp, color_idx, bg_index);
 	}
 }
 

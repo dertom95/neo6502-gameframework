@@ -595,7 +595,7 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx){
     }
 }   
 // returns: void f-grp:1 f-id:8
-void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx){
+void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index){
     uint8_t result_code;
     call_gfx_draw_char_t* func_data;
     func_data = (call_gfx_draw_char_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -605,6 +605,7 @@ void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx){
     func_data->y= y;
     func_data->ch= ch;
     func_data->color_idx= color_idx;
+    func_data->bg_index= bg_index;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -614,7 +615,7 @@ void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx){
     }
 }   
 // returns: void f-grp:1 f-id:14
-void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx){
+void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t bg_index){
     uint8_t result_code;
     call_gfx_draw_text_t* func_data;
     func_data = (call_gfx_draw_text_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -624,6 +625,7 @@ void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx){
     func_data->y= y;
     func_data->txt=(uint16_t) txt;
     func_data->color_idx= color_idx;
+    func_data->bg_index= bg_index;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

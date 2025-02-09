@@ -308,7 +308,7 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 
 
 #define PALETTE_SIZE 255
-#define COL_TRANSPARENT 0
+#define COL_TRANSPARENT 255
 #define COL_BLACK 1
 #define COL_BLUE_DARK 2
 #define COL_VIOLETTE 3

@@ -45,7 +45,7 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
 	spritebuffer->amount_sprites=spriteamount;
     spritebuffer->sprites = spritedata;
     ng_mem_allocate_block(SEGMENT_GFX_DATA,spriteamount * sizeof(gfx_internal_sprite_t), MEM_USAGE_SPRITEBUFFER, &spritebuffer->mem);
-    ng_memblock_wipe(&spritebuffer->mem);
+    ng_memblock_wipe(&spritebuffer->mem,0);
     spritebuffer->sprite_internals=(gfx_internal_sprite_t*)spritebuffer->mem.data;
 
     uint8_t spritebuffer_id = id_store(spritebuffer);

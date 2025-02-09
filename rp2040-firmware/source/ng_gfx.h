@@ -159,6 +159,7 @@ void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
 /*api:1:11*/gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void);
 /*api:1:13*/void gfx_pixelbuffer_mount(gfx_pixelbuffer_t* pxb, uint16_t destination, uint16_t page_size);
 /*api:1:33*/bool gfx_mount_set_page(uint8_t mount_id, uint8_t page);
+/*api:1:34*/void gfx_pixelbuffer_wipe(gfx_pixelbuffer_t* pxb, uint8_t wipe_value);
 /*api:1:26*/void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb);
 
 // 🇵​​​​​🇽​​​​​🇧​​​​​🇺​​​​​🇫​​​​​🇫​​​​​🇪​​​​​🇷​​​​​ - 🇨​​​​​🇦​​​​​🇳​​​​​🇻​​​​​🇦​​​​​🇸​​​​​ 🇴​​​​​🇵​​​​​🇪​​​​​🇷​​​​​🇦​​​​​🇹​​​​​🇮​​​​​🇴​​​​​🇳​​​​​
@@ -171,12 +172,12 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 // canvas functions
 /*api:1:6*/uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
 /*api:1:7*/void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
-/*api:1:8*/void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
+/*api:1:8*/void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index);
 
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)
-/*api:1:14*/void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
+/*api:1:14*/void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t bg_index);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx,const char *format, ...);
+void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:28*/void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
 /*api:1:29*/void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);
@@ -186,6 +187,6 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 // write bitmap-asset to the current pixelbuffer to the specified pixel pos. px_size_4_4 to specify the pixelsize
 // TODO: void gfx_draw_bitmap(int16_t x, int16_t y, uint8_t asset_id,uint8_t px_size_4_4);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:33
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:34
 
 #endif 

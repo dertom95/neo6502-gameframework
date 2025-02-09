@@ -267,25 +267,32 @@ void draw_stuff()
     char buf[41];
 
     if(gd->gamestate == GS_ALIVE && (last_gamestate!=GS_ALIVE || last_score!=gd->score)) {
+        gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
         if (last_gamestate != GS_ALIVE){
             pixelbuffer_ui.x = 0;
             pixelbuffer_ui.y = 0;
             gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
         }
-        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d                ",gd->score,gd->best);
-        gfx_draw_text(0,0,buf,COL_ORANGE);
+        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d",gd->score,gd->best);
+        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_TRANSPARENT);
         last_score = gd->score;
     }
     else if(gd->gamestate == GS_READY && last_gamestate!=GS_READY) {
-        gfx_draw_text(0,0,"Press any key            ",COL_ORANGE);
+        gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
+        gfx_draw_text(0,0,"Press any key",COL_ORANGE,COL_GREY);
     }
     else if(gd->gamestate == GAMEOVER && last_gamestate!=GAMEOVER) {
-        ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d     ",gd->score,gd->best);
-        gfx_draw_text(0,0,buf,COL_ORANGE);
+        gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
+        ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d",gd->score,gd->best);
+        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_GREY);
+        pixelbuffer_ui.x = 40;
+        pixelbuffer_ui.y = 115;
+        gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
     }
     else if(gd->gamestate == GAMEOVER_HIGHSCORE && last_gamestate!=GAMEOVER_HIGHSCORE) {
-        ng_snprintf(buf,40,"Great! New High score: %d         ",gd->score);
-        gfx_draw_text(0,0,buf,COL_ORANGE);
+        gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
+        ng_snprintf(buf,40,"Great! New High score: %d",gd->score);
+        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_GREY);
         pixelbuffer_ui.x = 40;
         pixelbuffer_ui.y = 115;
         gfx_pixelbuffer_apply_data(&pixelbuffer_ui);

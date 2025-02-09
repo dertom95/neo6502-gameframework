@@ -146,9 +146,9 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
  // returns: void f-grp: f-id:7;
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
  // returns: void f-grp: f-id:8;
-void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx);
+void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index);
  // returns: void f-grp: f-id:14;
-void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx);
+void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t bg_index);
  // returns: void f-grp: f-id:28;
 void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
  // returns: void f-grp: f-id:29;
@@ -311,6 +311,7 @@ typedef struct call_gfx_draw_char_t {
     uint16_t y;
     char ch;
     uint8_t color_idx;
+    uint8_t bg_index;
 } call_gfx_draw_char_t;
 // returns: void f-grp: f-id:14
 typedef struct call_gfx_draw_text_t {
@@ -319,6 +320,7 @@ typedef struct call_gfx_draw_text_t {
     uint16_t y;
     uint16_t txt;
     uint8_t color_idx;
+    uint8_t bg_index;
 } call_gfx_draw_text_t;
 // returns: void f-grp: f-id:28
 typedef struct call_gfx_tilesheet_current_set_pixel_size_t {

@@ -58,7 +58,19 @@
               "options": {
                   "cwd": "${workspaceFolder}/.." 
               }
-          }              
+          },
+          {
+            "label": "Create GlueCode",
+            "type": "shell",
+            "command": "make gluecode-create",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/.." 
+            }
+        }           
 
     ],
     "version": "2.0.0"

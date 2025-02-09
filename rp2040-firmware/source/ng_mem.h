@@ -87,6 +87,6 @@ uint32_t ng_memblock_get_size(ng_mem_block_t* mem_block);
 uint8_t  ng_memblock_get_usage(ng_mem_block_t* mem_block); 
 uint8_t ng_mem_block_get_segmentid(ng_mem_block_t* block);
 // wipe the block with 0
-void ng_memblock_wipe(ng_mem_block_t* mem_block);
+void ng_memblock_wipe(ng_mem_block_t* mem_block, uint8_t value);
 
 #endif
