@@ -26,9 +26,18 @@ typedef struct keyboard_mapping_t
     uint8_t flags;
 } keyboard_mapping_t;
 
-#define MOUSE_BTN_LEFT (1 << 0)
-#define MOUSE_BTN_RIGHT (1 << 1)
-#define MOUSE_BTN_MIDDLE (1 << 2)
+#define MOUSE_BTN_LEFT    (1 << 0)
+#define MOUSE_BTN_RIGHT   (1 << 1)
+#define MOUSE_BTN_MIDDLE  (1 << 2)
+
+// mouseinfo:
+#define MOUSE_BTN_PRESSED_LEFT   (1 << 0)
+#define MOUSE_BTN_PRESSED_RIGHT  (1 << 1)
+#define MOUSE_BTN_PRESSED_MIDDLE (1 << 2)
+#define MOUSE_BTN_RELEASED_LEFT   (1 << 0)
+#define MOUSE_BTN_RELEASED_RIGHT  (1 << 1)
+#define MOUSE_BTN_RELEASED_MIDDLE (1 << 2)
+
 
 
 // █▀▄▀█ █▀▀ █▀▄▀█ █▀█ █▀█ █▄█
@@ -264,18 +273,19 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&(MASK))==VALUE)
 
 #define MM_SB MEMORY_MAP_VARS_START /* memory-location where the memory-mapping starts */
-#define MM_LAST_KB_CHAR (MM_SB + 0x00)
-#define MM_LAST_KB_KEYCODE (MM_SB + 0x01)
-#define MM_MOUSE_X (MM_SB + 0x02)     /* uint16 */
-#define MM_MOUSE_Y (MM_SB + 0x04)     /* uint16 */
-#define MM_MOUSE_BTN (MM_SB + 0x06)   /* uint8 */
-#define MM_MOUSE_WHEEL (MM_SB + 0x07) /* int8 */
-// #define MM_          (MM_SB + 0x08)   /* uint8 */              /* FREE */
-// #define MM_          (MM_SB + 0x09)   /* uint8 */              /* FREE */
-#define MM_CYCLE_TICKS (MM_SB + 0x0a) /* uint16_t*/
-#define MM_MS_DELTA (MM_SB + 0x0c)    /* uint16_t*/
-#define MM_GAMEPAD (MM_SB + 0x0e) /* gamepad_t 11bytes*/
-#define MM_GAMEPAD_INFO (MM_SB + 0x1a) /* gamepad infos 1byte*/
+#define MM_LAST_KB_CHAR (MM_SB)
+#define MM_LAST_KB_KEYCODE (MM_LAST_KB_CHAR + 1)
+#define MM_MOUSE_X (MM_LAST_KB_KEYCODE + 1)     /* uint16 */
+#define MM_MOUSE_Y (MM_MOUSE_X + sizeof(uint16_t))     /* uint16 */
+#define MM_MOUSE_BTN (MM_MOUSE_Y + sizeof(uint16_t))   /* uint8 */
+#define MM_MOUSE_WHEEL (MM_MOUSE_BTN + sizeof(uint8_t)) /* int8 */
+#define MM_MOUSE_BTN_PRESSED (MM_MOUSE_WHEEL + sizeof(int8_t)) /*uint8*/
+#define MM_MOUSE_BTN_RELEASED (MM_MOUSE_BTN_PRESSED + sizeof(uint8_t)) /*uint8*/
+
+#define MM_CYCLE_TICKS (MM_MOUSE_BTN_RELEASED + sizeof(uint8_t)) /* uint16_t*/
+#define MM_MS_DELTA (MM_CYCLE_TICKS + sizeof(uint16_t))    /* uint16_t*/
+#define MM_GAMEPAD (MM_MS_DELTA + sizeof(uint16_t)) /* gamepad_t 11bytes*/ // TODO: remove this?
+#define MM_GAMEPAD_INFO (MM_GAMEPAD + 11) /* gamepad infos 1byte*/
 // current state (down)
 #define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO + 0x01) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/

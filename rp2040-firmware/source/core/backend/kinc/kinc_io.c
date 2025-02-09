@@ -624,10 +624,12 @@ static void callback_mouse_moved(int window, int x, int y, int dx, int dy,void* 
 
 static void callback_mouse_button_pressed(int window,int button,int x,int y,void* data){
   *mm_mouse_btn_state |= (1 << button);
+  *mm_mouse_btn_state_pressed |= (1<<button);
 }
 
 static void callback_mouse_button_released(int window,int button,int x,int y,void* data){
   *mm_mouse_btn_state &= ~(1<<button);
+  *mm_mouse_btn_state_released |= (1<<button);
 }
 
 static void callback_mouse_wheel_updated(int window,int delta, void* data){

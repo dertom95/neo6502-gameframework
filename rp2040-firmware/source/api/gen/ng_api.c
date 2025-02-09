@@ -803,4 +803,36 @@ void   io_keyboardmapping_unregister(void){
 
     }
 }   
+// returns: bool f-grp:1 f-id:6
+bool io_gamepad_is_active(uint8_t gamepad_id){
+    uint8_t result_code;
+    call_io_gamepad_is_active_t* func_data;
+    func_data = (call_io_gamepad_is_active_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 2;
+    func_data->hdr.func_id = 6;
+    func_data->gamepad_id= gamepad_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        bool call_result = (bool)*mem_call_result;
+        return call_result;
+    }
+}   
+// returns: void f-grp:1 f-id:7
+void io_input_clear_states(void){
+    uint8_t result_code;
+    call_io_input_clear_states_t* func_data;
+    func_data = (call_io_input_clear_states_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 2;
+    func_data->hdr.func_id = 7;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 

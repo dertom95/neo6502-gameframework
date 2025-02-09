@@ -21,9 +21,6 @@ bool was_set = false;
 
 static void update_keymapping(keyboard_mapping_t* keymap){
   //keymap->key_down=0;
-  keymap->key_pressed=0;
-  keymap->key_released=0;
-
   for (int i=0;i<8;i++){
     uint8_t keycode = keymap->keycodes[i];
     if (keycode==0){
@@ -82,7 +79,9 @@ void io_after_tick(void)
 
 }
 
-void io_gamepad_consume_input(void) {
+// clear pressed/released-states
+void io_input_clear_states(void) {
+    // clear gamepad
     for (int i=0;i<GAMEPAD_MAX_DEVICES;i++){
         if (io_gamepad_is_active(i)){
             gamepad_state_t* current_state = &mm_gamepad_down[i];
@@ -90,6 +89,18 @@ void io_gamepad_consume_input(void) {
             mm_gamepad_released[i] = (gamepad_state_t){0};
         }
     }
+
+    // clear keyboard
+    keyboard_mapping_t* keymap = kenv.keyboardmappings;
+    uint8_t count = kenv.keyboardmapping_amount;
+    while(count--){
+        keymap->key_pressed = 0;
+        keymap->key_released = 0;
+        keymap++;
+    }    
+
+    // clear mouse
+    *mm_mouse_btn_state_pressed = 0;
 }
 
 /// @brief register keyboardmappings to the system

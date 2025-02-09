@@ -375,6 +375,21 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 6: {
+                call_io_gamepad_is_active_t* call = (call_io_gamepad_is_active_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  io_gamepad_is_active(  call->gamepad_id    );
+
+                *call_buffer_return=(uint8_t)call_result;
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 7: {
+                call_io_input_clear_states_t* call = (call_io_input_clear_states_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  io_input_clear_states();
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 

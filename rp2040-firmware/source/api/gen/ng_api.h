@@ -365,6 +365,10 @@ bool io_keyboard_is_released(uint8_t keycode);
 void io_keyboardmapping_register(keyboard_mapping_t* address, uint8_t amount);
  // returns: void f-grp: f-id:5;
 void   io_keyboardmapping_unregister(void);
+ // returns: bool f-grp: f-id:6;
+bool io_gamepad_is_active(uint8_t gamepad_id);
+ // returns: void f-grp: f-id:7;
+void io_input_clear_states(void);
 
 // returns: bool f-grp: f-id:1
 typedef struct call_io_keyboard_is_pressed_t {
@@ -391,5 +395,14 @@ typedef struct call_io_keyboardmapping_register_t {
 typedef struct call_io_keyboardmapping_unregister_t {
     call_header_t hdr;
 } call_io_keyboardmapping_unregister_t;
+// returns: bool f-grp: f-id:6
+typedef struct call_io_gamepad_is_active_t {
+    call_header_t hdr;
+    uint8_t gamepad_id;
+} call_io_gamepad_is_active_t;
+// returns: void f-grp: f-id:7
+typedef struct call_io_input_clear_states_t {
+    call_header_t hdr;
+} call_io_input_clear_states_t;
 
 #endif

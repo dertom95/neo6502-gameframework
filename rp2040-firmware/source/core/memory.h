@@ -24,6 +24,8 @@ extern uint16_t* mm_ms_delta;
 extern int16_t* mm_mouse_x;
 extern int16_t* mm_mouse_y;
 extern uint8_t* mm_mouse_btn_state;
+extern uint8_t* mm_mouse_btn_state_pressed;
+extern uint8_t* mm_mouse_btn_state_released;
 extern int8_t*  mm_mouse_wheel;
 extern uint8_t* mm_keyboard_last_pressed_keycode;
 extern char*    mm_keyboard_last_pressed_char;

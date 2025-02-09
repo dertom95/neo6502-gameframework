@@ -38,6 +38,9 @@ uint16_t* mm_ms_delta;
 int16_t* mm_mouse_x=NULL;
 int16_t* mm_mouse_y=NULL;
 uint8_t* mm_mouse_btn_state=NULL;
+uint8_t* mm_mouse_btn_state_pressed=NULL;
+uint8_t* mm_mouse_btn_state_released=NULL;
+
 int8_t*  mm_mouse_wheel=NULL;
 uint8_t* mm_keyboard_last_pressed_keycode = NULL;
 char*    mm_keyboard_last_pressed_char = NULL;
@@ -75,6 +78,11 @@ void memory_init() {
   *mm_ms_delta=0;
   mm_mouse_btn_state = MEM6502_U8PTR(MM_MOUSE_BTN);
   *mm_mouse_btn_state = 0;
+  mm_mouse_btn_state_pressed = MEM6502_U8PTR(MM_MOUSE_BTN_PRESSED);
+  *mm_mouse_btn_state_pressed = 0;
+  mm_mouse_btn_state_released = MEM6502_U8PTR(MM_MOUSE_BTN_RELEASED);
+  *mm_mouse_btn_state_released = 0;
+  
   mm_mouse_wheel = MEM6502_I8PTR(MM_MOUSE_WHEEL);
   *mm_mouse_wheel = 0;
   mm_mouse_x = MEM6502_I16PTR(MM_MOUSE_X);
@@ -82,12 +90,12 @@ void memory_init() {
   mm_mouse_y = MEM6502_I16PTR(MM_MOUSE_Y);
   *mm_mouse_y=0;
 
-  mm_gamepad = MEM6502_U8PTR(MM_GAMEPAD);
+  mm_gamepad = (gamepad_t*)MEM6502_U8PTR(MM_GAMEPAD);
   *mm_gamepad = (gamepad_t){0};
     
-  mm_gamepad_down = MEM6502_U8PTR(MM_GAMEPAD1_STATE);
-  mm_gamepad_pressed = MEM6502_U8PTR(MM_GAMEPAD1_STATE_PRESSED);
-  mm_gamepad_released = MEM6502_U8PTR(MM_GAMEPAD1_STATE_RELEASED);
+  mm_gamepad_down = (gamepad_state_t*)MEM6502_U8PTR(MM_GAMEPAD1_STATE);
+  mm_gamepad_pressed = (gamepad_state_t*)MEM6502_U8PTR(MM_GAMEPAD1_STATE_PRESSED);
+  mm_gamepad_released = (gamepad_state_t*)MEM6502_U8PTR(MM_GAMEPAD1_STATE_RELEASED);
   for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
     mm_gamepad_down[i]=(gamepad_state_t){0};
     mm_gamepad_pressed[i]=(gamepad_state_t){0};

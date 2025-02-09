@@ -50,7 +50,7 @@ bool io_mouse_connected(void);
 uint8_t io_keycode_to_ascii(uint8_t keycode);
 
 /*api:2:6*/bool io_gamepad_is_active(uint8_t gamepad_id);
-/*api:2:7*/void io_gamepad_consume_input(void);
+/*api:2:7*/void io_input_clear_states(void);
 
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 2:7
 
