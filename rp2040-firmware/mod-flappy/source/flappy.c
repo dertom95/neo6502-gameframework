@@ -1,12 +1,14 @@
 #include "flappy.h"
 
-
 #ifdef _MOD_NATIVE_
 # include "../../source/core/memory.h"
 # include "../../source/ng_all.h"
+# define DEBUG_PRINT(fmt, ...) \
+    printf("DEBUG: %s:%d:%s(): " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__);
 #else
 # include <ng_config.h>
 # include <gen/ng_api.h>
+# define DEBUG_PRINT(fmt, ...) 
 #endif
 
 
@@ -51,7 +53,8 @@ void flappy_init(void){
 void flappy_on_actionbutton(void) {
     if(gd.gamestate == GS_ALIVE)
     {
-            gd.player_vel = -11.7f;
+//TODO:            gd.player_vel = -11.7f; 
+            gd.player_vel = -5.7f;
             gd.frame += 1.0f;
     }
     else if(gd.idle_time > 30)
@@ -64,16 +67,6 @@ void update_stuff(void);
 extern void draw_stuff(void);
 
 void flappy_tick(void){
-    if(gd.gamestate == GS_ALIVE)
-    {
-            gd.player_vel = -11.7f;
-            gd.frame += 1.0f;
-    }
-    else if(gd.idle_time > 30)
-    {
-            new_game();
-    }
-
     update_stuff();
     draw_stuff();
     // TODO:
@@ -85,7 +78,8 @@ void new_game()
 {
         gd.gamestate = GS_ALIVE;
         gd.player_y = (H - GROUND)/2;
-        gd.player_vel = -11.7f;
+        // gd.player_vel = -11.7f; // TODO
+        gd.player_vel = -0.7f;
         gd.score = 0;
         gd.pipe_x[0] = PHYS_W + PHYS_W/2 - PIPE_W;
         gd.pipe_x[1] = PHYS_W - PIPE_W;
@@ -96,9 +90,11 @@ void new_game()
 //when we hit something
 void game_over()
 {
-        gd.gamestate = GAMEOVER;
-        gd.idle_time = 0;
-        if(gd.best < gd.score) gd.best = gd.score;
+    gd.gamestate = GAMEOVER;
+    gd.idle_time = 0;
+    if(gd.best < gd.score) {
+        gd.best = gd.score;
+    }
 }
 
 //update everything that needs to update on its own, without input
@@ -106,27 +102,39 @@ void update_stuff()
 {
         if(gd.gamestate != GS_ALIVE) return;
 
-        gd.player_y +=gd. player_vel;
+        gd.player_y +=gd.player_vel;
+        DEBUG_PRINT("Player Y:%d\n",gd.player_y);
+        
         gd.player_vel += 0.61; // gravity
 
-        if(gd.player_vel > 10.0f)
+        if(gd.player_vel > 10.0f){
                 gd.frame = 0;
-        else
+        } else {
                 gd.frame -= (gd.player_vel - 10.0f) * 0.03f; //fancy animation
+        }
 
-        if(gd.player_y > H - GROUND - PLYR_SZ)
+        if(gd.player_y > H - GROUND - PLYR_SZ){
                 game_over();
+        }
 
-        for(int i = 0; i < 2; i++)
-                update_pipe(i);
+        for(int i = 0; i < 2; i++) {
+            update_pipe(i);
+        }
 }
+
+const int player_x = PLYR_X + PLYR_SZ;
 
 //update one pipe for one frame
 void update_pipe(int i)
 {
-        if(PLYR_X + PLYR_SZ >= gd.pipe_x[i] + GRACE && PLYR_X <= gd.pipe_x[i] + PIPE_W - GRACE &&
-                (gd.player_y <= gd.pipe_y[i] - GRACE || gd.player_y + PLYR_SZ >= gd.pipe_y[i] + GAP + GRACE))
+        bool player_x_check = player_x >= gd.pipe_x[i] + GRACE && PLYR_X <= gd.pipe_x[i] + PIPE_W - GRACE;
+        bool player_y_check1 = gd.player_y <= gd.pipe_y[i] - GRACE;
+        bool player_y_check2 = gd.player_y + PLYR_SZ >= gd.pipe_y[i] + GAP + GRACE;
+        if( player_x_check &&
+                (player_y_check1 || player_y_check2 )) {
+
                 game_over(); // player hit pipe
+        }
 
         // move pipes and increment score if we just passed one
         gd.pipe_x[i] -= 5;

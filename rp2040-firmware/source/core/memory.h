@@ -29,7 +29,10 @@ extern uint8_t* mm_keyboard_last_pressed_keycode;
 extern char*    mm_keyboard_last_pressed_char;
 extern gamepad_t* mm_gamepad;
 extern uint8_t* mm_gamepad_info;
-extern gamepad_state_t* mm_gamepad_state;
+
+extern gamepad_state_t* mm_gamepad_down;
+extern gamepad_state_t* mm_gamepad_pressed;
+extern gamepad_state_t* mm_gamepad_released;
 
 
 

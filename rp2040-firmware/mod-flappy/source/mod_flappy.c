@@ -20,9 +20,10 @@
 // mouse btn
 volatile uint8_t* mbtn = NULL;
 volatile uint16_t* ms_delta = NULL;
+volatile gamepad_state_t* gamepad_pressed = NULL;
 
 
-#define TICK_RATE (1000/60)
+#define TICK_RATE (1000/10)
 #define delay 120
 
 
@@ -56,12 +57,21 @@ gfx_sprite_animator_t anim4x1={
 uint8_t spritebuffer;
 uint8_t sprite_bird_anim;
 
-gfx_pixelbuffer_t pixelbuffer = {
+gfx_pixelbuffer_t pixelbuffer_bg = {
     .width=64,
     .height=80,
     .x=0,
     .y=0,
     .pixel_size=flags_pack_4_4(5,3),
+    //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
+};
+
+gfx_pixelbuffer_t pixelbuffer_ui = {
+    .width=240,
+    .height=10,
+    .x=0,
+    .y=0,
+    .pixel_size=flags_pack_4_4(1,1),
     //.flags=PXB_WRAPMODE(0,PXB_WRAPMODE_WRAP)
 };
 
@@ -102,7 +112,14 @@ int mod_init(){
 uint16_t last_x =0;
 void mod_update() {
     // TODO: implement some kind of sleep
+
+    bool keyboard_actionkey_pressed = bit_is_set_all(kbm.key_pressed,KEY_ACTION);
+    bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed->buttons,0xff);
     
+    //bool mouse_actionkey_pressed = bit_is_set_all(mbtn,);
+    if (keyboard_actionkey_pressed || gamepad_actionkey_pressed){
+        flappy_on_actionbutton();
+    }    
     
     if (*ms_delta<TICK_RATE)
     {
@@ -116,43 +133,14 @@ void mod_update() {
     static uint8_t seed = 0;
     seed++;
 
-    // *(tile_map)=COL_RED;
-    // *(tile_map+39)=COL_GREEN;
-    // *(tile_map+39+29*40)=COL_ORANGE;
-    // *(tile_map+29*40)=COL_VIOLETTE;
-    
-
-    // for (uint8_t i=0;i<4;i++){
-    //     for (uint8_t j=0;j<4;j++){
-    //         *(tile_map+j*40+i)=COL_RED;
-    //         *(tile_map+j*40+i+20)=COL_GREEN;
-    //         *(tile_map+(j+25)*40+i+25)=COL_ORANGE;
-    //         *(tile_map+(j+20)*40+i)=COL_VIOLETTE;
-    //     }
-    // }
-
     bool changed = false;
-
-    // pixelbuffer.x = *mx-((pixelbuffer.width*px_width)/2);
-    // pixelbuffer.y = *my-((pixelbuffer.height*px_height)/2);
-    //gfx_sprite_set_position(sprite_oldguy,*mx-ts_data.tile_width/2,*my-ts_data.tile_height/2);
-
-    // sprite_oldguy->x=*mx;
-    // sprite_oldguy->y=*my;
-    // flags_set(sprite_oldguy->flags,SPRITEFLAG_DIRTY | SPRITEFLAG_FLIP_H);
-
-    if (bit_is_set_all(kbm.key_pressed,KEY_ACTION)){
-        flappy_on_actionbutton();
-    }
-
-    char text_bf[40];
-    ng_snprintf(text_bf,40,"M-BTN:%d Key:%d",*mbtn,kbm.key_pressed);
-    gfx_draw_text(4,2,text_bf,COL_ORANGE);
 
     flappy_tick();
 
     kbm.key_down=0;
     kbm.key_pressed=0;
+
+    io_gamepad_consume_input();
 }
 
 void init_gfx_bird();
@@ -167,8 +155,8 @@ void init_gfx() {
     // sprint & bg
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
-    gfx_pixelbuffer_create(&pixelbuffer);
-    gfx_pixelbuffer_set_active(&pixelbuffer);
+    gfx_pixelbuffer_create(&pixelbuffer_bg);
+    gfx_pixelbuffer_set_active(&pixelbuffer_bg);
 
     asset_get_tilesheet(&ts_bird,ASSET_SPRITE_BIRD);
     asset_get_tilesheet(&ts_pillar,ASSET_SPRITE_PILLAR);
@@ -181,7 +169,7 @@ void init_gfx() {
     init_gfx_background();
 
     // render objects and order! 
-    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    gfx_renderqueue_add_id(pixelbuffer_bg.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
     gfx_renderqueue_apply();
 }
@@ -193,7 +181,7 @@ void init_gfx_bird(){
     sprite_bird->x=120;
     sprite_bird->y=120;
     sprite_bird->pixel_size=flags_pack_4_4(2,2);
-    sprite_bird->flags = SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER;
+    sprite_bird->flags = SPRITEFLAG_ALIGNH_LEFT | SPRITEFLAG_ALIGNV_TOP;
     gfx_sprite_apply_data(sprite_bird);
 }
 
@@ -203,7 +191,13 @@ void init_gfx_pillars(){
         gfx_sprite_set_tileset(pillar,&ts_pillar,0);
         pillar->x=i * 40;
         pillar->y=10;
-        pillar->pixel_size=flags_pack_4_4(1,2);
+        pillar->pixel_size=flags_pack_4_4(1,3);
+        // if ((i & 1)==0){
+        //     bit_set(pillar->flags, SPRITEFLAG_ALIGNV_BOTTOM | SPRITEFLAG_ALIGNH_LEFT);
+        // } else {
+        //     bit_set(pillar->flags, SPRITEFLAG_ALIGNV_TOP | SPRITEFLAG_ALIGNH_LEFT);
+        // }
+        bit_set(pillar->flags, SPRITEFLAG_ALIGNV_TOP | SPRITEFLAG_ALIGNH_LEFT);
         gfx_sprite_apply_data(pillar);
     }
 }
@@ -217,6 +211,7 @@ void init_system(){
     // TODO: assignment at declaration?
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
+    gamepad_pressed = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE_PRESSED);
 
     io_keyboardmapping_register(&kbm,1);
 }
@@ -228,15 +223,22 @@ void init_audio(void){
 void draw_stuff()
 {
     gamedata_t* gd = get_gamedata();
+
+    if (gd->player_vel > 0.0f){
+        gfx_spriteanimator_stop(sprite_bird_anim);
+    } else {
+        gfx_spriteanimator_resume(sprite_bird_anim);
+    }
+
     //draw pipes
     for(int i = 0; i < 2; i++)
     {
-        gfx_sprite_t* pillar_sprite_top = &sprite_pillars[2*i];
-        gfx_sprite_t* pillar_sprite_bottom = &sprite_pillars[2*i + 1];
+        gfx_sprite_t* pillar_sprite_top = sprite_pillars[2*i];
+        gfx_sprite_t* pillar_sprite_bottom = sprite_pillars[2*i + 1];
         
         pillar_sprite_top->x = gd->pipe_x[i];
         pillar_sprite_top->y = gd->pipe_y[i] - H;
-        gfx_sprite_apply_data(pillar_sprite_top); // TODO: why apply? 
+        gfx_sprite_apply_data(pillar_sprite_top); // TODO: gdx:why apply? 
 
         pillar_sprite_bottom->x = gd->pipe_x[i];
         pillar_sprite_bottom->y = gd->pipe_y[i] + GAP;
@@ -245,6 +247,7 @@ void draw_stuff()
 
     sprite_bird->x = PLYR_X;
     sprite_bird->y = gd->player_y;
+    gfx_sprite_apply_data(sprite_bird);
 
     char buf[40];
 

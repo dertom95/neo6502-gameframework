@@ -1,5 +1,6 @@
 #include "ng_io.h"
 #include "ng_mem.h"
+#include "ng_utils.h"
 #include "core/memory.h"
 
 #ifdef PICO_NEO6502
@@ -9,7 +10,6 @@
 
 bool _keyboard_connected = false;
 bool _mouse_connected = false;
-
 
 #define KBDMAP_FLAG_INUSE (1 << 0)
 
@@ -56,18 +56,40 @@ static void update_all_keymappings(){
 
 void io_init(void)
 {
-  io_backend_init();
+    for (int i=0;i<GAMEPAD_MAX_DEVICES;i++){
+        gamepad_state_t* current_state = &mm_gamepad_down[i];
+    }
+    io_backend_init();
 }
 
 void io_before_tick(void)
 {
-  //TODO: implement some kind of mapping to only update on request/memoryread (but ensure that is not done a 2mhz)
-  update_all_keymappings();
+    //TODO: implement some kind of mapping to only update on request/memoryread (but ensure that is not done a 2mhz)
+    update_all_keymappings();
+}
+
+
+
+bool io_gamepad_is_active(uint8_t gamepad_id) {
+    assert(gamepad_id < GAMEPAD_MAX_DEVICES);
+    bool result = bit_is_set_some(mm_gamepad_info[gamepad_id],(1 << gamepad_id));
+    return result;
 }
 
 void io_after_tick(void)
 {
-  io_backend_after_tick();
+    io_backend_after_tick();
+
+}
+
+void io_gamepad_consume_input(void) {
+    for (int i=0;i<GAMEPAD_MAX_DEVICES;i++){
+        if (io_gamepad_is_active(i)){
+            gamepad_state_t* current_state = &mm_gamepad_down[i];
+            mm_gamepad_pressed[i] = (gamepad_state_t){0};
+            mm_gamepad_released[i] = (gamepad_state_t){0};
+        }
+    }
 }
 
 /// @brief register keyboardmappings to the system

@@ -46,7 +46,7 @@ assets-create: initialize
 									--debug \
 
 	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/pillar.png \
-									--tile-size 43x75 \
+									--tile-size 43x80 \
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name sprite_pillar \
 									--output $(EXPORT_FOLDER)/sprite_pillar.bin \

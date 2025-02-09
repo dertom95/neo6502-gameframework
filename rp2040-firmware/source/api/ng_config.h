@@ -19,7 +19,7 @@
 // sizes should be uneven so that the next address will start on an even number
 // otherwise ARM might not like that and crash. ARM don't like to use unaligned addresses ;)
 #define MEMORY_MAP_VARS_START 0xe000
-#define MEMORY_MAP_VARS_END   (MEMORY_MAP_VARS_START+39)
+#define MEMORY_MAP_VARS_END   (MEMORY_MAP_VARS_START+0xff)
 
 #define MEMORY_MAP_FUNC_START (MEMORY_MAP_VARS_END+1)
 #define MEMORY_MAP_FUNC_END   (MEMORY_MAP_FUNC_START+0x4f)

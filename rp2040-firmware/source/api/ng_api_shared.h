@@ -26,6 +26,11 @@ typedef struct keyboard_mapping_t
     uint8_t flags;
 } keyboard_mapping_t;
 
+#define MOUSE_BTN_LEFT (1 << 0)
+#define MOUSE_BTN_RIGHT (1 << 1)
+#define MOUSE_BTN_MIDDLE (1 << 2)
+
+
 // █▀▄▀█ █▀▀ █▀▄▀█ █▀█ █▀█ █▄█
 // █░▀░█ ██▄ █░▀░█ █▄█ █▀▄ ░█░
 typedef struct ng_mem_block_t
@@ -51,6 +56,8 @@ typedef struct ng_mem_block_t
 
 #define PXBFLAG_DIRTY (1 << 0)
 #define PXBFLAG_VISIBLE (1 << 1)
+
+
 
 typedef struct TU_ATTR_PACKED
 {
@@ -269,10 +276,21 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define MM_MS_DELTA (MM_SB + 0x0c)    /* uint16_t*/
 #define MM_GAMEPAD (MM_SB + 0x0e) /* gamepad_t 11bytes*/
 #define MM_GAMEPAD_INFO (MM_SB + 0x1a) /* gamepad infos 1byte*/
+// current state (down)
 #define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO + 0x01) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD3_STATE (MM_GAMEPAD2_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD4_STATE (MM_GAMEPAD3_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+// pressed
+#define MM_GAMEPAD1_STATE_PRESSED (MM_GAMEPAD4_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE_PRESSED (MM_GAMEPAD1_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE_PRESSED (MM_GAMEPAD2_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE_PRESSED (MM_GAMEPAD3_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+// released
+#define MM_GAMEPAD1_STATE_RELEASED (MM_GAMEPAD4_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE_RELEASED (MM_GAMEPAD1_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE_RELEASED (MM_GAMEPAD2_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE_RELEASED (MM_GAMEPAD3_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 
 #define MM_FUNCS MEMORY_MAP_FUNC_START /* memory-location where the memory-mapping starts */
 #define MM_FUNC_CALL (MM_FUNCS + 0x00)   /* uint8 */

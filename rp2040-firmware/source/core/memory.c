@@ -42,7 +42,9 @@ int8_t*  mm_mouse_wheel=NULL;
 uint8_t* mm_keyboard_last_pressed_keycode = NULL;
 char*    mm_keyboard_last_pressed_char = NULL;
 gamepad_t* mm_gamepad = NULL;
-gamepad_state_t* mm_gamepad_state = NULL;
+gamepad_state_t* mm_gamepad_down = NULL;
+gamepad_state_t* mm_gamepad_pressed = NULL;
+gamepad_state_t* mm_gamepad_released = NULL;
 uint8_t* mm_gamepad_info = NULL;
 
 
@@ -83,9 +85,13 @@ void memory_init() {
   mm_gamepad = MEM6502_U8PTR(MM_GAMEPAD);
   *mm_gamepad = (gamepad_t){0};
     
-  mm_gamepad_state = MEM6502_U8PTR(MM_GAMEPAD1_STATE);
+  mm_gamepad_down = MEM6502_U8PTR(MM_GAMEPAD1_STATE);
+  mm_gamepad_pressed = MEM6502_U8PTR(MM_GAMEPAD1_STATE_PRESSED);
+  mm_gamepad_released = MEM6502_U8PTR(MM_GAMEPAD1_STATE_RELEASED);
   for (uint8_t i=0;i<GAMEPAD_MAX_DEVICES;i++){
-    mm_gamepad_state[i]=(gamepad_state_t){0};
+    mm_gamepad_down[i]=(gamepad_state_t){0};
+    mm_gamepad_pressed[i]=(gamepad_state_t){0};
+    mm_gamepad_released[i]=(gamepad_state_t){0};
   }
   
   mm_gamepad_info = MEM6502_I8PTR(MM_GAMEPAD_INFO);

@@ -7,15 +7,16 @@
 #define GS_ALIVE 2
 #define GAMEOVER 3
 
-#define W 480
-#define H 600
-#define GROUND 80
-#define PIPE_W 86
+#define W 320
+#define H 240
+//#define GROUND 80
+#define GROUND 0
+#define PIPE_W 48
 #define PHYS_W (W + PIPE_W + 80)
-#define GAP 220
+#define GAP 80
 #define GRACE 4
 #define PLYR_X 80
-#define PLYR_SZ 60
+#define PLYR_SZ 32
 
 typedef struct gamedata_t {
     uint8_t gamestate;
