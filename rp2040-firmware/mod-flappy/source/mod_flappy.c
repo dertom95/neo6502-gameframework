@@ -94,6 +94,8 @@ gfx_tilesheet_data_t ts_bird,ts_pillar,ts_bg;
 int8_t anim=0;
 
 
+uint8_t last_gamestate=0;
+uint8_t last_score = 0;
 
 
 int16_t x=0;
@@ -142,6 +144,11 @@ void init_gfx_background() {
     gfx_draw_tile(0,0,0);
 }
 
+void init_gfx_ui() {
+    gfx_tilesheet_current_set(&ts_bg);
+    gfx_draw_tile(0,0,0);
+}
+
 void init_gfx() {
     // font
     gfx_set_font_from_asset(ASSET_FONT8);
@@ -151,7 +158,9 @@ void init_gfx() {
     spritebuffer = gfx_spritebuffer_create(sprites,SPRITE_AMOUNT);
 
     gfx_pixelbuffer_create(&pixelbuffer_bg);
+    gfx_pixelbuffer_create(&pixelbuffer_ui);
     gfx_pixelbuffer_set_active(&pixelbuffer_bg);
+
 
     asset_get_tilesheet(&ts_bird,ASSET_SPRITE_BIRD);
     asset_get_tilesheet(&ts_pillar,ASSET_SPRITE_PILLAR);
@@ -162,10 +171,14 @@ void init_gfx() {
     init_gfx_bird();
     init_gfx_pillars();
     init_gfx_background();
+    init_gfx_ui();
+
+    gfx_pixelbuffer_set_active(&pixelbuffer_ui);
 
     // render objects and order! 
     gfx_renderqueue_add_id(pixelbuffer_bg.obj_id);
     gfx_renderqueue_add_id(spritebuffer);
+    gfx_renderqueue_add_id(pixelbuffer_ui.obj_id);
     gfx_renderqueue_apply();
 }
 
@@ -253,17 +266,25 @@ void draw_stuff()
 
     char buf[40];
 
-    if(gd->gamestate != GS_READY) {
-        ng_snprintf(buf,sizeof(buf),"a:%d",gd->score);
-        gfx_draw_text(0,0,buf,COL_BLACK);
+    if(gd->gamestate != GS_READY && (last_gamestate!=GS_ALIVE || last_score!=gd->score)) {
+        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d        ",gd->score,gd->best);
+        gfx_draw_text(0,0,buf,COL_ORANGE);
+        last_score = gd->score;
     }
-    if(gd->gamestate == GS_READY) {
-        gfx_draw_text(40,40,"Press any key",COL_BLACK);
+    if(gd->gamestate == GS_READY && last_gamestate!=GS_READY) {
+        gfx_draw_text(0,0,"Press any key            ",COL_ORANGE);
     }
-    if(gd->gamestate == GAMEOVER) {
-        ng_snprintf(buf,40,"High score: %d",gd->score);
-        gfx_draw_text(40,40,buf,COL_BLACK);
+    if(gd->gamestate == GAMEOVER && last_gamestate!=GAMEOVER) {
+        if (gd->score > gd->best) {
+            ng_snprintf(buf,40,"Great! New High score: %d           ",gd->score);
+            gfx_draw_text(0,0,buf,COL_ORANGE);
+        } else {
+            ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d     ",gd->score,gd->best);
+            gfx_draw_text(0,0,buf,COL_ORANGE);
+        }
     }
+    
+    last_gamestate = gd->gamestate;
 }
 
 #ifndef _MOD_NATIVE_

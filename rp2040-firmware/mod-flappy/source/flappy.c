@@ -108,13 +108,13 @@ void update_stuff()
         gd.player_vel += 0.61; // gravity
 
         if(gd.player_vel > 10.0f){
-                gd.frame = 0;
+            gd.frame = 0;
         } else {
-                gd.frame -= (gd.player_vel - 10.0f) * 0.03f; //fancy animation
+            gd.frame -= (gd.player_vel - 10.0f) * 0.03f; //fancy animation
         }
 
         if(gd.player_y > H - GROUND - PLYR_SZ){
-                game_over();
+            game_over();
         }
 
         for(int i = 0; i < 2; i++) {

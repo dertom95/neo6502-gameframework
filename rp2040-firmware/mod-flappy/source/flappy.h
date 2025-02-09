@@ -18,6 +18,7 @@
 #define PLYR_X 80
 #define PLYR_SZ 32
 
+
 typedef struct gamedata_t {
     uint8_t gamestate;
     float player_y;
