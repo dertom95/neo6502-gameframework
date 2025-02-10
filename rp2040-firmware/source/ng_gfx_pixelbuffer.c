@@ -303,24 +303,15 @@ void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t
 		}
 	}
 }
-void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...) {
-	va_list arg;
-    va_start(arg, format);
-    char temp[64];
-    size_t len = vsnprintf(temp, sizeof(temp), format, arg);
-    va_end(arg);
-
-    if (len > sizeof(temp) - 1) {
-		// start over
-        char newtemp[len+1];
-        va_start(arg, format);
-        vsnprintf(newtemp, sizeof(temp), format, arg);
-        va_end(arg);
-	    gfx_draw_text(x,y,newtemp, color_idx, bg_index);
-    } else {
-		gfx_draw_text(x,y,temp, color_idx, bg_index);
-	}
-}
+// void gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...) {
+// 	va_list arg;
+//     va_start(arg, format);
+//     char temp[64];
+//     size_t len = ng_snprintf(buf,40,format, arg);
+//     //size_t len = vsnprintf(temp, sizeof(temp), format, arg);
+//     va_end(arg);
+// 	gfx_draw_text(x,y,temp, color_idx, bg_index);
+// }
 
 gfx_tilesheet_current_info_t current_tilesheet_info;
 

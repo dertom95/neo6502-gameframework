@@ -952,9 +952,12 @@ void io_backend_before_tick(void){
 
 void io_backend_after_tick()
 {
-  kb_pressed=(hid_keyboard_report_t){0};
-  kb_released=(hid_keyboard_report_t){0};
-  *mm_mouse_wheel = 0;
+}
+
+void io_backend_clear_state(){
+    kb_pressed=(hid_keyboard_report_t){0};
+    kb_released=(hid_keyboard_report_t){0};
+    *mm_mouse_wheel = 0;      
 }
 
 // look up new key in previous keys

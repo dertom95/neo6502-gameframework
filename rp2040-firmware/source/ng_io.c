@@ -49,7 +49,7 @@ static void update_all_keymappings(){
     keymap++;
   }
 }
-
+ 
 
 void io_init(void)
 {
@@ -69,7 +69,10 @@ void io_before_tick(void)
 
 bool io_gamepad_is_active(uint8_t gamepad_id) {
     assert(gamepad_id < GAMEPAD_MAX_DEVICES);
-    bool result = bit_is_set_some(mm_gamepad_info[gamepad_id],(1 << gamepad_id));
+    bool result = bit_is_set_some(*mm_gamepad_info,(1 << gamepad_id));
+    if (gamepad_id == 0 && result==false){
+        return false;
+    }
     return result;
 }
 
@@ -94,6 +97,9 @@ void io_input_clear_states(void) {
     keyboard_mapping_t* keymap = kenv.keyboardmappings;
     uint8_t count = kenv.keyboardmapping_amount;
     while(count--){
+        if (keymap->key_pressed > 0){
+            int a=0;
+        }
         keymap->key_pressed = 0;
         keymap->key_released = 0;
         keymap++;
@@ -101,6 +107,8 @@ void io_input_clear_states(void) {
 
     // clear mouse
     *mm_mouse_btn_state_pressed = 0;
+
+    io_backend_clear_state();
 }
 
 /// @brief register keyboardmappings to the system

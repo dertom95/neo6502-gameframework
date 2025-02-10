@@ -285,7 +285,7 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define MM_CYCLE_TICKS (MM_MOUSE_BTN_RELEASED + sizeof(uint8_t)) /* uint16_t*/
 #define MM_MS_DELTA (MM_CYCLE_TICKS + sizeof(uint16_t))    /* uint16_t*/
 #define MM_GAMEPAD (MM_MS_DELTA + sizeof(uint16_t)) /* gamepad_t 11bytes*/ // TODO: remove this?
-#define MM_GAMEPAD_INFO (MM_GAMEPAD + 11) /* gamepad infos 1byte*/
+#define MM_GAMEPAD_INFO (MM_GAMEPAD + 13) /* gamepad infos 1byte*/
 // current state (down)
 #define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO + 0x01) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/

@@ -409,6 +409,8 @@ gamepad_mapping_t gamepad_mappings[] = {
 //         case 7 : current_state.controls |= GP_D_UP | GP_D_LEFT; break;
 //         case 8 : current_state.controls |= 0; break; // jaja
 
+gamepad_state_t gamepad_previous[GAMEPAD_MAX_DEVICES] = {0};
+
 void process_gamepad_input(uint8_t gamepad_id, gamepad_input_mapping_t* input_map,hid_gamepad_report_t* report) {
     gamepad_state_t current_state = {0};
     //current_state.controls = GP_STATE_IN_USE;
@@ -422,6 +424,7 @@ void process_gamepad_input(uint8_t gamepad_id, gamepad_input_mapping_t* input_ma
     for (int i = 0; i < 4; i++) {
         if (action_buttons & input_map->action_button_masks[i]) {
             current_state.buttons |= (1 << i); // Map to corresponding button bit
+            
         }
     }
 
@@ -432,8 +435,18 @@ void process_gamepad_input(uint8_t gamepad_id, gamepad_input_mapping_t* input_ma
         }
     }
 
+    gamepad_state_t* prev = &gamepad_previous[gamepad_id];
+
+    // pressed
+    mm_gamepad_pressed[gamepad_id].buttons  |= (current_state.buttons  & ~prev->buttons);
+    mm_gamepad_pressed[gamepad_id].controls |= (current_state.controls & ~prev->controls);
+    // released
+    mm_gamepad_released[gamepad_id].buttons  |= (~current_state.buttons  & prev->buttons);
+    mm_gamepad_released[gamepad_id].controls |= (~current_state.controls & prev->controls);
+
     // Update gamepad state
-    mm_gamepad_state[gamepad_id] = current_state;
+    mm_gamepad_down[gamepad_id] = current_state;
+    *prev = current_state;
 }
 
 
@@ -455,7 +468,7 @@ gamepad_registration_t gamepad_registration[GAMEPAD_MAX_DEVICES] = {0};
 uint8_t gamepads_registered = 0;
 
 void gamepad_register(uint8_t dev_addr, uint8_t instance, uint16_t vendor_id, uint16_t product_id) {
-    uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id, product_id);
+    //uint32_t gamepad_identifier = GAMEPAD_IDENTIFIER(vendor_id, product_id);
 
     gamepad_mapping_t* mapping = gamepad_find_mapping(vendor_id, product_id);
     if (mapping == NULL) {
@@ -492,7 +505,6 @@ void gamepad_unregister(uint8_t dev_addr, uint8_t instance){
     for (int i=0;i < GAMEPAD_MAX_DEVICES; i++){
         gamepad_registration_t* registration = &gamepad_registration[i];
         if (registration->identifier == device_identifier){
-            bit_unset(mm_gamepad_state[registration->gamepad_idx].controls,GP_STATE_IN_USE);
             gamepads_registered--;
             assert(gamepads_registered>=0);
             // already in use
@@ -564,6 +576,7 @@ void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
 
 
 bool keyboard_receive = false;
+hid_mouse_report_t mouse_report_previous = {0};
 
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* report, uint16_t len) {
   #ifndef HOLLOW
@@ -571,7 +584,7 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
     switch(tuh_hid_interface_protocol(dev_addr, instance)) {
         case HID_ITF_PROTOCOL_NONE: {
             hid_gamepad_report_t* gamepad_report = (hid_gamepad_report_t*)report;
-            *mm_gamepad = *((gamepad_t*)gamepad_report); // remove this! only for testing
+           *mm_gamepad = *((gamepad_t*)gamepad_report); // remove this! only for testing
             
             gamepad_registration_t* gamepad_registration;
             if (gamepad_find_registration(dev_addr,instance,&gamepad_registration)){
@@ -604,10 +617,15 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
             *mm_mouse_btn_state = mouse->buttons;
             *mm_mouse_wheel = mouse->wheel;
 
+            *mm_mouse_btn_state_pressed  |= (mouse->buttons & ~mouse_report_previous.buttons);
+            *mm_mouse_btn_state_released |= (~mouse->buttons & mouse_report_previous.buttons);
+
             if (*mm_mouse_x < 0) *mm_mouse_x=0;
             if (*mm_mouse_x > 320) *mm_mouse_x=320;
             if (*mm_mouse_y < 0) *mm_mouse_y=0;
             if (*mm_mouse_y > 240)*mm_mouse_y=240;
+
+            mouse_report_previous = *mouse;
             
             //tuh_hid_receive_report(dev_addr, instance);
             break;
@@ -690,6 +708,9 @@ void io_backend_after_tick(void){
   neo6502_usb_update();
 }
 
+void io_backend_clear_state(void){
+   // TODO
+}
 
 bool io_keyboard_is_pressed(uint8_t keycode){
   return find_key_in_report(&current_report,keycode) && !find_key_in_report(&previous_report,keycode);

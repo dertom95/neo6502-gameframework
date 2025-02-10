@@ -29,18 +29,19 @@ volatile uint8_t* mouse_btn_state_pressed = NULL;
 
 
 #define KEY_ACTION    (1 << 7)
+#define KEY_ACTION_2    (1 << 6)
 
 keyboard_mapping_t kbm={
     .keycodes = {
         HID_KEY_SPACE,
-        0,
+        HID_KEY_0,
         0,
         0,
         0,
         0,
         0,
         0},
-    .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED
+    .flags = KEYBMAP_FLAG_SCAN_KEY_PRESSED | KEYBMAP_FLAG_SCAN_KEY_DOWN | KEYBMAP_FLAG_SCAN_KEY_RELEASED
 };
 
 
@@ -69,7 +70,7 @@ gfx_pixelbuffer_t pixelbuffer_bg = {
 
 gfx_pixelbuffer_t pixelbuffer_ui = {
     .width=240,
-    .height=10,
+    .height=20,
     .x=0,
     .y=0,
     .pixel_size=flags_pack_4_4(1,1),
@@ -195,6 +196,7 @@ void init_audio(void){
     audio_mod_play(ASSET_GAME);
 }
 
+uint8_t hit_counter = 0;
 
 // █░█ █▀█ █▀▄ ▄▀█ ▀█▀ █▀▀
 // █▄█ █▀▀ █▄▀ █▀█ ░█░ ██▄
@@ -202,19 +204,29 @@ void init_audio(void){
 void mod_update() {
     // TODO: implement some kind of sleep
 
-    bool keyboard_actionkey_pressed = bit_is_set_all(kbm.key_pressed,KEY_ACTION);
-    bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed->buttons,0xff);
-    bool mouse_actionkey_pressed = bit_is_set_some(*mouse_btn_state_pressed,MOUSE_BTN_LEFT);
+
     
     //bool mouse_actionkey_pressed = bit_is_set_all(mbtn,);
+    char buf[41];
+    ng_snprintf(buf,41,"down:%s keyb:%d gp:%d hc:%d ",io_keyboard_is_released(HID_KEY_0)?"yes":"no",kbm.key_down, gamepad_pressed->buttons,hit_counter);
+    gfx_draw_text(0,10,buf,COL_BLACK,COL_WHITE);
+    
+    bool keyboard_actionkey_pressed = io_keyboard_is_released(HID_KEY_0);
+    bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed->buttons,0xff);
+    bool mouse_actionkey_pressed = bit_is_set_some(*mouse_btn_state_pressed,MOUSE_BTN_LEFT);
+
     if (keyboard_actionkey_pressed || gamepad_actionkey_pressed || mouse_actionkey_pressed){
+        hit_counter++;
         flappy_on_actionbutton();
     }    
-    
+
     if (*ms_delta<TICK_RATE)
     {
         return;
     }
+
+
+    io_input_clear_states();    
 
     int16_t dt = *ms_delta;
     gfx_spritebuffer_update(dt,spritebuffer);
@@ -226,11 +238,6 @@ void mod_update() {
     bool changed = false;
 
     flappy_tick();
-
-    kbm.key_down=0;
-    kbm.key_pressed=0;
-
-    io_input_clear_states();
 }
 
 
@@ -239,7 +246,7 @@ void draw_stuff()
 {
     gamedata_t* gd = get_gamedata();
 
-    if (gd->player_vel > 0.0f){
+    if (gd->player_vel > 5.0f){
         gfx_spriteanimator_stop(sprite_bird_anim);
     } else {
         gfx_spriteanimator_resume(sprite_bird_anim);

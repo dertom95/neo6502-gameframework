@@ -24,6 +24,14 @@ typedef struct idstore_t {
 
 idstore_t idstore={0};
 
+volatile int b = 0;
+
+void ng_debug_value(uint8_t v1, uint8_t v2){
+    int a=0;
+    b = v1;
+    //printf("a");
+}
+
 void id_init(uint8_t max_ids){
     assert(max_ids<255 && "max-ids must be [1..254]");
     idstore.pointer_amount=1; // start with idx 1. id==0 is considered not set

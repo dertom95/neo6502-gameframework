@@ -177,7 +177,7 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)
 /*api:1:14*/void     gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t bg_index);
 //void   gfx_draw_printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...);
+//void     gfx_draw_printf(uint16_t x,uint16_t y,uint8_t color_idx, uint8_t bg_index,const char *format, ...);
 void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:28*/void gfx_tilesheet_current_set_pixel_size(uint8_t px_width,uint8_t px_height);
 /*api:1:29*/void gfx_tilesheet_current_set(gfx_tilesheet_data_t* tsdata);

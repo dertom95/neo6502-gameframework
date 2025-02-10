@@ -17,14 +17,27 @@
 // #include <stdlib.h>
 // #include <time.h>
 
-int seed = 13;
+// int seed = 13;
 
-int random() {
-    seed = seed * 1103515245 + 12345;
-    return (unsigned int)(seed / 65536) % 32768;
+// int random() {
+//     seed = seed * 1103515245 + 12345;
+//     return (unsigned int)(seed / 65536) % 32768;
+// }
+
+static uint8_t lfsr = 0xAB; // Example seed value
+
+// Function to generate a random number
+uint8_t generate_random_lfsr() {
+    // Perform the LFSR operation
+    uint8_t lsb = lfsr & 1; // Get the least significant bit
+    lfsr >>= 1;             // Shift right
+    if (lsb) {
+        lfsr ^= 0xB8;       // XOR with a polynomial (e.g., 0xB8 for 8-bit LFSR)
+    }
+    return lfsr;            // Return the new random number
 }
 
-#define RANDOM_PIPE_HEIGHT (random() % (H - GROUND - GAP - 120) + 60)
+#define RANDOM_PIPE_HEIGHT (generate_random_lfsr() % (H - GROUND - GAP - 60) + 30)
 
 
 gamedata_t gd = {
@@ -51,6 +64,7 @@ void flappy_init(void){
 }
 
 void flappy_on_actionbutton(void) {
+    ng_debug_value(01,gd.gamestate);
     if(gd.gamestate == GS_ALIVE)
     {
 //TODO:            gd.player_vel = -11.7f; 
@@ -104,7 +118,7 @@ void update_stuff()
         if(gd.gamestate != GS_ALIVE) return;
 
         gd.player_y +=gd.player_vel;
-        DEBUG_PRINT("Player Y:%d\n",gd.player_y);
+        //DEBUG_PRINT("Player Y:%d\n",gd.player_y);
         
         gd.player_vel += 0.61; // gravity
 

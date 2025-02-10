@@ -230,6 +230,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 34: {
+                call_gfx_pixelbuffer_wipe_t* call = (call_gfx_pixelbuffer_wipe_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_pixelbuffer_wipe( (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    call->wipe_value    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 26: {
                 call_gfx_pixelbuffer_apply_data_t* call = (call_gfx_pixelbuffer_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_pixelbuffer_apply_data( (gfx_pixelbuffer_t*)(&mem[ call->pxb ])   );
@@ -386,6 +393,19 @@ uint8_t call_function()
             case 7: {
                 call_io_input_clear_states_t* call = (call_io_input_clear_states_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   io_input_clear_states();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+        }
+    }
+
+    if (header->func_type==6){
+        switch (header->func_id) {
+
+            case 1: {
+                call_ng_debug_value_t* call = (call_ng_debug_value_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  ng_debug_value(  call->v1  ,    call->v2    );
 
                 return FUNCTION_RETURN_OK;
             }

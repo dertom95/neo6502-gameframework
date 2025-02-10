@@ -32,4 +32,7 @@ void     id_assert_validity(uint8_t id);
 
 void ll_add(linked_list_t** start, linked_list_t* element);
 void ll_remove(linked_list_t** start, linked_list_t* element);
+
+
+/*api:6:1*/void     ng_debug_value(uint8_t v1, uint8_t v2);
 #endif

@@ -475,6 +475,23 @@ bool gfx_mount_set_page(uint8_t mount_id, uint8_t page){
         return call_result;
     }
 }   
+// returns: void f-grp:1 f-id:34
+void gfx_pixelbuffer_wipe(gfx_pixelbuffer_t* pxb, uint8_t wipe_value){
+    uint8_t result_code;
+    call_gfx_pixelbuffer_wipe_t* func_data;
+    func_data = (call_gfx_pixelbuffer_wipe_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 34;
+    func_data->pxb=(uint16_t) pxb;
+    func_data->wipe_value= wipe_value;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: void f-grp:1 f-id:26
 void gfx_pixelbuffer_apply_data(gfx_pixelbuffer_t* pxb){
     uint8_t result_code;
@@ -829,6 +846,24 @@ void io_input_clear_states(void){
     func_data = (call_io_input_clear_states_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 2;
     func_data->hdr.func_id = 7;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
+// returns: void f-grp:1 f-id:1
+void     ng_debug_value(uint8_t v1, uint8_t v2){
+    uint8_t result_code;
+    call_ng_debug_value_t* func_data;
+    func_data = (call_ng_debug_value_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 6;
+    func_data->hdr.func_id = 1;
+    func_data->v1= v1;
+    func_data->v2= v2;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
