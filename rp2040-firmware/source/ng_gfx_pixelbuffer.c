@@ -151,6 +151,7 @@ void __not_in_flash_func(gfx_pixelbuffer_apply_data)(gfx_pixelbuffer_t* pixelbuf
     
     if (pixelbuffer->x >= 0)
     {
+//        pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
         pixelbuffer->output_pixels_to_write = min(pixelbuffer->full_width, SCREEN_WIDTH - pixelbuffer->x) - 1;
         pixelbuffer->output_subpixels_start = px_width;
         pixelbuffer->writebuf_offset = pixelbuffer->x;
@@ -283,17 +284,16 @@ void gfx_draw_text(uint16_t x, uint16_t y, char* txt, uint8_t color_idx, uint8_t
 				break; 
 			case '#':
 				if (i+1 < iEnd && txt[i+1]=='#'){
-					int pos = i+2;
 
-					if (txt[pos]=='R'){
+					if (txt[i+2]=='R'){
 						color_idx = initial_color;
-						i=pos;
-						continue;
+						i+=2;
+						break;
 					} else {
-						strncpy(number,txt + pos,3);
+						strncpy(number,txt+i+2,3);
 						color_idx = atoi(number);
-						i=pos+1+1;
-						continue;
+						i+=4;
+						break;
 					}
 				}
 			default:

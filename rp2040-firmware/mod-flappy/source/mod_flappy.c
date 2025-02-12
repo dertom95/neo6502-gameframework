@@ -23,6 +23,7 @@ volatile uint16_t* ms_delta = NULL;
 volatile gamepad_state_t* gamepad_pressed = NULL;
 volatile uint8_t* mouse_btn_state_pressed = NULL;
 
+uint8_t audios[3]={0};
 
 #define TICK_RATE (1000/30)
 #define delay 120
@@ -30,14 +31,18 @@ volatile uint8_t* mouse_btn_state_pressed = NULL;
 
 #define KEY_ACTION    (1 << 7)
 #define KEY_ACTION_2    (1 << 6)
+#define KEY_1  (1<<5)
+#define KEY_2  (1<<4)
+#define KEY_3  (1<<3)
+      
 
 keyboard_mapping_t kbm={
     .keycodes = {
-        HID_KEY_SPACE,
-        HID_KEY_0,
-        0,
-        0,
-        0,
+        HID_KEY_SPACE, // (1<<7)
+        HID_KEY_0, // (1<<6)
+        HID_KEY_1, // (1<<5)
+        HID_KEY_2, // (1<<4)
+        HID_KEY_3, // (1<<3)
         0,
         0,
         0},
@@ -70,7 +75,7 @@ gfx_pixelbuffer_t pixelbuffer_bg = {
 
 gfx_pixelbuffer_t pixelbuffer_ui = {
     .width=240,
-    .height=20,
+    .height=10,
     .x=0,
     .y=0,
     .pixel_size=flags_pack_4_4(1,1),
@@ -123,7 +128,7 @@ void init_gfx_bird(){
     gfx_spriteanimator_set_animation(sprite_bird_anim, 0, /*ANIMATIONFLAG_STOPPED |*/ ANIMATIONFLAG_LOOP);
     sprite_bird->x=120;
     sprite_bird->y=120;
-    sprite_bird->pixel_size=flags_pack_4_4(2,2);
+    sprite_bird->pixel_size=flags_pack_4_4(1,1);
     sprite_bird->flags = SPRITEFLAG_ALIGNH_LEFT | SPRITEFLAG_ALIGNV_TOP;
     gfx_sprite_apply_data(sprite_bird);
 }
@@ -191,9 +196,22 @@ void init_system(){
     mouse_btn_state_pressed = MEMPTR(MM_MOUSE_BTN_PRESSED);
     io_keyboardmapping_register(&kbm,1);
 }
+#define AUDIO_CRASH   0
+#define AUDIO_POWERUP 1
+#define AUDIO_FLY 2
 
 void init_audio(void){
     audio_mod_play(ASSET_GAME);
+
+    audios[AUDIO_CRASH] = audio_wav_load(ASSET_CRASH);
+    audios[AUDIO_POWERUP] = audio_wav_load(ASSET_POWER_UP_8);
+    audios[AUDIO_FLY] = audio_wav_load(ASSET_FLY);
+}
+
+void flappy_play_audio(uint8_t audio_id){
+    assert(audio_id <=3);
+
+    audio_wav_play(audios[audio_id],false);
 }
 
 uint8_t hit_counter = 0;
@@ -202,16 +220,13 @@ uint8_t hit_counter = 0;
 // █▄█ █▀▀ █▄▀ █▀█ ░█░ ██▄
 
 void mod_update() {
-    // TODO: implement some kind of sleep
 
+    if (*ms_delta<TICK_RATE)
+    {
+        return;
+    }
 
-    
-    //bool mouse_actionkey_pressed = bit_is_set_all(mbtn,);
-    char buf[41];
-    ng_snprintf(buf,41,"down:%s keyb:%d gp:%d hc:%d ",io_keyboard_is_released(HID_KEY_0)?"yes":"no",kbm.key_down, gamepad_pressed->buttons,hit_counter);
-    gfx_draw_text(0,10,buf,COL_BLACK,COL_WHITE);
-    
-    bool keyboard_actionkey_pressed = io_keyboard_is_released(HID_KEY_0);
+    bool keyboard_actionkey_pressed = io_keyboard_is_pressed(HID_KEY_0);
     bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed->buttons,0xff);
     bool mouse_actionkey_pressed = bit_is_set_some(*mouse_btn_state_pressed,MOUSE_BTN_LEFT);
 
@@ -219,12 +234,6 @@ void mod_update() {
         hit_counter++;
         flappy_on_actionbutton();
     }    
-
-    if (*ms_delta<TICK_RATE)
-    {
-        return;
-    }
-
 
     io_input_clear_states();    
 
@@ -240,17 +249,13 @@ void mod_update() {
     flappy_tick();
 }
 
-
+uint8_t waiter = 0;
+int8_t direction = 1;
 
 void draw_stuff()
 {
     gamedata_t* gd = get_gamedata();
 
-    if (gd->player_vel > 5.0f){
-        gfx_spriteanimator_stop(sprite_bird_anim);
-    } else {
-        gfx_spriteanimator_resume(sprite_bird_anim);
-    }
 
     //draw pipes
     for(int i = 0; i < 2; i++)
@@ -273,36 +278,60 @@ void draw_stuff()
 
     char buf[41];
 
-    if(gd->gamestate == GS_ALIVE && (last_gamestate!=GS_ALIVE || last_score!=gd->score)) {
-        gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
-        if (last_gamestate != GS_ALIVE){
-            pixelbuffer_ui.x = 0;
-            pixelbuffer_ui.y = 0;
-            gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
+    if(gd->gamestate == GS_ALIVE) {
+        if (gd->player_vel > 5.0f){
+            gfx_spriteanimator_stop(sprite_bird_anim);
+        } else {
+            gfx_spriteanimator_resume(sprite_bird_anim);
         }
-        ng_snprintf(buf,sizeof(buf),"score:%d  high:%d",gd->score,gd->best);
-        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_TRANSPARENT);
-        last_score = gd->score;
+
+        if (waiter == 0){
+            pixelbuffer_bg.readbuf_offset = (pixelbuffer_bg.readbuf_offset+1)%pixelbuffer_bg.width;
+            waiter = 3;
+        } 
+        waiter--;
+        
+        if ((last_gamestate!=GS_ALIVE || last_score!=gd->score)){
+            gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
+            if (last_gamestate != GS_ALIVE){
+                pixelbuffer_ui.x = 0;
+                pixelbuffer_ui.y = 0;
+                gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
+            }
+            if (gd->score > gd->best){
+                ng_snprintf(buf,sizeof(buf),"score:##012%d##R  high:%d",gd->score,gd->best);
+            } else {
+                ng_snprintf(buf,sizeof(buf),"score:%d  high:%d",gd->score,gd->best);
+            }
+
+            gfx_draw_text(0,0,buf,COL_BLACK,COL_TRANSPARENT);
+            last_score = gd->score;
+        }
     }
     else if(gd->gamestate == GS_READY && last_gamestate!=GS_READY) {
         gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
-        gfx_draw_text(0,0,"Press any key",COL_ORANGE,COL_GREY);
+        gfx_draw_text(0,0,"Press any key",COL_BLACK,COL_GREY);
+        pixelbuffer_ui.x = 104;
+        pixelbuffer_ui.y = 115;
+        gfx_pixelbuffer_apply_data(&pixelbuffer_ui);        
     }
     else if(gd->gamestate == GAMEOVER && last_gamestate!=GAMEOVER) {
         gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
-        ng_snprintf(buf,40,"Nice Try! Score: %d Higscore: %d",gd->score,gd->best);
-        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_GREY);
+        ng_snprintf(buf,40,"Nice Try! Score:##002%d##R Higscore: %d",gd->score,gd->best);
+        gfx_draw_text(0,0,buf,COL_BLACK,COL_GREY);
         pixelbuffer_ui.x = 40;
         pixelbuffer_ui.y = 115;
         gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
+        gfx_spriteanimator_stop(sprite_bird_anim);
     }
     else if(gd->gamestate == GAMEOVER_HIGHSCORE && last_gamestate!=GAMEOVER_HIGHSCORE) {
         gfx_pixelbuffer_wipe(&pixelbuffer_ui,COL_TRANSPARENT);
         ng_snprintf(buf,40,"Great! New High score: %d",gd->score);
-        gfx_draw_text(0,0,buf,COL_ORANGE_DARK,COL_GREY);
+        gfx_draw_text(0,0,buf,COL_BLACK,COL_GREY);
         pixelbuffer_ui.x = 40;
         pixelbuffer_ui.y = 115;
         gfx_pixelbuffer_apply_data(&pixelbuffer_ui);
+        gfx_spriteanimator_stop(sprite_bird_anim);
     }
     
     last_gamestate = gd->gamestate;

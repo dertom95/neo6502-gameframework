@@ -36,8 +36,8 @@ assets-create: initialize
 
 #	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette_small.png --output $(EXPORT_FOLDER)/color_palette_small.bin --binary
 
-	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/bird_16px.png \
-									--tile-size 16x16 \
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/bird_32px_t.png \
+									--tile-size 32x32 \
 									--palette-file $(ASSET_FOLDER)/palette/palette.png \
 									--array-name sprite_bird \
 									--output $(EXPORT_FOLDER)/sprite_bird.bin \

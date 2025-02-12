@@ -68,8 +68,9 @@ void flappy_on_actionbutton(void) {
     if(gd.gamestate == GS_ALIVE)
     {
 //TODO:            gd.player_vel = -11.7f; 
-            gd.player_vel = -5.7f;
-            gd.frame += 1.0f;
+        gd.player_vel = -5.7f;
+        gd.frame += 1.0f;
+        flappy_play_audio(AUDIO_FLY);
     }
     else if(gd.idle_time > 30)
     {
@@ -90,20 +91,21 @@ void flappy_tick(void){
 
 void new_game()
 {
-        gd.gamestate = GS_ALIVE;
-        gd.player_y = (H - GROUND)/2;
-        // gd.player_vel = -11.7f; // TODO
-        gd.player_vel = -0.7f;
-        gd.score = 0;
-        gd.pipe_x[0] = PHYS_W + PHYS_W/2 - PIPE_W;
-        gd.pipe_x[1] = PHYS_W - PIPE_W;
-        gd.pipe_y[0] = RANDOM_PIPE_HEIGHT;
-        gd.pipe_y[1] = RANDOM_PIPE_HEIGHT;
+    gd.gamestate = GS_ALIVE;
+    gd.player_y = (H - GROUND)/2;
+    // gd.player_vel = -11.7f; // TODO
+    gd.player_vel = -0.7f;
+    gd.score = 0;
+    gd.pipe_x[0] = PHYS_W + PHYS_W/2 - PIPE_W;
+    gd.pipe_x[1] = PHYS_W - PIPE_W;
+    gd.pipe_y[0] = RANDOM_PIPE_HEIGHT;
+    gd.pipe_y[1] = RANDOM_PIPE_HEIGHT;
 }
 
 //when we hit something
 void game_over()
 {
+    flappy_play_audio(AUDIO_CRASH);
     gd.gamestate = GAMEOVER;
     gd.idle_time = 0;
     if(gd.best < gd.score) {
@@ -146,15 +148,17 @@ void update_pipe(int i)
         bool player_y_check1 = gd.player_y <= gd.pipe_y[i] - GRACE;
         bool player_y_check2 = gd.player_y + PLYR_SZ >= gd.pipe_y[i] + GAP + GRACE;
         if( player_x_check &&
-                (player_y_check1 || player_y_check2 )) {
+            (player_y_check1 || player_y_check2 )) {
 
-                game_over(); // player hit pipe
+            game_over(); // player hit pipe
         }
 
         // move pipes and increment score if we just passed one
         gd.pipe_x[i] -= 5;
-        if(gd.pipe_x[i] + PIPE_W < PLYR_X && gd.pipe_x[i] + PIPE_W > PLYR_X - 5)
-                gd.score++;
+        if(gd.pipe_x[i] + PIPE_W < PLYR_X && gd.pipe_x[i] + PIPE_W > PLYR_X - 5){
+            flappy_play_audio(AUDIO_POWERUP);
+            gd.score++;
+        }
 
         // respawn pipe once far enough off screen
         if(gd.pipe_x[i] <= -PIPE_W)

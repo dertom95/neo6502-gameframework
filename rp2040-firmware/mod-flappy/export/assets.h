@@ -8,9 +8,11 @@
 #define ASSET_FONT8 3
 #define ASSET_SPRITE_BIRD 4
 #define ASSET_SPRITE_PILLAR 5
-#define ASSET_POWER_UP_8 6
-#define ASSET_GAME 7
-#define ASSETS_AMOUNT 8
+#define ASSET_CRASH 6
+#define ASSET_FLY 7
+#define ASSET_POWER_UP_8 8
+#define ASSET_GAME 9
+#define ASSETS_AMOUNT 10
 
 #ifdef INCLUDE_DATA
 extern const uint8_t assets_data[];

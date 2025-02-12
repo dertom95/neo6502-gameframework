@@ -436,11 +436,19 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     // point to the beginning of the pixelbuffer
                     // TODO: divison by bitshifting only for pow2
 //                    uint8_t *read_buffer = db->mem.data + (pixel_y >> (px_height-1)) * pixelbuffer->width;
-                    uint8_t *read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
+                    uint8_t* read_buffer = db->mem.data + (pixel_y / px_height) * pixelbuffer->width;
+                   // uint8_t* start_of_line = db->mem.data + (pixel_y / px_height) * (pixelbuffer->width+1);
+                    uint8_t* end_of_line = read_buffer + (pixelbuffer->width);
+
+                    uint8_t* start_of_line = read_buffer;
                     read_buffer += pixelbuffer->readbuf_offset;
                     write_buf += pixelbuffer->writebuf_offset;
 
-                    uint8_t last_idx = *(read_buffer++);
+                    uint8_t last_idx = *(read_buffer);
+                    read_buffer++;
+                    if (read_buffer == end_of_line){    
+                        read_buffer = start_of_line;
+                    }
                     uint16_t color = color_palette[last_idx];
 
                     // first write subpixels (only scenario having px-size>1 and x-pos negative)
@@ -464,6 +472,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -480,6 +491,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -496,6 +510,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -511,7 +528,11 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                     else if (px_width==5){
                         while (input_pixels_to_read--)
                         {
-                            uint8_t data = *(read_buffer++);
+                            uint8_t data = *(read_buffer);
+                            read_buffer ++;
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -528,6 +549,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -544,6 +568,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -560,6 +587,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
@@ -576,6 +606,9 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         while (input_pixels_to_read--)
                         {
                             uint8_t data = *(read_buffer++);
+                            if (read_buffer == end_of_line){
+                                read_buffer = start_of_line;
+                            }                            
                             if (data!=last_idx){
                                 last_idx = data;
                                 color = color_palette[data];
