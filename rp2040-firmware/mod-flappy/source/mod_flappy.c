@@ -216,7 +216,7 @@ void flappy_play_audio(uint8_t audio_id){
 
 uint8_t hit_counter = 0;
 
-// █░█ █▀█ █▀▄ ▄▀█ ▀█▀ █▀▀
+// █░█ █▀█ █▀▄ ▄▀█ ▀█▀ █▀▀P
 // █▄█ █▀▀ █▄▀ █▀█ ░█░ ██▄
 
 void mod_update() {
