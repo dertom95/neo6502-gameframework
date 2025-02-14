@@ -611,6 +611,97 @@ void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx){
 
     }
 }   
+// returns: void f-grp:1 f-id:37
+void    gfx_clip_rect(uint16_t x,uint16_t y, uint16_t w,uint16_t h){
+    uint8_t result_code;
+    call_gfx_clip_rect_t* func_data;
+    func_data = (call_gfx_clip_rect_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 37;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->w= w;
+    func_data->h= h;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:38
+void    gfx_clip_clear(){
+    uint8_t result_code;
+    call_gfx_clip_clear_t* func_data;
+    func_data = (call_gfx_clip_clear_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 38;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:39
+void gfx_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t color,uint8_t flags){
+    uint8_t result_code;
+    call_gfx_draw_rect_t* func_data;
+    func_data = (call_gfx_draw_rect_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 39;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->width= width;
+    func_data->height= height;
+    func_data->color= color;
+    func_data->flags= flags;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:40
+void gfx_draw_circle(uint16_t x, uint16_t y, uint16_t radius, uint8_t color,uint8_t flags){
+    uint8_t result_code;
+    call_gfx_draw_circle_t* func_data;
+    func_data = (call_gfx_draw_circle_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 40;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->radius= radius;
+    func_data->color= color;
+    func_data->flags= flags;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:41
+void gfx_draw_button(gfx_button_t* btn){
+    uint8_t result_code;
+    call_gfx_draw_button_t* func_data;
+    func_data = (call_gfx_draw_button_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 41;
+    func_data->btn=(uint16_t) btn;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: void f-grp:1 f-id:8
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index){
     uint8_t result_code;
@@ -730,6 +821,36 @@ void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, ui
     func_data->tm=(uint16_t) tm;
     func_data->out_layer=(uint16_t) out_layer;
     func_data->layer_nr= layer_nr;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:35
+void gfx_ui_init(void){
+    uint8_t result_code;
+    call_gfx_ui_init_t* func_data;
+    func_data = (call_gfx_ui_init_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 35;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:36
+void gfx_ui_update(void){
+    uint8_t result_code;
+    call_gfx_ui_update_t* func_data;
+    func_data = (call_gfx_ui_update_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 36;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

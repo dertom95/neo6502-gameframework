@@ -7,6 +7,7 @@
 #include "../../../ng_gfx.h"
 #include "../../../api/ng_config.h"
 #include "../../../ng_mem.h"
+#include "../../../core/memory.h"
 
 #include <kinc/graphics1/graphics.h>
 #include <kinc/system.h>
@@ -93,7 +94,8 @@ void gfx_backend_update()
     // for (int i=0;i<600;i++){
        //  kinc_g1_set_pixel(i%20,i%20,1,0,0);
     // }
-    for (int y=0;y<SCREEN_HEIGHT;y++){
+    for (uint8_t y=0;y<SCREEN_HEIGHT;y++){
+        *mm_scanline = (uint8_t)y;
         gfx_render_scanline(pixbuf,y);
         uint16_t* _scanline = pixbuf;
         uint16_t count = SCREEN_WIDTH;

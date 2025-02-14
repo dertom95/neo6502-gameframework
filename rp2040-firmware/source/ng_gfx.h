@@ -172,6 +172,13 @@ void     gfx_set_font(const uint8_t* font_bpp1);
 // canvas functions
 /*api:1:6*/uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
 /*api:1:7*/void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
+/*api:1:37*/void    gfx_clip_rect(uint16_t x,uint16_t y, uint16_t w,uint16_t h);
+/*api:1:38*/void    gfx_clip_clear();
+
+/*api:1:39*/void gfx_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t color,uint8_t flags);
+/*api:1:40*/void gfx_draw_circle(uint16_t x, uint16_t y, uint16_t radius, uint8_t color,uint8_t flags);
+/*api:1:41*/void gfx_draw_button(gfx_button_t* btn);
+
 /*api:1:8*/void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index);
 
 // draw text. supports newline \n and color change: ##000 (color_idx). NEEDS TO BE THREE DIGITS! ##R (resets color_idx)

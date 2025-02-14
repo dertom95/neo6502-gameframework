@@ -1,6 +1,7 @@
 #include "../../../ng_gfx.h"
 #include "neo6502.h"
 #include "../../../api/ng_config.h"
+#include "memory.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -137,7 +138,7 @@ void __not_in_flash_func(core1_main()) {
     uint16_t *pixbuf;
     requested_renderqueue_apply=true;
    	while (1) {
-		for (uint y = 0; y < FRAME_HEIGHT; y ++) {
+		for (uint8_t y = 0; y < FRAME_HEIGHT; y ++) {
             queue_remove_blocking_u32(&dvi0.q_tmds_free,&tmds0);
  	 
             if (requested_renderqueue_apply){
@@ -147,6 +148,7 @@ void __not_in_flash_func(core1_main()) {
                 renderqueue_request = save_current;
             }
 
+            *mm_scanline = y;
             gfx_render_scanline(core1_scanbuf, y);
             encode_scanline(core1_scanbuf, tmds0);
             queue_add_blocking_u32(&dvi0.q_tmds_valid, &tmds0);

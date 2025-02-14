@@ -100,7 +100,7 @@ uint8_t* _pixelbuffer_location_ptr(uint16_t x,uint16_t y)
 
 void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 {
-	assert(initial_data->obj_id==0 && "object-id already set!");
+	assert(initial_data->obj_id==0 && "pixelbuffer already created[object-id already set]");
 	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > sizeof(ng_mem_datablock_t) && "gfx_create_pixelbuffer: create size");
 	
     
@@ -223,13 +223,147 @@ void  gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx)
 // get pointer to character in fontbuffer
 const uint8_t* _char2fontbuffer(uint8_t ch)
 {
-	uint16_t pos = 0;
+	assert(font!=NULL || "no font loaded");
+    uint16_t pos = 0;
 
 	if (ch<127){
 		pos = ch-32; 
 	}
 
 	return font+pos*8;
+}
+uint16_t clip_x=0;
+uint16_t clip_y=0;
+uint16_t clip_w=65535;
+uint16_t clip_h=65535;
+
+void    gfx_clip_rect(uint16_t x,uint16_t y, uint16_t w,uint16_t h) {
+    clip_x=x;
+    clip_y=y;
+    clip_w=w;
+    clip_h=h;
+}
+
+void    gfx_clip_clear() {
+    clip_x=0;
+    clip_y=0;
+    clip_w=65535;
+    clip_h=65535;
+}
+
+
+
+void gfx_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t color, uint8_t flags) {
+    // Calculate the effective bounds of the rectangle after clipping
+    uint16_t x_start = (x < clip_x) ? clip_x : x;
+    uint16_t y_start = (y < clip_y) ? clip_y : y;
+    uint16_t x_end = (x + width > clip_x + clip_w) ? clip_x + clip_w : x + width;
+    uint16_t y_end = (y + height > clip_y + clip_h) ? clip_y + clip_h : y + height;
+
+    // If the rectangle is completely outside the clip area, return early
+    if (x_start >= x_end || y_start >= y_end) {
+        return;
+    }
+
+    if (flags & GFX_FLAG_FILLED) {
+        // Draw a filled rectangle within the clipped bounds
+        for (uint16_t i = y_start; i < y_end; i++) {
+            for (uint16_t j = x_start; j < x_end; j++) {
+                gfx_draw_pixel(j, i, color);
+            }
+        }
+    } else {
+        // Draw only the rectangle outline within the clipped bounds
+        // Top edge
+        for (uint16_t i = x_start; i < x_end; i++) {
+            if (y >= clip_y && y < clip_y + clip_h) {
+                gfx_draw_pixel(i, y, color);
+            }
+        }
+        // Bottom edge
+        for (uint16_t i = x_start; i < x_end; i++) {
+            if (y + height - 1 >= clip_y && y + height - 1 < clip_y + clip_h) {
+                gfx_draw_pixel(i, y + height - 1, color);
+            }
+        }
+        // Left edge
+        for (uint16_t i = y_start; i < y_end; i++) {
+            if (x >= clip_x && x < clip_x + clip_w) {
+                gfx_draw_pixel(x, i, color);
+            }
+        }
+        // Right edge
+        for (uint16_t i = y_start; i < y_end; i++) {
+            if (x + width - 1 >= clip_x && x + width - 1 < clip_x + clip_w) {
+                gfx_draw_pixel(x + width - 1, i, color);
+            }
+        }
+    }
+}
+
+
+void gfx_draw_circle(uint16_t x, uint16_t y, uint16_t radius, uint8_t color, uint8_t flags) {
+    int16_t dx = 0;
+    int16_t dy = radius;
+    int16_t d = 1 - radius;
+
+    if (flags & GFX_FLAG_FILLED) {
+        // Draw a filled circle
+        while (dx <= dy) {
+            for (int16_t i = x - dx; i <= x + dx; i++) {
+                gfx_draw_pixel(i, y + dy, color);
+                gfx_draw_pixel(i, y - dy, color);
+            }
+            for (int16_t i = x - dy; i <= x + dy; i++) {
+                gfx_draw_pixel(i, y + dx, color);
+                gfx_draw_pixel(i, y - dx, color);
+            }
+            if (d < 0) {
+                d += 2 * dx + 3;
+            } else {
+                d += 2 * (dx - dy) + 5;
+                dy--;
+            }
+            dx++;
+        }
+    } else {
+        // Draw only the circle outline
+        while (dx <= dy) {
+            gfx_draw_pixel(x + dx, y + dy, color);
+            gfx_draw_pixel(x - dx, y + dy, color);
+            gfx_draw_pixel(x + dx, y - dy, color);
+            gfx_draw_pixel(x - dx, y - dy, color);
+            gfx_draw_pixel(x + dy, y + dx, color);
+            gfx_draw_pixel(x - dy, y + dx, color);
+            gfx_draw_pixel(x + dy, y - dx, color);
+            gfx_draw_pixel(x - dy, y - dx, color);
+
+            if (d < 0) {
+                d += 2 * dx + 3;
+            } else {
+                d += 2 * (dx - dy) + 5;
+                dy--;
+            }
+            dx++;
+        }
+    }
+}
+
+void gfx_draw_button(gfx_button_t* btn) {
+    // Check if the button is pressed
+    bool is_pressed = (btn->flags & GFX_BTNSTATE_PRESSED) != 0;
+    uint8_t charlen = strlen(btn->btn_caption);
+    // Draw the button rectangle
+    if (is_pressed) {
+        // Draw a filled rectangle if the button is pressed
+        gfx_draw_rect(btn->x, btn->y, charlen*8+4, 12, btn->color_index_bg, GFX_FLAG_FILLED); // 1 indicates filled
+    } else {
+        // Draw only the outline of the rectangle if the button is not pressed
+        gfx_draw_rect(btn->x, btn->y, charlen*8+4, 12, btn->color_index_bg, 0); // 0 indicates outline
+    }
+
+    // Draw the button caption
+    gfx_draw_text(btn->x+2, btn->y+2, (char*)btn->btn_caption, btn->color_index_txt, COL_TRANSPARENT);
 }
 
 

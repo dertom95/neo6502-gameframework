@@ -107,6 +107,10 @@ void io_input_clear_states(void) {
 
     // clear mouse
     *mm_mouse_btn_state_pressed = 0;
+    *mm_mouse_btn_state_released = 0;
+
+    *mm_keyboard_last_pressed_char = 0;
+    *mm_keyboard_last_pressed_keycode = 0;
 
     io_backend_clear_state();
 }

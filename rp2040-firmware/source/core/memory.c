@@ -15,6 +15,7 @@ extern "C" {
 #include "../api/gen/memory_call_function.c"
 #include "../ng_utils.h"
 #include <assert.h>
+#include <stdint.h>
 
 
 
@@ -50,6 +51,8 @@ gamepad_state_t* mm_gamepad_pressed = NULL;
 gamepad_state_t* mm_gamepad_released = NULL;
 uint8_t* mm_gamepad_info = NULL;
 
+uint8_t* mm_scanline = NULL;
+
 
 
 /// <summary>
@@ -74,7 +77,8 @@ void memory_init() {
   mm_keyboard_last_pressed_keycode = MEM6502_U8PTR(MM_LAST_KB_KEYCODE);
   *mm_keyboard_last_pressed_keycode=0;
   
-  mm_ms_delta = (uint16_t*)&mem[MM_MS_DELTA];
+//  mm_ms_delta = (uint16_t*)&mem[MM_MS_DELTA];
+  mm_ms_delta = MEM6502_U16PTR(MM_MS_DELTA);
   *mm_ms_delta=0;
   mm_mouse_btn_state = MEM6502_U8PTR(MM_MOUSE_BTN);
   *mm_mouse_btn_state = 0;
@@ -101,6 +105,9 @@ void memory_init() {
     mm_gamepad_pressed[i]=(gamepad_state_t){0};
     mm_gamepad_released[i]=(gamepad_state_t){0};
   }
+
+  mm_scanline = MEM6502_U8PTR(MM_SCANLINE);
+  *mm_scanline=0;
   
   mm_gamepad_info = MEM6502_I8PTR(MM_GAMEPAD_INFO);
   *mm_gamepad_info = 0;
@@ -151,7 +158,8 @@ uint8_t* __not_in_flash_func(memory_resolve_address)(uint16_t address){
     }
   }
   else {
-    return (uint8_t*)&mem[address];
+    uint8_t* result_address = (uint8_t*)&mem[address];
+    return result_address;
   }
 }
 

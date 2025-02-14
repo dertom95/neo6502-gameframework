@@ -289,6 +289,41 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 37: {
+                call_gfx_clip_rect_t* call = (call_gfx_clip_rect_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_clip_rect(  swap16(call->x)  ,    swap16(call->y)  ,    swap16(call->w)  ,    swap16(call->h)    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 38: {
+                call_gfx_clip_clear_t* call = (call_gfx_clip_clear_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_clip_clear();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 39: {
+                call_gfx_draw_rect_t* call = (call_gfx_draw_rect_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_rect(  swap16(call->x)  ,    swap16(call->y)  ,    swap16(call->width)  ,    swap16(call->height)  ,    call->color  ,    call->flags    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 40: {
+                call_gfx_draw_circle_t* call = (call_gfx_draw_circle_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_circle(  swap16(call->x)  ,    swap16(call->y)  ,    swap16(call->radius)  ,    call->color  ,    call->flags    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 41: {
+                call_gfx_draw_button_t* call = (call_gfx_draw_button_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_draw_button( (gfx_button_t*)(&mem[ call->btn ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 8: {
                 call_gfx_draw_char_t* call = (call_gfx_draw_char_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_draw_char(  swap16(call->x)  ,    swap16(call->y)  ,    call->ch  ,    call->color_idx  ,    call->bg_index    );
@@ -334,6 +369,20 @@ uint8_t call_function()
             case 32: {
                 call_gfx_load_tilemap_layer_t* call = (call_gfx_load_tilemap_layer_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_load_tilemap_layer( (gfx_tilemap_t*)(&mem[ call->tm ]) ,   (gfx_tilemap_layer_t*)(&mem[ call->out_layer ]) ,    call->layer_nr    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 35: {
+                call_gfx_ui_init_t* call = (call_gfx_ui_init_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_ui_init();
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 36: {
+                call_gfx_ui_update_t* call = (call_gfx_ui_update_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_ui_update();
 
                 return FUNCTION_RETURN_OK;
             }

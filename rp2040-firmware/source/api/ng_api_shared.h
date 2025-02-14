@@ -118,7 +118,9 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     int16_t x;
     int16_t y;
 
-    uint16_t width;
+    // the width of the pixelbuffer! Not changeable after creation
+    uint16_t width; 
+    // the height of the pixelbuffer! Not changeable after creation
     uint16_t height;
 
     uint16_t flags;
@@ -137,6 +139,22 @@ typedef struct __attribute__((aligned(4))) gfx_pixelbuffer_t
     uint8_t pixel_size;
     uint8_t mount_id;
 } gfx_pixelbuffer_t;
+
+#define GFX_BTNSTATE_PRESSED (1 << 0)
+typedef struct gfx_button_t {
+    const char btn_caption[40];
+
+    uint16_t x;
+    uint16_t y;
+    
+    uint8_t flags;
+    uint8_t color_index_txt;
+    uint8_t color_index_bg;
+    uint8_t unused3;
+} gfx_button_t;
+
+#define GFX_FLAG_FILLED     (1 << 0)
+#define GFX_FLAG_CLIPCHECK  (1 << 1)
 
 #define SPRITEFLAG_READY  (1 << 0)
 #define SPRITEFLAG_FLIP_H (1 << 1)
@@ -302,6 +320,8 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define MM_GAMEPAD3_STATE_RELEASED (MM_GAMEPAD2_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 #define MM_GAMEPAD4_STATE_RELEASED (MM_GAMEPAD3_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 
+#define MM_SCANLINE (MM_GAMEPAD4_STATE_RELEASED + sizeof(gamepad_state_t)) /* uint8_t */
+
 #define MM_FUNCS MEMORY_MAP_FUNC_START /* memory-location where the memory-mapping starts */
 #define MM_FUNC_CALL (MM_FUNCS + 0x00)   /* uint8 */
 
@@ -325,6 +345,17 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define COL_GREY 14
 #define COL_PINK 15
 #define COL_PEACH 16
+
+/*dark*/
+#define COL_GREY_0_DARK 80 
+#define COL_GREY_1 81
+#define COL_GREY_2 82
+#define COL_GREY_3 83
+#define COL_GREY_4 84
+#define COL_GREY_5 85
+#define COL_GREY_6 86
+/*very light*/
+#define COL_GREY_7_LIGHT 87 
 
 #define HID_KEY_NONE 0x00
 #define HID_KEY_A 0x04

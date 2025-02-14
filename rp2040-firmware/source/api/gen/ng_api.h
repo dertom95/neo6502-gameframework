@@ -147,6 +147,16 @@ void     gfx_set_font_from_asset(uint8_t asset_id);
 uint8_t  gfx_get_pixel(uint16_t x, uint16_t y);
  // returns: void f-grp: f-id:7;
 void     gfx_draw_pixel(uint16_t x, uint16_t y, uint8_t color_idx);
+ // returns: void f-grp: f-id:37;
+void    gfx_clip_rect(uint16_t x,uint16_t y, uint16_t w,uint16_t h);
+ // returns: void f-grp: f-id:38;
+void    gfx_clip_clear();
+ // returns: void f-grp: f-id:39;
+void gfx_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t color,uint8_t flags);
+ // returns: void f-grp: f-id:40;
+void gfx_draw_circle(uint16_t x, uint16_t y, uint16_t radius, uint8_t color,uint8_t flags);
+ // returns: void f-grp: f-id:41;
+void gfx_draw_button(gfx_button_t* btn);
  // returns: void f-grp: f-id:8;
 void     gfx_draw_char(uint16_t x, uint16_t y, char ch, uint8_t color_idx, uint8_t bg_index);
  // returns: void f-grp: f-id:14;
@@ -161,6 +171,10 @@ void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
 void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
  // returns: void f-grp: f-id:32;
 void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
+ // returns: void f-grp: f-id:35;
+void gfx_ui_init(void);
+ // returns: void f-grp: f-id:36;
+void gfx_ui_update(void);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -312,6 +326,42 @@ typedef struct call_gfx_draw_pixel_t {
     uint16_t y;
     uint8_t color_idx;
 } call_gfx_draw_pixel_t;
+// returns: void f-grp: f-id:37
+typedef struct call_gfx_clip_rect_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t w;
+    uint16_t h;
+} call_gfx_clip_rect_t;
+// returns: void f-grp: f-id:38
+typedef struct call_gfx_clip_clear_t {
+    call_header_t hdr;
+} call_gfx_clip_clear_t;
+// returns: void f-grp: f-id:39
+typedef struct call_gfx_draw_rect_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t width;
+    uint16_t height;
+    uint8_t color;
+    uint8_t flags;
+} call_gfx_draw_rect_t;
+// returns: void f-grp: f-id:40
+typedef struct call_gfx_draw_circle_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t radius;
+    uint8_t color;
+    uint8_t flags;
+} call_gfx_draw_circle_t;
+// returns: void f-grp: f-id:41
+typedef struct call_gfx_draw_button_t {
+    call_header_t hdr;
+    uint16_t btn;
+} call_gfx_draw_button_t;
 // returns: void f-grp: f-id:8
 typedef struct call_gfx_draw_char_t {
     call_header_t hdr;
@@ -362,6 +412,14 @@ typedef struct call_gfx_load_tilemap_layer_t {
     uint16_t out_layer;
     uint8_t layer_nr;
 } call_gfx_load_tilemap_layer_t;
+// returns: void f-grp: f-id:35
+typedef struct call_gfx_ui_init_t {
+    call_header_t hdr;
+} call_gfx_ui_init_t;
+// returns: void f-grp: f-id:36
+typedef struct call_gfx_ui_update_t {
+    call_header_t hdr;
+} call_gfx_ui_update_t;
 
 // function grp: 2
 

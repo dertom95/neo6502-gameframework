@@ -37,7 +37,11 @@ void assets_set_current_pack(void* data, uint32_t size)
 
     const uint8_t* code_data = assets_get_pointer(0);
     const uint16_t* start_address = (const uint16_t*)code_data;
-    loadROM(code_data+2,(*start_address),current_assetpack.sizes[0]-2);
+
+    uint16_t code_size = current_assetpack.sizes[0];
+    assert(code_size>2 && "asset-pack: code-block is invalid");
+
+    loadROM(code_data+2,(*start_address),code_size-2);
     ng_cpu_start();
 }
 
