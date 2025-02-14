@@ -373,20 +373,6 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
-            case 35: {
-                call_gfx_ui_init_t* call = (call_gfx_ui_init_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_ui_init();
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 36: {
-                call_gfx_ui_update_t* call = (call_gfx_ui_update_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_ui_update();
-
-                return FUNCTION_RETURN_OK;
-            }
-
         }
     }
 

@@ -171,10 +171,6 @@ void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
 void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
  // returns: void f-grp: f-id:32;
 void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
- // returns: void f-grp: f-id:35;
-void gfx_ui_init(void);
- // returns: void f-grp: f-id:36;
-void gfx_ui_update(void);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -412,14 +408,6 @@ typedef struct call_gfx_load_tilemap_layer_t {
     uint16_t out_layer;
     uint8_t layer_nr;
 } call_gfx_load_tilemap_layer_t;
-// returns: void f-grp: f-id:35
-typedef struct call_gfx_ui_init_t {
-    call_header_t hdr;
-} call_gfx_ui_init_t;
-// returns: void f-grp: f-id:36
-typedef struct call_gfx_ui_update_t {
-    call_header_t hdr;
-} call_gfx_ui_update_t;
 
 // function grp: 2
 

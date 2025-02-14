@@ -829,36 +829,6 @@ void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, ui
 
     }
 }   
-// returns: void f-grp:1 f-id:35
-void gfx_ui_init(void){
-    uint8_t result_code;
-    call_gfx_ui_init_t* func_data;
-    func_data = (call_gfx_ui_init_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 35;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
-// returns: void f-grp:1 f-id:36
-void gfx_ui_update(void){
-    uint8_t result_code;
-    call_gfx_ui_update_t* func_data;
-    func_data = (call_gfx_ui_update_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 1;
-    func_data->hdr.func_id = 36;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
-    }
-}   
 
 // returns: bool f-grp:1 f-id:1
 bool io_keyboard_is_pressed(uint8_t keycode){
