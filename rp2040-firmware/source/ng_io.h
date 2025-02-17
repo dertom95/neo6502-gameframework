@@ -21,7 +21,7 @@ extern bool _keyboard_connected;
 extern bool _mouse_connected;
 
 void io_init(void);
-void io_before_tick(void);
+/*api:2:8*/void io_before_tick(void);
 void io_after_tick(void);
 
 void io_backend_init(void);
@@ -51,7 +51,8 @@ uint8_t io_keycode_to_ascii(uint8_t keycode);
 
 /*api:2:6*/bool io_gamepad_is_active(uint8_t gamepad_id);
 /*api:2:7*/void io_input_clear_states(void);
+/*api:2:9*/void io_lock_input(bool lock_it);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 2:7
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 2:9
 
 #endif

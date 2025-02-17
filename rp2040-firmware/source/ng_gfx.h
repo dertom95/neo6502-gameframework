@@ -128,7 +128,8 @@ void gfx_renderqueue_add(ng_mem_block_t* renderblock);
 
 /// @brief start over with the renderqueue builder
 /// @param  
-void gfx_renderqueue_wipe(void);
+
+/*api:1:44*/void gfx_renderqueue_wipe(void);
 /// @brief tell's the renderer to render this queue from now on
 /// @param  
 /*api:1:1*/void gfx_renderqueue_apply(void);
@@ -194,6 +195,10 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 // write bitmap-asset to the current pixelbuffer to the specified pixel pos. px_size_4_4 to specify the pixelsize
 // TODO: void gfx_draw_bitmap(int16_t x, int16_t y, uint8_t asset_id,uint8_t px_size_4_4);
 
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:34
+// 🅳🅴🅱🆄🅶-🅲🅰🅻🅻🆂
+/*api:1:42*/void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb,uint8_t coltext,uint8_t col_bg);
+/*api:1:43*/void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
+
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:44
 
 #endif 

@@ -97,6 +97,8 @@ typedef struct call_audio_mod_pos_t {
 
  // returns: void f-grp: f-id:12;
 void gfx_renderqueue_add_id(uint8_t id);
+ // returns: void f-grp: f-id:44;
+void gfx_renderqueue_wipe(void);
  // returns: void f-grp: f-id:1;
 void gfx_renderqueue_apply(void);
  // returns: uint8_t f-grp: f-id:16;
@@ -171,12 +173,20 @@ void  gfx_draw_tile(int16_t x, int16_t y,uint8_t tile_number);
 void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap);
  // returns: void f-grp: f-id:32;
 void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, uint8_t layer_nr);
+ // returns: void f-grp: f-id:42;
+void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb,uint8_t coltext,uint8_t col_bg);
+ // returns: void f-grp: f-id:43;
+void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
     call_header_t hdr;
     uint8_t id;
 } call_gfx_renderqueue_add_id_t;
+// returns: void f-grp: f-id:44
+typedef struct call_gfx_renderqueue_wipe_t {
+    call_header_t hdr;
+} call_gfx_renderqueue_wipe_t;
 // returns: void f-grp: f-id:1
 typedef struct call_gfx_renderqueue_apply_t {
     call_header_t hdr;
@@ -408,9 +418,29 @@ typedef struct call_gfx_load_tilemap_layer_t {
     uint16_t out_layer;
     uint8_t layer_nr;
 } call_gfx_load_tilemap_layer_t;
+// returns: void f-grp: f-id:42
+typedef struct call_gfx_debug_drawinfo_pixelbuffer_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t pxb;
+    uint8_t coltext;
+    uint8_t col_bg;
+} call_gfx_debug_drawinfo_pixelbuffer_t;
+// returns: void f-grp: f-id:43
+typedef struct call_gfx_debug_drawinfo_keyboard_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint16_t keyb;
+    uint8_t coltext;
+    uint8_t col_bg;
+} call_gfx_debug_drawinfo_keyboard_t;
 
 // function grp: 2
 
+ // returns: void f-grp: f-id:8;
+void io_before_tick(void);
  // returns: bool f-grp: f-id:1;
 bool io_keyboard_is_pressed(uint8_t keycode);
  // returns: bool f-grp: f-id:2;
@@ -425,7 +455,13 @@ void   io_keyboardmapping_unregister(void);
 bool io_gamepad_is_active(uint8_t gamepad_id);
  // returns: void f-grp: f-id:7;
 void io_input_clear_states(void);
+ // returns: void f-grp: f-id:9;
+void io_lock_input(bool lock_it);
 
+// returns: void f-grp: f-id:8
+typedef struct call_io_before_tick_t {
+    call_header_t hdr;
+} call_io_before_tick_t;
 // returns: bool f-grp: f-id:1
 typedef struct call_io_keyboard_is_pressed_t {
     call_header_t hdr;
@@ -460,17 +496,36 @@ typedef struct call_io_gamepad_is_active_t {
 typedef struct call_io_input_clear_states_t {
     call_header_t hdr;
 } call_io_input_clear_states_t;
+// returns: void f-grp: f-id:9
+typedef struct call_io_lock_input_t {
+    call_header_t hdr;
+    bool lock_it;
+} call_io_lock_input_t;
 
 // function grp: 6
 
+ // returns: uint16_t f-grp: f-id:2;
+uint16_t utils_random_uint16();
  // returns: void f-grp: f-id:1;
-void     ng_debug_value(uint8_t v1, uint8_t v2);
+void     ng_debug_value(uint16_t v1,uint16_t v2);
+ // returns: void f-grp: f-id:3;
+void ng_debug_pointer(void* ptr, uint8_t data);
 
+// returns: uint16_t f-grp: f-id:2
+typedef struct call_utils_random_uint16_t {
+    call_header_t hdr;
+} call_utils_random_uint16_t;
 // returns: void f-grp: f-id:1
 typedef struct call_ng_debug_value_t {
     call_header_t hdr;
-    uint8_t v1;
-    uint8_t v2;
+    uint16_t v1;
+    uint16_t v2;
 } call_ng_debug_value_t;
+// returns: void f-grp: f-id:3
+typedef struct call_ng_debug_pointer_t {
+    call_header_t hdr;
+    uint16_t ptr;
+    uint8_t data;
+} call_ng_debug_pointer_t;
 
 #endif

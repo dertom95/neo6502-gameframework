@@ -31,7 +31,7 @@
 #include "../../../ng_gfx.h"
 #include "../../memory.h"
 
-#include <kinc/input/keyboard.h>clear
+#include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/input/gamepad.h>
 

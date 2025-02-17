@@ -1,6 +1,8 @@
 let project = new Project('ng6502');
 const path = require('path');
 
+const mod_path="../../mod-tests"
+
 project.cpp = false;
 project.cStd = "c99"
 
@@ -12,8 +14,11 @@ project.addDefine('SOUND');
 // use the mod directly
 project.addDefine('_MOD_NATIVE_');
 project.addIncludeDir('../../source/api')
-project.addIncludeDir('../../mod-flappy')
 project.addIncludeDir('../../source')
+
+project.addIncludeDir(mod_path)
+project.addFile(mod_path+'/source/*.c');
+
 
 project.addDefine('INCLUDE_DATA');
 
@@ -27,7 +32,6 @@ project.addFile('../../source/core/backend/kinc/*.c');
 // MOD - NATIVE - FILE
 //project.addFile('../../mod/source/mod_pixelbuffer.c');
 //project.addFile('../../mod/source/mod_simple.c');
-project.addFile('../../mod-flappy/source/*.c');
 
 project.addFile('../../source/api/*.c');
 //project.addFile('../../test/gen_prg1.c')

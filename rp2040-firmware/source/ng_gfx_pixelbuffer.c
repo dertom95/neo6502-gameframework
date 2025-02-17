@@ -37,6 +37,8 @@ gfx_pixelbuffer_t* active_pixelbuffer = NULL;
 
 const uint8_t* font=NULL; 		  // 1bpp
 
+char temp_txt_buf[40]={0};
+
 // ---------------
 // 🇵​​​​​🇦​​​​​🇱​​​​​🇪​​​​​🇹​​​​​🇹​​​​​🇪​​​​​
 // ---------------
@@ -111,7 +113,8 @@ void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data)
 	assert(ng_mem_segment_space_left(SEGMENT_GFX_DATA) > size && "gfx_create_pixelbuffer: create size");
 	
 	bool success = ng_mem_allocate_block(SEGMENT_GFX_DATA, size, MEM_USAGE_PIXELBUFFER, &block->mem );
-	if (success){
+	assert(success && "not enough space");
+    if (success){
         ng_memblock_wipe(&block->mem,COL_TRANSPARENT);
 		initial_data->obj_id = id_store(block);
 
@@ -555,4 +558,23 @@ void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap_la
             );
         }
     }
+}
+
+void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb, uint8_t color_idx, uint8_t bg_idx)
+{
+    uint8_t px,py;
+    flags_unpack_4_4(pxb->pixel_size,px,py);
+    snprintf(temp_txt_buf,40,"w:%d h:%d p:%d|%d",pxb->width,pxb->height,pxb->x,pxb->y);
+    gfx_draw_text(x,y,temp_txt_buf,color_idx,bg_idx);
+    snprintf(temp_txt_buf,40,"f:%s s:%d|%d",utils_char_to_binstring(pxb->flags),px,py);
+    gfx_draw_text(x,y+8,temp_txt_buf,color_idx,bg_idx);
+}
+
+void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg) {
+    snprintf(temp_txt_buf,40,"pressed: %s",utils_char_to_binstring(keyb->key_pressed));    
+    gfx_draw_text(x,y,temp_txt_buf,coltext,col_bg);
+    snprintf(temp_txt_buf,40,"down: %s",utils_char_to_binstring(keyb->key_down));    
+    gfx_draw_text(x,y+8,temp_txt_buf,coltext,col_bg);
+    snprintf(temp_txt_buf,40,"released: %s",utils_char_to_binstring(keyb->key_released));    
+    gfx_draw_text(x,y+16,temp_txt_buf,coltext,col_bg);
 }

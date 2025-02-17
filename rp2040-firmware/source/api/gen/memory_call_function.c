@@ -105,6 +105,13 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 44: {
+                call_gfx_renderqueue_wipe_t* call = (call_gfx_renderqueue_wipe_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_renderqueue_wipe();
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 1: {
                 call_gfx_renderqueue_apply_t* call = (call_gfx_renderqueue_apply_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_renderqueue_apply();
@@ -163,6 +170,7 @@ uint8_t call_function()
                 bool call_result =  gfx_sprite_remove_extension( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->extension_type    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -212,6 +220,7 @@ uint8_t call_function()
                 call_gfx_pixelbuffer_get_current_t* call = (call_gfx_pixelbuffer_get_current_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                 gfx_pixelbuffer_t* call_result =  gfx_pixelbuffer_get_current();
 
+                *(uint16_t*)call_buffer_return = (uint16_t)(intptr_t)call_result-(intptr_t)mem;
                 return FUNCTION_RETURN_OK;
             }
 
@@ -227,6 +236,7 @@ uint8_t call_function()
                 bool call_result =  gfx_mount_set_page(  call->mount_id  ,    call->page    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -373,17 +383,39 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 42: {
+                call_gfx_debug_drawinfo_pixelbuffer_t* call = (call_gfx_debug_drawinfo_pixelbuffer_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_debug_drawinfo_pixelbuffer(  swap16(call->x)  ,    swap16(call->y)  ,   (gfx_pixelbuffer_t*)(&mem[ call->pxb ]) ,    call->coltext  ,    call->col_bg    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 43: {
+                call_gfx_debug_drawinfo_keyboard_t* call = (call_gfx_debug_drawinfo_keyboard_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_debug_drawinfo_keyboard(  swap16(call->x)  ,    swap16(call->y)  ,   (keyboard_mapping_t*)(&mem[ call->keyb ]) ,    call->coltext  ,    call->col_bg    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 
     if (header->func_type==2){
         switch (header->func_id) {
 
+            case 8: {
+                call_io_before_tick_t* call = (call_io_before_tick_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  io_before_tick();
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 1: {
                 call_io_keyboard_is_pressed_t* call = (call_io_keyboard_is_pressed_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                 bool call_result =  io_keyboard_is_pressed(  call->keycode    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -392,6 +424,7 @@ uint8_t call_function()
                 bool call_result =  io_keyboard_is_down(  call->keycode    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -400,6 +433,7 @@ uint8_t call_function()
                 bool call_result =  io_keyboard_is_released(  call->keycode    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -422,6 +456,7 @@ uint8_t call_function()
                 bool call_result =  io_gamepad_is_active(  call->gamepad_id    );
 
                 *call_buffer_return=(uint8_t)call_result;
+
                 return FUNCTION_RETURN_OK;
             }
 
@@ -432,15 +467,37 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 9: {
+                call_io_lock_input_t* call = (call_io_lock_input_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  io_lock_input(  call->lock_it    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 
     if (header->func_type==6){
         switch (header->func_id) {
 
+            case 2: {
+                call_utils_random_uint16_t* call = (call_utils_random_uint16_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint16_t call_result =  utils_random_uint16();
+                *((uint16_t*)call_buffer_return)=swap16(call_result);
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 1: {
                 call_ng_debug_value_t* call = (call_ng_debug_value_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  ng_debug_value(  call->v1  ,    call->v2    );
+                  ng_debug_value(  swap16(call->v1)  ,    swap16(call->v2)    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 3: {
+                call_ng_debug_pointer_t* call = (call_ng_debug_pointer_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  ng_debug_pointer( (void*)(&mem[ call->ptr ]) ,    call->data    );
 
                 return FUNCTION_RETURN_OK;
             }

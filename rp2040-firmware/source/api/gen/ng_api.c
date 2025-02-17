@@ -54,6 +54,7 @@ uint8_t audio_wav_load(uint8_t asset_id){
 
     {
         uint8_t call_result = (uint8_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -164,6 +165,7 @@ uint8_t audio_mod_pos(){
 
     {
         uint8_t call_result = (uint8_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -176,6 +178,21 @@ void gfx_renderqueue_add_id(uint8_t id){
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 12;
     func_data->id= id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:44
+void gfx_renderqueue_wipe(void){
+    uint8_t result_code;
+    call_gfx_renderqueue_wipe_t* func_data;
+    func_data = (call_gfx_renderqueue_wipe_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 44;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -214,6 +231,7 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount){
 
     {
         uint8_t call_result = (uint8_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -300,6 +318,7 @@ uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* ani
 
     {
         uint8_t call_result = (uint8_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -318,6 +337,7 @@ bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type)
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -435,7 +455,8 @@ gfx_pixelbuffer_t* gfx_pixelbuffer_get_current(void){
     // TODO: resultcode some error checking?!
 
     {
-        gfx_pixelbuffer_t* call_result = (gfx_pixelbuffer_t*)*mem_call_result;
+
+        gfx_pixelbuffer_t* call_result = (gfx_pixelbuffer_t*)*(uint16_t*)mem_call_result;
         return call_result;
     }
 }   
@@ -472,6 +493,7 @@ bool gfx_mount_set_page(uint8_t mount_id, uint8_t page){
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -539,6 +561,7 @@ uint16_t gfx_get_palettecolor(uint8_t color_idx){
 
     {
         uint16_t call_result = (uint16_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -590,6 +613,7 @@ uint8_t  gfx_get_pixel(uint16_t x, uint16_t y){
 
     {
         uint8_t call_result = (uint8_t)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -829,7 +853,62 @@ void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, ui
 
     }
 }   
+// returns: void f-grp:1 f-id:42
+void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb,uint8_t coltext,uint8_t col_bg){
+    uint8_t result_code;
+    call_gfx_debug_drawinfo_pixelbuffer_t* func_data;
+    func_data = (call_gfx_debug_drawinfo_pixelbuffer_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 42;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->pxb=(uint16_t) pxb;
+    func_data->coltext= coltext;
+    func_data->col_bg= col_bg;
 
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:43
+void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg){
+    uint8_t result_code;
+    call_gfx_debug_drawinfo_keyboard_t* func_data;
+    func_data = (call_gfx_debug_drawinfo_keyboard_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 43;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->keyb=(uint16_t) keyb;
+    func_data->coltext= coltext;
+    func_data->col_bg= col_bg;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
+// returns: void f-grp:1 f-id:8
+void io_before_tick(void){
+    uint8_t result_code;
+    call_io_before_tick_t* func_data;
+    func_data = (call_io_before_tick_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 2;
+    func_data->hdr.func_id = 8;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 // returns: bool f-grp:1 f-id:1
 bool io_keyboard_is_pressed(uint8_t keycode){
     uint8_t result_code;
@@ -844,6 +923,7 @@ bool io_keyboard_is_pressed(uint8_t keycode){
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -861,6 +941,7 @@ bool io_keyboard_is_down(uint8_t keycode){
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -878,6 +959,7 @@ bool io_keyboard_is_released(uint8_t keycode){
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -927,6 +1009,7 @@ bool io_gamepad_is_active(uint8_t gamepad_id){
 
     {
         bool call_result = (bool)*mem_call_result;
+
         return call_result;
     }
 }   
@@ -945,9 +1028,42 @@ void io_input_clear_states(void){
 
     }
 }   
+// returns: void f-grp:1 f-id:9
+void io_lock_input(bool lock_it){
+    uint8_t result_code;
+    call_io_lock_input_t* func_data;
+    func_data = (call_io_lock_input_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 2;
+    func_data->hdr.func_id = 9;
+    func_data->lock_it= lock_it;
 
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+
+// returns: uint16_t f-grp:1 f-id:2
+uint16_t utils_random_uint16(){
+    uint8_t result_code;
+    call_utils_random_uint16_t* func_data;
+    func_data = (call_utils_random_uint16_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 6;
+    func_data->hdr.func_id = 2;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint16_t call_result = (uint16_t)*mem_call_result;
+
+        return call_result;
+    }
+}   
 // returns: void f-grp:1 f-id:1
-void     ng_debug_value(uint8_t v1, uint8_t v2){
+void     ng_debug_value(uint16_t v1,uint16_t v2){
     uint8_t result_code;
     call_ng_debug_value_t* func_data;
     func_data = (call_ng_debug_value_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
@@ -955,6 +1071,23 @@ void     ng_debug_value(uint8_t v1, uint8_t v2){
     func_data->hdr.func_id = 1;
     func_data->v1= v1;
     func_data->v2= v2;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:3
+void ng_debug_pointer(void* ptr, uint8_t data){
+    uint8_t result_code;
+    call_ng_debug_pointer_t* func_data;
+    func_data = (call_ng_debug_pointer_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 6;
+    func_data->hdr.func_id = 3;
+    func_data->ptr=(uint16_t) ptr;
+    func_data->data= data;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!

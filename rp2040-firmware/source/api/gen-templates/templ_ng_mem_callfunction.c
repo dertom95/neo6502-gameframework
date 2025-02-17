@@ -25,6 +25,7 @@ uint8_t call_function()
                 /*name:if|auto|if:@return_type=='uint16_t',*((uint16_t*)call_buffer_return)=swap16(call_result);,*//*endname*/
                 /*name:if|auto|if:@return_type=='uint8_t',*call_buffer_return=call_result;,*//*endname*/
                 /*name:if|auto|if:@return_type=='bool',*call_buffer_return=(uint8_t)call_result;,*//*endname*/
+                /*name:if|auto|if:'*' in @return_type,*(uint16_t*)call_buffer_return = (uint16_t)(intptr_t)call_result-(intptr_t)mem;, */ /*endname*/
                 return FUNCTION_RETURN_OK;
             }
 /*endblock:function*/            

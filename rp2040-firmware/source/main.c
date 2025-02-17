@@ -72,7 +72,7 @@ int32_t last_sound_ms = 0;
 int32_t msCount = 0;
 int32_t tps = 0;
 int32_t fps=0;
-uint32_t tick_counter = 0;
+volatile uint32_t tick_counter = 0;
 
 #ifndef INCLUDE_DATA
 void* assets_data = 0;
@@ -145,13 +145,22 @@ void main_loop(void* data)
        // gfx_draw_printf(0,20,COL_WHITE,"ticks:%06d counter:%d",tickscpu,mem[0x2000]);
         //printf("ticks:%06d counter:%d addr:%04x data:%02x\n",tickscpu,mem[0x2000],last_address,last_data);
 
+        bool short_frame = tick_counter < frame_len;
+        if (!short_frame){
+           // io_before_tick();
+#ifdef _MOD_NATIVE_
+            ng_cpu_update();
+#endif            
+        }
+
+#ifndef _MOD_NATIVE_
         ng_cpu_update();
-        if (tick_counter < frame_len){
+#endif        
+        if (short_frame){
             continue;
         }
         gfx_update();
 
-        io_before_tick();
     // gfx_draw();
       //  game_tick(tick_counter);
 

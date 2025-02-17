@@ -24,7 +24,7 @@ void ng_cpu_init(void){
     mod_init();
 }
 
-uint16_t timer=0;
+int32_t timer=0;
 
 void ng_cpu_update(void){
     if (!cpu_running){

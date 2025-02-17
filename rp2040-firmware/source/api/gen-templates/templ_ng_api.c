@@ -20,7 +20,8 @@ const volatile uint8_t* mem_call_result   = (uint8_t*)MEMORY_MAP_CALLRETURN_BUFF
     // TODO: resultcode some error checking?!
 
     {
-        /*name:if|auto|if:@return_type!='void',@return_type call_result = (@return_type)*mem_call_result;,*//*endname*/
+        /*name:if|auto|if:@return_type!='void' and '*' not in @return_type,@return_type call_result = (@return_type)*mem_call_result;,*//*endname*/
+        /*name:if|auto|if:@return_type!='void' and '*' in @return_type,@return_type call_result = (@return_type)*(uint16_t*)mem_call_result;,*//*endname*/
         /*name:if|auto|if:@return_type!='void',return call_result;,*//*endname*/
     }
 }   

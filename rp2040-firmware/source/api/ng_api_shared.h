@@ -12,6 +12,7 @@
 #define KEYBMAP_FLAG_SCAN_KEY_DOWN (1 << 1)
 // the key was just released
 #define KEYBMAP_FLAG_SCAN_KEY_RELEASED (1 << 2)
+#define KEYBMAP_FLAG_SCAN_ALL KEYBMAP_FLAG_SCAN_KEY_PRESSED|KEYBMAP_FLAG_SCAN_KEY_DOWN|KEYBMAP_FLAG_SCAN_KEY_RELEASED
 
 // TODO: split those in API-Header of their domain!
 
@@ -65,7 +66,6 @@ typedef struct ng_mem_block_t
 
 #define PXBFLAG_DIRTY (1 << 0)
 #define PXBFLAG_VISIBLE (1 << 1)
-
 
 
 typedef struct TU_ATTR_PACKED

@@ -1,5 +1,5 @@
 # helper calls
-MOD_DIR := mod-flappy
+MOD_DIR := mod-tests
 
 
 build:

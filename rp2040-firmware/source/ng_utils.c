@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
+#include<string.h>
 
 #include "ng_defines.h"
 
@@ -26,10 +27,16 @@ idstore_t idstore={0};
 
 volatile int b = 0;
 
-void ng_debug_value(uint8_t v1, uint8_t v2){
+void ng_debug_value(uint16_t v1, uint16_t v2){
     int a=0;
     b = v1;
     //printf("a");
+}
+
+void ng_debug_pointer(void* ptr, uint8_t data){
+    int a=0;
+    data = 0;
+    printf("a");
 }
 
 void id_init(uint8_t max_ids){
@@ -118,4 +125,25 @@ void ll_remove(linked_list_t** start, linked_list_t* element) {
         prev->next = current->next;
         current->next = NULL;
     }
+}
+
+
+static uint16_t lfsr = 0xABCD; // Initial seed (can be any non-zero value)
+uint16_t utils_random_uint16() {
+    // Perform the LFSR operation
+    uint16_t lsb = lfsr & 1; // Get the least significant bit
+    lfsr >>= 1;             // Shift right
+    if (lsb) {
+        lfsr ^= 0xB400;     // XOR with a 16-bit polynomial (e.g., 0xB400)
+    }
+    return lfsr;          
+}
+
+char binary_str[9];
+const char* utils_char_to_binstring(uint8_t value) {
+    for (int i = 7; i >= 0; i--) {
+        binary_str[7 - i] = (value & (1 << i)) ? '1' : '0';
+    }
+    binary_str[8] = '\0'; // Null-terminate the string
+    return binary_str;
 }
