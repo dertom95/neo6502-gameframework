@@ -299,42 +299,37 @@ int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 #define flags_mask_value(INPUT,MASK) (INPUT&(MASK))
 #define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&(MASK))==VALUE)
 
-#define MM_SB MEMORY_MAP_VARS_START /* memory-location where the memory-mapping starts */
-#define MM_LAST_KB_CHAR (MM_SB)
-#define MM_LAST_KB_KEYCODE (MM_LAST_KB_CHAR + 1)
-#define MM_MOUSE_X (MM_LAST_KB_KEYCODE + 1)     /* uint16 */
-#define MM_MOUSE_Y (MM_MOUSE_X + sizeof(uint16_t))     /* uint16 */
-#define MM_MOUSE_BTN (MM_MOUSE_Y + sizeof(uint16_t))   /* uint8 */
-#define MM_MOUSE_WHEEL (MM_MOUSE_BTN + sizeof(uint8_t)) /* int8 */
-#define MM_MOUSE_BTN_PRESSED (MM_MOUSE_WHEEL + sizeof(int8_t)) /*uint8*/
-#define MM_MOUSE_BTN_RELEASED (MM_MOUSE_BTN_PRESSED + sizeof(uint8_t)) /*uint8*/
+/* memory-location where the memory-mapping starts */
+#define MM_LAST_KB_CHAR (MEMORY_MAP_VARMAPS_END-1) /*uint8_t*/
+#define MM_LAST_KB_KEYCODE (MM_LAST_KB_CHAR - 1) /*uint8_t*/
+#define MM_MOUSE_X (MM_LAST_KB_KEYCODE - sizeof(uint16_t)) /* uint16 */
+#define MM_MOUSE_Y (MM_MOUSE_X - sizeof(uint16_t))     /* uint16 */
+#define MM_MOUSE_BTN (MM_MOUSE_Y - sizeof(uint8_t))   /* uint8 */
+#define MM_MOUSE_WHEEL (MM_MOUSE_BTN - sizeof(int8_t)) /* int8 */
+#define MM_MOUSE_BTN_PRESSED (MM_MOUSE_WHEEL - sizeof(uint8_t)) /*uint8*/
+#define MM_MOUSE_BTN_RELEASED (MM_MOUSE_BTN_PRESSED - sizeof(uint8_t)) /*uint8*/
 
-#define MM_CYCLE_TICKS (MM_MOUSE_BTN_RELEASED + sizeof(uint8_t)) /* uint16_t*/
-#define MM_MS_DELTA (MM_CYCLE_TICKS + sizeof(uint16_t))    /* uint16_t*/
-#define MM_GAMEPAD (MM_MS_DELTA + sizeof(uint16_t)) /* gamepad_t 11bytes*/ // TODO: remove this?
-#define MM_GAMEPAD_INFO (MM_GAMEPAD + 13) /* gamepad infos 1byte*/
+#define MM_CYCLE_TICKS (MM_MOUSE_BTN_RELEASED - sizeof(uint16_t)) /* uint16_t*/
+#define MM_MS_DELTA (MM_CYCLE_TICKS - sizeof(uint16_t))    /* uint16_t*/
+#define MM_GAMEPAD (MM_MS_DELTA - 13) /* gamepad_t 11bytes*/ // TODO: remove this?
+#define MM_GAMEPAD_INFO (MM_GAMEPAD - 1) /* /uint8_t*/
 // current state (down)
-#define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO + 0x01) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD3_STATE (MM_GAMEPAD2_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD4_STATE (MM_GAMEPAD3_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD1_STATE (MM_GAMEPAD_INFO - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE (MM_GAMEPAD1_STATE - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE (MM_GAMEPAD2_STATE - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE (MM_GAMEPAD3_STATE - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 // pressed
-#define MM_GAMEPAD1_STATE_PRESSED (MM_GAMEPAD4_STATE + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD2_STATE_PRESSED (MM_GAMEPAD1_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD3_STATE_PRESSED (MM_GAMEPAD2_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD4_STATE_PRESSED (MM_GAMEPAD3_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD1_STATE_PRESSED (MM_GAMEPAD4_STATE - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE_PRESSED (MM_GAMEPAD1_STATE_PRESSED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE_PRESSED (MM_GAMEPAD2_STATE_PRESSED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE_PRESSED (MM_GAMEPAD3_STATE_PRESSED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 // released
-#define MM_GAMEPAD1_STATE_RELEASED (MM_GAMEPAD4_STATE_PRESSED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD2_STATE_RELEASED (MM_GAMEPAD1_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD3_STATE_RELEASED (MM_GAMEPAD2_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
-#define MM_GAMEPAD4_STATE_RELEASED (MM_GAMEPAD3_STATE_RELEASED + sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD1_STATE_RELEASED (MM_GAMEPAD4_STATE_PRESSED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD2_STATE_RELEASED (MM_GAMEPAD1_STATE_RELEASED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD3_STATE_RELEASED (MM_GAMEPAD2_STATE_RELEASED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
+#define MM_GAMEPAD4_STATE_RELEASED (MM_GAMEPAD3_STATE_RELEASED - sizeof(gamepad_state_t)) /* gamepad-state 2bytes*/
 
-#define MM_SCANLINE (MM_GAMEPAD4_STATE_RELEASED + sizeof(gamepad_state_t)) /* uint8_t */
-
-#define MM_FUNCS MEMORY_MAP_FUNC_START /* memory-location where the memory-mapping starts */
-#define MM_FUNC_CALL (MM_FUNCS + 0x00)   /* uint8 */
-
-
+#define MM_SCANLINE (MM_GAMEPAD4_STATE_RELEASED - sizeof(uint8_t)) /* uint8_t */
 
 #define PALETTE_SIZE 255
 #define COL_TRANSPARENT 255
