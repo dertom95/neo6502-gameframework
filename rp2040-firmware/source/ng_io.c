@@ -17,6 +17,10 @@ bool input_locked = false;
 // runtime data to work on
 mouse_report_t mouse_report;
 
+gamepad_state_t gamepad_down[GAMEPAD_MAX_DEVICES]={0};
+gamepad_state_t gamepad_pressed[GAMEPAD_MAX_DEVICES] = {0};
+gamepad_state_t gamepad_released[GAMEPAD_MAX_DEVICES] = {0};
+
 #define KBDMAP_FLAG_INUSE (1 << 0)
 
 keyboard_environment_t kenv = {0};
@@ -90,7 +94,9 @@ void io_init(void)
 {
     for (int i = 0; i < GAMEPAD_MAX_DEVICES; i++)
     {
-        gamepad_state_t *current_state = &mm_gamepad_down[i];
+        gamepad_down[i]=(gamepad_state_t){0};
+        gamepad_pressed[i]=(gamepad_state_t){0};
+        gamepad_released[i]=(gamepad_state_t){0};
     }
     io_backend_init();
 }
@@ -114,6 +120,18 @@ void io_after_tick(void)
 
 }
 
+static void update_gamepad(void){
+    for (int i = 0; i < GAMEPAD_MAX_DEVICES; i++)
+    {
+        if (io_gamepad_is_active(i))
+        {
+            mm_gamepad_pressed[i] = gamepad_pressed[i];
+            mm_gamepad_released[i] = gamepad_released[i];
+            mm_gamepad_down[i] = gamepad_down[i];
+        }
+    } 
+}
+
 // clear pressed/released-states
 static void io_input_clear_state_gamepad(void)
 {
@@ -121,9 +139,8 @@ static void io_input_clear_state_gamepad(void)
     {
         if (io_gamepad_is_active(i))
         {
-            gamepad_state_t *current_state = &mm_gamepad_down[i];
-            mm_gamepad_pressed[i] = (gamepad_state_t){0};
-            mm_gamepad_released[i] = (gamepad_state_t){0};
+            gamepad_pressed[i] = (gamepad_state_t){0};
+            gamepad_released[i] = (gamepad_state_t){0};
         }
     }
 }
@@ -165,6 +182,7 @@ void io_before_tick(void)
     update_mouse();
     io_input_clear_state_mouse();
     
+    update_gamepad();
     io_input_clear_state_gamepad();
 
     

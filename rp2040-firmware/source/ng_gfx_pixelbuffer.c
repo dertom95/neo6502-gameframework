@@ -601,9 +601,28 @@ void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* key
 }
 
 void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg) {
-    gfx_draw_printf(x,y,coltext,col_bg,"m: x:%d y:%d w:%d\np:%d d:%d r:%d",*mm_mouse_x,*mm_mouse_y,*mm_mouse_wheel,*mm_mouse_btn_state_pressed,*mm_mouse_btn_state,*mm_mouse_btn_state_released);
+    gfx_draw_printf(x,y,coltext,col_bg,"m: x:%d y:%d w:%d\np:%d d:%d r:%d"
+                        ,*mm_mouse_x
+                        ,*mm_mouse_y
+                        ,*mm_mouse_wheel
+                        ,*mm_mouse_btn_state_pressed
+                        ,*mm_mouse_btn_state
+                        ,*mm_mouse_btn_state_released
+    );
 }
 
 void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg) {
+    gamepad_state_t* gp_pressed = &mm_gamepad_pressed[gamepad_idx];
+    gamepad_state_t* gp_down = &mm_gamepad_down[gamepad_idx];
+    gamepad_state_t* gp_released = &mm_gamepad_released[gamepad_idx];
 
+    gfx_draw_printf(x,y,coltext,col_bg,"g%d p:%d|%d d:%d|%d r:%d|%d"
+            ,gamepad_idx
+            ,gp_pressed->controls
+            ,gp_pressed->buttons
+            ,gp_down->controls
+            ,gp_down->buttons
+            ,gp_released->controls
+            ,gp_released->buttons
+    );
 }

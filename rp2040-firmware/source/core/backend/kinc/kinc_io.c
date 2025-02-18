@@ -806,7 +806,7 @@ void gamepad_device_tracer_glider(gamepad_registration_t* gamepad_registration, 
 
 void gamepad_device_handler(gamepad_mapping_t* mapping, int gamepad_idx, void* _report) {
     kinc_gamepad_report_t* report = (kinc_gamepad_report_t*)_report;
-    gamepad_state_t* gamepad_state = &mm_gamepad_down[gamepad_idx];
+    gamepad_state_t* gamepad_state = &gamepad_down[gamepad_idx];
 
     if (bit_is_set_some(report->flags, GP_REPORT_TYPE_AXIS)) {
         uint8_t axis = report->number;
@@ -815,24 +815,24 @@ void gamepad_device_handler(gamepad_mapping_t* mapping, int gamepad_idx, void* _
             // Handle left-right axis
             if (report->value * mapping->lr_invert == -1) {
                 gamepad_state->controls |= GP_D_LEFT;
-                mm_gamepad_pressed->controls |= GP_D_LEFT;
+                gamepad_pressed->controls |= GP_D_LEFT;
             } else if (report->value * mapping->lr_invert == 1) {
                 gamepad_state->controls |= GP_D_RIGHT;
-                mm_gamepad_pressed->controls |= GP_D_RIGHT;
+                gamepad_pressed->controls |= GP_D_RIGHT;
             } else {
-                mm_gamepad_released->controls |= (GP_D_LEFT | GP_D_RIGHT) & (gamepad_state->controls);
+                gamepad_released->controls |= (GP_D_LEFT | GP_D_RIGHT) & (gamepad_state->controls);
                 gamepad_state->controls &= ~(GP_D_LEFT | GP_D_RIGHT);
             }
         } else if (axis == mapping->axis_ud) {
             // Handle up-down axis
             if (report->value * mapping->ud_invert == -1) {
                 gamepad_state->controls |= GP_D_UP;
-                mm_gamepad_pressed->controls |= GP_D_UP;
+                gamepad_pressed->controls |= GP_D_UP;
             } else if (report->value * mapping->ud_invert == 1) {
                 gamepad_state->controls |= GP_D_DOWN;
-                mm_gamepad_pressed->controls |= GP_D_DOWN;
+                gamepad_pressed->controls |= GP_D_DOWN;
             } else {
-                mm_gamepad_released->controls |= (GP_D_UP | GP_D_DOWN) & (gamepad_state->controls);
+                gamepad_released->controls |= (GP_D_UP | GP_D_DOWN) & (gamepad_state->controls);
                 gamepad_state->controls &= ~(GP_D_UP | GP_D_DOWN);
             }
         }
@@ -845,11 +845,11 @@ void gamepad_device_handler(gamepad_mapping_t* mapping, int gamepad_idx, void* _
             if (report->value == 1) {
                 // Button pressed
                 gamepad_state->buttons |= mapped_button;
-                mm_gamepad_pressed->buttons |= mapped_button;
+                gamepad_pressed->buttons |= mapped_button;
             } else {
                 // Button released
                 gamepad_state->buttons &= ~mapped_button;
-                mm_gamepad_released->buttons |= mapped_button;
+                gamepad_released->buttons |= mapped_button;
             }
         }
     }

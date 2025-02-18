@@ -26,6 +26,9 @@ typedef struct gamepad_registration_t gamepad_registration_t;
 
 typedef void (*gamepad_function_t)(gamepad_registration_t*, void*);
 
+extern gamepad_state_t gamepad_down[];
+extern gamepad_state_t gamepad_pressed[];
+extern gamepad_state_t gamepad_released[];
 
 extern mouse_report_t mouse_report;
 extern bool _keyboard_connected;

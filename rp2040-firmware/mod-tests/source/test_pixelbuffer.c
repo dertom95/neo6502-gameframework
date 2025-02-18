@@ -9,6 +9,8 @@
 #define _mouse_released *MEMPTR(MM_MOUSE_BTN_RELEASED)
 #define _mouse_down *MEMPTR(MM_MOUSE_BTN)
 
+gamepad_state_t* gp0_pressed;
+
 #define KEY_F1 (1 << 0)
 #define KEY_F2 (1 << 1)
 #define KEY_F3 (1 << 2)
@@ -30,6 +32,7 @@ void draw_debug(){
     gfx_debug_drawinfo_pixelbuffer(0,0,&ctx->pxb,COL_BLACK,COL_WHITE);
     gfx_debug_drawinfo_keyboard(0,16,&ctx->keyb,COL_BLACK,COL_GREY_7_LIGHT);
     gfx_debug_drawinfo_mouse(0,40,COL_BLACK,COL_GREY_4);
+    gfx_debug_drawinfo_gamepad(0,56,0,COL_BLACK,COL_GREY_7_LIGHT);
 }
 
 
@@ -43,8 +46,7 @@ void test1_init() {
         .height = 240 / 2
     };
 
-
-
+    gp0_pressed = MEMPTR(MM_GAMEPAD1_STATE_PRESSED);
 
     ctx->keyb = (keyboard_mapping_t){
         .flags = KEYBMAP_FLAG_SCAN_ALL,
@@ -133,6 +135,11 @@ void test1_update() {
     bool mouse_middle_pressed = bit_is_set_all(mouse_btn_state_pressed, MOUSE_BTN_MIDDLE);
     bool mouse_right_pressed = bit_is_set_all(mouse_btn_state_pressed, MOUSE_BTN_RIGHT);
 
+    bool gp_left = bit_is_set_all(gp0_pressed->controls,GP_D_LEFT);
+    bool gp_right = bit_is_set_all(gp0_pressed->controls,GP_D_RIGHT);
+    bool gp_up = bit_is_set_all(gp0_pressed->controls,GP_D_UP);
+    bool gp_down = bit_is_set_all(gp0_pressed->controls,GP_D_DOWN);
+
     if (mouse_left_pressed){
         int a=0;
     }
@@ -169,16 +176,16 @@ void test1_update() {
 
 
         // arrows
-        if (flags_isset(key_pressed,KEY_UP)){
+        if (flags_isset(key_pressed,KEY_UP) || gp_up){
             move_pixelbuffer(0,-1);
         }
-        if (flags_isset(key_pressed,KEY_DOWN)){
+        if (flags_isset(key_pressed,KEY_DOWN) || gp_down){
             move_pixelbuffer(0,1);
         }
-        if (flags_isset(key_pressed,KEY_LEFT) || mouse_left_pressed){
+        if (flags_isset(key_pressed,KEY_LEFT) || mouse_left_pressed || gp_left){
             move_pixelbuffer(-1,0);
         }
-        if (flags_isset(key_pressed,KEY_RIGHT) || mouse_right_pressed){
+        if (flags_isset(key_pressed,KEY_RIGHT) || mouse_right_pressed || gp_right){
             move_pixelbuffer(1,0);
         }
     } else {
