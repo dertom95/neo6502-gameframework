@@ -71,7 +71,7 @@ void memory_init() {
   mm_cycle_ticks = (uint16_t*)&mem[MM_CYCLE_TICKS];
   *mm_cycle_ticks=0;
 
- 
+
   mm_keyboard_last_pressed_char = MEM6502_CHPTR(MM_LAST_KB_CHAR);
   *mm_keyboard_last_pressed_char=0;
   mm_keyboard_last_pressed_keycode = MEM6502_U8PTR(MM_LAST_KB_KEYCODE);

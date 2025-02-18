@@ -11,12 +11,23 @@ typedef struct keyboard_environment_t {
   keyboard_mapping_t* keyboardmappings;
 } keyboard_environment_t;
 
+typedef struct mouse_report_t {
+    int16_t mouse_x;
+    int16_t mouse_y;
+    uint8_t mouse_btn_state;
+    uint8_t mouse_btn_state_pressed;
+    uint8_t mouse_btn_state_released;
+    int8_t  mouse_wheel;
+} mouse_report_t;
+
+#define KEYBOARD_REPORT_MAX_KEYCODES 6
+
 typedef struct gamepad_registration_t gamepad_registration_t;
 
 typedef void (*gamepad_function_t)(gamepad_registration_t*, void*);
 
 
-
+extern mouse_report_t mouse_report;
 extern bool _keyboard_connected;
 extern bool _mouse_connected;
 
@@ -27,6 +38,7 @@ void io_after_tick(void);
 void io_backend_init(void);
 void io_backend_before_tick(void);
 void io_backend_after_tick(void);
+void io_backend_clear_state(void);
 
 bool io_keyboard_connected(void);
 bool io_mouse_connected(void);
@@ -50,7 +62,7 @@ bool io_mouse_connected(void);
 uint8_t io_keycode_to_ascii(uint8_t keycode);
 
 /*api:2:6*/bool io_gamepad_is_active(uint8_t gamepad_id);
-/*api:2:7*/void io_input_clear_states(void);
+///*api:2:7*/void io_input_clear_states(void);
 /*api:2:9*/void io_lock_input(bool lock_it);
 
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 2:9

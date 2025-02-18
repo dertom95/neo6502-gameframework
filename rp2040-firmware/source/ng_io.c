@@ -14,6 +14,9 @@ bool _mouse_connected = false;
 // in locked state the currentstate will not be cleared by clear_state
 bool input_locked = false;
 
+// runtime data to work on
+mouse_report_t mouse_report;
+
 #define KBDMAP_FLAG_INUSE (1 << 0)
 
 keyboard_environment_t kenv = {0};
@@ -25,13 +28,27 @@ keyboard_environment_t kenv = {0};
 
 bool was_set = false;
 
+static void update_mouse(){
+    *mm_mouse_x = mouse_report.mouse_x;
+    *mm_mouse_y = mouse_report.mouse_y;
+    *mm_mouse_btn_state = mouse_report.mouse_btn_state;
+    *mm_mouse_btn_state_pressed = mouse_report.mouse_btn_state_pressed;
+    *mm_mouse_btn_state_released = mouse_report.mouse_btn_state_released;
+    *mm_mouse_wheel = mouse_report.mouse_wheel;
+}
+
 static void update_keymapping(keyboard_mapping_t *keymap)
 {
+    keymap->key_pressed = 0;
+    keymap->key_released = 0;
+    keymap->key_down = 0;
+
     //calls_update++;
     // keymap->key_down=0;
     for (int i = 0; i < 8; i++)
     {
         uint8_t keycode = keymap->keycodes[i];
+
         if (keycode == 0)
         {
             continue;
@@ -78,12 +95,7 @@ void io_init(void)
     io_backend_init();
 }
 
-void io_before_tick(void)
-{
-    io_lock_input(false);
-    // TODO: implement some kind of mapping to only update on request/memoryread (but ensure that is not done a 2mhz)
-    update_all_keymappings();
-}
+
 
 bool io_gamepad_is_active(uint8_t gamepad_id)
 {
@@ -99,17 +111,12 @@ bool io_gamepad_is_active(uint8_t gamepad_id)
 void io_after_tick(void)
 {
     io_backend_after_tick();
+
 }
 
 // clear pressed/released-states
-void io_input_clear_states(void)
+static void io_input_clear_state_gamepad(void)
 {
-    if (input_locked){
-        return;
-    }
-    // calls_clearstate++;
-    // printf("clear state! cs:%d up:%d\n",calls_clearstate,calls_update);
-    // clear gamepad
     for (int i = 0; i < GAMEPAD_MAX_DEVICES; i++)
     {
         if (io_gamepad_is_active(i))
@@ -119,7 +126,9 @@ void io_input_clear_states(void)
             mm_gamepad_released[i] = (gamepad_state_t){0};
         }
     }
+}
 
+static void io_input_clear_state_keyboard(void){
     // clear keyboard
     keyboard_mapping_t *keymap = kenv.keyboardmappings;
     uint8_t count = kenv.keyboardmapping_amount;
@@ -134,14 +143,31 @@ void io_input_clear_states(void)
         keymap->key_down = 0;
         keymap++;
     }
-
-    // clear mouse
-    *mm_mouse_btn_state_pressed = 0;
-    *mm_mouse_btn_state_released = 0;
-
+    
     *mm_keyboard_last_pressed_char = 0;
     *mm_keyboard_last_pressed_keycode = 0;
+}
 
+
+static void io_input_clear_state_mouse(void){
+    // clear mouse
+    mouse_report.mouse_btn_state_pressed = 0;
+    mouse_report.mouse_btn_state_released = 0;
+    mouse_report.mouse_wheel = 0;
+}
+
+void io_before_tick(void)
+{
+    // clear keyboard state
+    io_input_clear_state_keyboard();
+    update_all_keymappings();
+
+    update_mouse();
+    io_input_clear_state_mouse();
+    
+    io_input_clear_state_gamepad();
+
+    
     io_backend_clear_state();
 }
 

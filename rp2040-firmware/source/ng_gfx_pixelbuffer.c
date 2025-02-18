@@ -560,6 +560,27 @@ void gfx_draw_tilemap_layer(int16_t x,int16_t y, gfx_tilemap_layer_t* tilemap_la
     }
 }
 
+void gfx_draw_printf(uint16_t x, uint16_t y, uint8_t color_idx, uint8_t bg_idx, const char *format, ...) {
+    // Temporary buffer to hold the formatted string
+    char temp_txt_buf[80]={0};
+
+    // Initialize the variable argument list
+    va_list args;
+    va_start(args, format);
+
+    // Format the string using snprintf and the provided arguments
+    vsnprintf(temp_txt_buf, sizeof(temp_txt_buf), format, args);
+
+    // End the variable argument list
+    va_end(args);
+
+    // Draw the formatted text on the screen
+    gfx_draw_text(x, y, temp_txt_buf, color_idx, bg_idx);
+}
+
+// █▀▄ ██▀ ██▄ █ █ ▄▀  █▀ █ █ █▄ █ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀ 
+// █▄▀ █▄▄ █▄█ ▀▄█ ▀▄█ █▀ ▀▄█ █ ▀█ ▀▄▄  █  █ ▀▄▀ █ ▀█ ▄█▀ 
+
 void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb, uint8_t color_idx, uint8_t bg_idx)
 {
     uint8_t px,py;
@@ -577,4 +598,12 @@ void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* key
     gfx_draw_text(x,y+8,temp_txt_buf,coltext,col_bg);
     snprintf(temp_txt_buf,40,"released: %s",utils_char_to_binstring(keyb->key_released));    
     gfx_draw_text(x,y+16,temp_txt_buf,coltext,col_bg);
+}
+
+void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg) {
+    gfx_draw_printf(x,y,coltext,col_bg,"m: x:%d y:%d w:%d\np:%d d:%d r:%d",*mm_mouse_x,*mm_mouse_y,*mm_mouse_wheel,*mm_mouse_btn_state_pressed,*mm_mouse_btn_state,*mm_mouse_btn_state_released);
+}
+
+void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg) {
+
 }

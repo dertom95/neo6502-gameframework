@@ -397,6 +397,20 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 45: {
+                call_gfx_debug_drawinfo_mouse_t* call = (call_gfx_debug_drawinfo_mouse_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_debug_drawinfo_mouse(  swap16(call->x)  ,    swap16(call->y)  ,    call->coltext  ,    call->col_bg    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 46: {
+                call_gfx_debug_drawinfo_gamepad_t* call = (call_gfx_debug_drawinfo_gamepad_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_debug_drawinfo_gamepad(  swap16(call->x)  ,    swap16(call->y)  ,    call->gamepad_idx  ,    call->coltext  ,    call->col_bg    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
         }
     }
 
@@ -456,13 +470,6 @@ uint8_t call_function()
                 bool call_result =  io_gamepad_is_active(  call->gamepad_id    );
 
                 *call_buffer_return=(uint8_t)call_result;
-
-                return FUNCTION_RETURN_OK;
-            }
-
-            case 7: {
-                call_io_input_clear_states_t* call = (call_io_input_clear_states_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  io_input_clear_states();
 
                 return FUNCTION_RETURN_OK;
             }

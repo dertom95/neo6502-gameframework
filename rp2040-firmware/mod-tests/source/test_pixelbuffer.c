@@ -2,12 +2,12 @@
 
 #include <stdlib.h>
 
-#define ng_ms_delta MEMPTR(MM_MS_DELTA)
-#define mouse_x MEMPTR(MM_MOUSE_X)
-#define mouse_y MEMPTR(MM_MOUSE_Y)
-#define mouse_pressed MEMPTR(MM_MOUSE_BTN_PRESSED)
-#define mouse_released MEMPTR(MM_MOUSE_BTN_RELEASED)
-#define mouse_down MEMPTR(MM_MOUSE_BTN)
+#define ng_ms_delta *MEMPTR(MM_MS_DELTA)
+#define _mouse_x *MEMPTR(MM_MOUSE_X)
+#define _mouse_y *MEMPTR(MM_MOUSE_Y)
+#define _mouse_pressed *MEMPTR(MM_MOUSE_BTN_PRESSED)
+#define _mouse_released *MEMPTR(MM_MOUSE_BTN_RELEASED)
+#define _mouse_down *MEMPTR(MM_MOUSE_BTN)
 
 #define KEY_F1 (1 << 0)
 #define KEY_F2 (1 << 1)
@@ -29,6 +29,7 @@ TestContext* ctx = NULL;
 void draw_debug(){
     gfx_debug_drawinfo_pixelbuffer(0,0,&ctx->pxb,COL_BLACK,COL_WHITE);
     gfx_debug_drawinfo_keyboard(0,16,&ctx->keyb,COL_BLACK,COL_GREY_7_LIGHT);
+    gfx_debug_drawinfo_mouse(0,40,COL_BLACK,COL_GREY_4);
 }
 
 
@@ -119,16 +120,31 @@ typedef enum ActionState {
 } ActionState;
 
 ActionState action_state = as_none;
+uint16_t last_mx=0,last_my=0;
 
 void test1_update() {
     io_before_tick();
-    io_lock_input(true);
+
     uint8_t key_pressed = ctx->keyb.key_pressed;
     uint8_t key_down = ctx->keyb.key_down;
+
+    uint8_t mouse_btn_state_pressed = _mouse_pressed;
+    bool mouse_left_pressed = bit_is_set_all(mouse_btn_state_pressed,MOUSE_BTN_LEFT);
+    bool mouse_middle_pressed = bit_is_set_all(mouse_btn_state_pressed, MOUSE_BTN_MIDDLE);
+    bool mouse_right_pressed = bit_is_set_all(mouse_btn_state_pressed, MOUSE_BTN_RIGHT);
+
+    if (mouse_left_pressed){
+        int a=0;
+    }
 
 //    bool key_ctrl_down = io_keyboard_is_down(HID_KEY_CONTROL_LEFT);
     bool key_ctrl_down = io_keyboard_is_down(HID_KEY_A);
     bool consumed = false;
+    int8_t md_x = _mouse_x - last_mx;
+    int8_t md_y = _mouse_y - last_my;
+    last_mx = _mouse_x;
+    last_my = _mouse_y;
+
     if (!key_ctrl_down){
         if (action_state != as_default_action){
             action_state = as_default_action;
@@ -138,39 +154,31 @@ void test1_update() {
         if (flags_isset(key_down,KEY_F1)){
             ng_debug_value(1,2);
             fill_pixelbuffer(FILLMODE_DEFAULT);
-            consumed = true;
         }  
         else if (flags_isset(key_pressed,KEY_F2)){
             fill_pixelbuffer(FILLMODE_RANDOM);
-            consumed = true;
         }
 
         // resize
         if (flags_isset(key_pressed,KEY_F3)){
-            consumed = true;
             resize_pixelbuffer(-1,-1);
         }
         else if (flags_isset(key_pressed,KEY_F4)){
-            consumed = true;
             resize_pixelbuffer(1,1);
         }
 
 
         // arrows
         if (flags_isset(key_pressed,KEY_UP)){
-            consumed = true;
             move_pixelbuffer(0,-1);
         }
         if (flags_isset(key_pressed,KEY_DOWN)){
-            consumed = true;
             move_pixelbuffer(0,1);
         }
-        if (flags_isset(key_pressed,KEY_LEFT)){
-            consumed = true;
+        if (flags_isset(key_pressed,KEY_LEFT) || mouse_left_pressed){
             move_pixelbuffer(-1,0);
         }
-        if (flags_isset(key_pressed,KEY_RIGHT)){
-            consumed = true;
+        if (flags_isset(key_pressed,KEY_RIGHT) || mouse_right_pressed){
             move_pixelbuffer(1,0);
         }
     } else {
@@ -180,30 +188,23 @@ void test1_update() {
         }
         // arrows
         if (flags_isset(key_down,KEY_UP)){
-            consumed = true;
             move_pixelbuffer(0,-1);
         }
         if (flags_isset(key_down,KEY_DOWN)){
-            consumed = true;
             move_pixelbuffer(0,1);
         }
         if (flags_isset(key_down,KEY_LEFT)){
-            consumed = true;
             move_pixelbuffer(-1,0);
         }
         if (flags_isset(key_down,KEY_RIGHT)){
-            consumed = true;
             move_pixelbuffer(1,0);
-        }        
+        }  
+        if (md_x!=0 || md_y!=0){
+            move_pixelbuffer(md_x,md_y);
+        }      
     }
-    if (consumed){
-        io_lock_input(false);
-    }
-
-    
 
     draw_debug();
-    io_input_clear_states();
 }
 
 void test1_clean() {

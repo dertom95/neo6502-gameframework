@@ -177,6 +177,10 @@ void gfx_load_tilemap_layer(gfx_tilemap_t* tm,gfx_tilemap_layer_t* out_layer, ui
 void gfx_debug_drawinfo_pixelbuffer(uint16_t x, uint16_t y, gfx_pixelbuffer_t* pxb,uint8_t coltext,uint8_t col_bg);
  // returns: void f-grp: f-id:43;
 void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
+ // returns: void f-grp: f-id:45;
+void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg);
+ // returns: void f-grp: f-id:46;
+void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg);
 
 // returns: void f-grp: f-id:12
 typedef struct call_gfx_renderqueue_add_id_t {
@@ -436,6 +440,23 @@ typedef struct call_gfx_debug_drawinfo_keyboard_t {
     uint8_t coltext;
     uint8_t col_bg;
 } call_gfx_debug_drawinfo_keyboard_t;
+// returns: void f-grp: f-id:45
+typedef struct call_gfx_debug_drawinfo_mouse_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint8_t coltext;
+    uint8_t col_bg;
+} call_gfx_debug_drawinfo_mouse_t;
+// returns: void f-grp: f-id:46
+typedef struct call_gfx_debug_drawinfo_gamepad_t {
+    call_header_t hdr;
+    uint16_t x;
+    uint16_t y;
+    uint8_t gamepad_idx;
+    uint8_t coltext;
+    uint8_t col_bg;
+} call_gfx_debug_drawinfo_gamepad_t;
 
 // function grp: 2
 
@@ -453,8 +474,6 @@ void io_keyboardmapping_register(keyboard_mapping_t* address, uint8_t amount);
 void   io_keyboardmapping_unregister(void);
  // returns: bool f-grp: f-id:6;
 bool io_gamepad_is_active(uint8_t gamepad_id);
- // returns: void f-grp: f-id:7;
-void io_input_clear_states(void);
  // returns: void f-grp: f-id:9;
 void io_lock_input(bool lock_it);
 
@@ -492,10 +511,6 @@ typedef struct call_io_gamepad_is_active_t {
     call_header_t hdr;
     uint8_t gamepad_id;
 } call_io_gamepad_is_active_t;
-// returns: void f-grp: f-id:7
-typedef struct call_io_input_clear_states_t {
-    call_header_t hdr;
-} call_io_input_clear_states_t;
 // returns: void f-grp: f-id:9
 typedef struct call_io_lock_input_t {
     call_header_t hdr;

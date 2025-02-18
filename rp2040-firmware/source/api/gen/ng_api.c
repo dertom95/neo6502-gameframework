@@ -893,6 +893,45 @@ void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* key
 
     }
 }   
+// returns: void f-grp:1 f-id:45
+void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg){
+    uint8_t result_code;
+    call_gfx_debug_drawinfo_mouse_t* func_data;
+    func_data = (call_gfx_debug_drawinfo_mouse_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 45;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->coltext= coltext;
+    func_data->col_bg= col_bg;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:46
+void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg){
+    uint8_t result_code;
+    call_gfx_debug_drawinfo_gamepad_t* func_data;
+    func_data = (call_gfx_debug_drawinfo_gamepad_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 46;
+    func_data->x= x;
+    func_data->y= y;
+    func_data->gamepad_idx= gamepad_idx;
+    func_data->coltext= coltext;
+    func_data->col_bg= col_bg;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
 
 // returns: void f-grp:1 f-id:8
 void io_before_tick(void){
@@ -1011,21 +1050,6 @@ bool io_gamepad_is_active(uint8_t gamepad_id){
         bool call_result = (bool)*mem_call_result;
 
         return call_result;
-    }
-}   
-// returns: void f-grp:1 f-id:7
-void io_input_clear_states(void){
-    uint8_t result_code;
-    call_io_input_clear_states_t* func_data;
-    func_data = (call_io_input_clear_states_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
-    func_data->hdr.func_type = 2;
-    func_data->hdr.func_id = 7;
-
-    result_code = *mem_call_function;
-    // TODO: resultcode some error checking?!
-
-    {
-
     }
 }   
 // returns: void f-grp:1 f-id:9

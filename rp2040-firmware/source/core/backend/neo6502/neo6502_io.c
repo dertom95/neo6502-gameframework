@@ -710,6 +710,7 @@ void io_backend_after_tick(void){
 
 void io_backend_clear_state(void){
    // TODO
+   
 }
 
 bool io_keyboard_is_pressed(uint8_t keycode){

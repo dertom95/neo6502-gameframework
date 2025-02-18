@@ -27,6 +27,15 @@ typedef struct keyboard_mapping_t
     uint8_t flags;
 } keyboard_mapping_t;
 
+typedef struct mouse_info_t 
+{
+    uint8_t pressed;
+    uint8_t down;
+    uint8_t released;
+    uint8_t btn;
+    int8_t wheel;
+} mouse_info_t;
+
 #define MOUSE_BTN_LEFT    (1 << 0)
 #define MOUSE_BTN_RIGHT   (1 << 1)
 #define MOUSE_BTN_MIDDLE  (1 << 2)
