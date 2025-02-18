@@ -438,14 +438,14 @@ void process_gamepad_input(uint8_t gamepad_id, gamepad_input_mapping_t* input_ma
     gamepad_state_t* prev = &gamepad_previous[gamepad_id];
 
     // pressed
-    mm_gamepad_pressed[gamepad_id].buttons  |= (current_state.buttons  & ~prev->buttons);
-    mm_gamepad_pressed[gamepad_id].controls |= (current_state.controls & ~prev->controls);
+    gamepad_pressed[gamepad_id].buttons  |= (current_state.buttons  & ~prev->buttons);
+    gamepad_pressed[gamepad_id].controls |= (current_state.controls & ~prev->controls);
     // released
-    mm_gamepad_released[gamepad_id].buttons  |= (~current_state.buttons  & prev->buttons);
-    mm_gamepad_released[gamepad_id].controls |= (~current_state.controls & prev->controls);
+    gamepad_released[gamepad_id].buttons  |= (~current_state.buttons  & prev->buttons);
+    gamepad_released[gamepad_id].controls |= (~current_state.controls & prev->controls);
 
     // Update gamepad state
-    mm_gamepad_down[gamepad_id] = current_state;
+    gamepad_down[gamepad_id] = current_state;
     *prev = current_state;
 }
 
@@ -612,18 +612,16 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t cons
         }
         case HID_ITF_PROTOCOL_MOUSE:{
             hid_mouse_report_t* mouse = (hid_mouse_report_t*)report;
-            *mm_mouse_x += mouse->x;
-            *mm_mouse_y += mouse->y;
-            *mm_mouse_btn_state = mouse->buttons;
-            *mm_mouse_wheel = mouse->wheel;
+            mouse_report.mouse_x += mouse->x;
+            mouse_report.mouse_y += mouse->y;
+            mouse_report.mouse_btn_state = mouse->buttons;
+            mouse_report.mouse_wheel = mouse->wheel;
 
-            *mm_mouse_btn_state_pressed  |= (mouse->buttons & ~mouse_report_previous.buttons);
-            *mm_mouse_btn_state_released |= (~mouse->buttons & mouse_report_previous.buttons);
+            mouse_report.mouse_btn_state_pressed  |= (mouse->buttons & ~mouse_report_previous.buttons);
+            mouse_report.mouse_btn_state_released |= (~mouse->buttons & mouse_report_previous.buttons);
 
-            if (*mm_mouse_x < 0) *mm_mouse_x=0;
-            if (*mm_mouse_x > 320) *mm_mouse_x=320;
-            if (*mm_mouse_y < 0) *mm_mouse_y=0;
-            if (*mm_mouse_y > 240)*mm_mouse_y=240;
+            mouse_report.mouse_x=clamp(mouse_report.mouse_x,0,320);
+            mouse_report.mouse_y=clamp(mouse_report.mouse_y,0,240);
 
             mouse_report_previous = *mouse;
             
