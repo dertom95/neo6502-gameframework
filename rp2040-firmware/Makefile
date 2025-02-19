@@ -48,6 +48,10 @@ gluecode-create:
 	python3 tools/ngtool/ng_tool.py create-gluecode source/ng_*.h --output tools/generator/input/glue.xml
 	python3 tools/ngtool/gen.py --config-file tools/generator/generate_gluecode.json
 
+doc-parse-memorymap:
+	mkdir -p docs/temp && python3 tools/ngtool/ng_tool.py parse-defines --headers source/api/ng_memory_map.h --output docs/temp/memorymap.xml
+
+
 gluecode-test-compile: 
 	mkdir -p temp
 	cc65 --cpu 65c02 -Osir -o temp/ng_api.s source/api/gen/ng_api.c

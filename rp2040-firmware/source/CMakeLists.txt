@@ -24,30 +24,31 @@ set(MOD_DIR "${CMAKE_SOURCE_DIR}/mod-flappy" CACHE STRING "Path to the mod direc
 
 message(BACKEND_SOURCE ${BACKEND_SOURCE})
 
-add_executable(neo6502firmware
+set(ALL_SOURCE 
     3rd/modplay/modplay.c
 
-	core/memory.c
-	core/backend/cpu/wdc65C02cpu.c
-	core/roms.c
-	
-	ng_gfx.c
+    core/memory.c
+    core/backend/cpu/wdc65C02cpu.c
+    core/roms.c
+
+    ng_gfx.c
     ng_gfx_spritebuffer.c
     ng_gfx_pixelbuffer.c
     ng_gfx_tilemap.c
-	ng_cpu.c
-	ng_audio.c
+    ng_cpu.c
+    ng_audio.c
     ng_sound_tsf.c
-	ng_utils.c
-	ng_io.c
-	ng_mem.c
-	ng_assets.c
+    ng_utils.c
+    ng_io.c
+    ng_mem.c
+    ng_assets.c
 
 
-	${BACKEND_SOURCE}
-
-	main.c	
+    ${BACKEND_SOURCE}
+    main.c	
 )
+
+add_executable(neo6502firmware ${ALL_SOURCE})
 
 if(BACKEND STREQUAL "PICO_NEO6502")
 	add_definitions(-D${BACKEND} -DCHIPS_IMPL)
@@ -115,6 +116,15 @@ target_link_libraries(neo6502firmware
 
 
 target_include_directories(neo6502firmware PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core  )
+
+set(PREPROCESSED_OUTPUT ${CMAKE_BINARY_DIR}/example.i)
+
+# Add a custom target to preprocess the file
+add_custom_target(preprocess
+    COMMAND ${CMAKE_C_COMPILER} -E ${CMAKE_C_FLAGS} ${CMAKE_CPP_FLAGS}
+            ${CMAKE_CXX_FLAGS} ${ALL_SOURCE} -o ${PREPROCESSED_OUTPUT}
+    COMMENT "Generating preprocessed output for ${SOURCE_FILE}"
+)
 
 #delay programstart
 #target_compile_definitions(neo6502firmware PRIVATE PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=3000)
