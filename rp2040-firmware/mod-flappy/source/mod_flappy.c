@@ -20,7 +20,7 @@
 // mouse btn
 volatile uint8_t* mbtn = NULL;
 volatile uint16_t* ms_delta = NULL;
-volatile gamepad_state_t* gamepad_pressed = NULL;
+volatile gamepad_state_t* gamepad_pressed_ = NULL;
 volatile uint8_t* mouse_btn_state_pressed = NULL;
 
 uint8_t audios[3]={0};
@@ -192,7 +192,7 @@ void init_system(){
     // TODO: assignment at declaration?
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
-    gamepad_pressed = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE_PRESSED);
+    gamepad_pressed_ = (gamepad_state_t*)MEMPTR(MM_GAMEPAD1_STATE_PRESSED);
     mouse_btn_state_pressed = MEMPTR(MM_MOUSE_BTN_PRESSED);
     io_keyboardmapping_register(&kbm,1);
 }
@@ -227,7 +227,7 @@ void mod_update() {
     }
 
     bool keyboard_actionkey_pressed = io_keyboard_is_pressed(HID_KEY_0);
-    bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed->buttons,0xff);
+    bool gamepad_actionkey_pressed = bit_is_set_some(gamepad_pressed_->buttons,0xff);
     bool mouse_actionkey_pressed = bit_is_set_some(*mouse_btn_state_pressed,MOUSE_BTN_LEFT);
 
     if (keyboard_actionkey_pressed || gamepad_actionkey_pressed || mouse_actionkey_pressed){
@@ -235,7 +235,7 @@ void mod_update() {
         flappy_on_actionbutton();
     }    
 
-    io_input_clear_states();    
+    //io_input_clear_states();    
 
     int16_t dt = *ms_delta;
     gfx_spritebuffer_update(dt,spritebuffer);

@@ -32,6 +32,5 @@ void audio_update();
 /*api:5:3*/void audio_mod_stop();
 /*api:5:6*/uint8_t audio_mod_pos();
 
-
 // PLEASE: ALWAYS MAINTAIN: LAST API ID 5:8
 #endif 

@@ -82,6 +82,7 @@ void update_stuff(void);
 extern void draw_stuff(void);
 
 void flappy_tick(void){
+    io_before_tick();
     update_stuff();
     draw_stuff();
     // TODO:
