@@ -252,6 +252,24 @@ void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id){
 
     }
 }   
+// returns: uint8_t f-grp:1 f-id:48
+uint8_t gfx_spritebuffer_find_free_sprite(uint8_t spritebuffer_id){
+    uint8_t result_code;
+    call_gfx_spritebuffer_find_free_sprite_t* func_data;
+    func_data = (call_gfx_spritebuffer_find_free_sprite_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 48;
+    func_data->spritebuffer_id= spritebuffer_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+
+        return call_result;
+    }
+}   
 // returns: void f-grp:1 f-id:27
 void    gfx_sprite_apply_data(gfx_sprite_t* sprite){
     uint8_t result_code;
@@ -260,6 +278,23 @@ void    gfx_sprite_apply_data(gfx_sprite_t* sprite){
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 27;
     func_data->sprite=(uint16_t) sprite;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:47
+void    gfx_sprite_set_enabled(gfx_sprite_t* sprite, bool enable){
+    uint8_t result_code;
+    call_gfx_sprite_set_enabled_t* func_data;
+    func_data = (call_gfx_sprite_set_enabled_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 47;
+    func_data->sprite=(uint16_t) sprite;
+    func_data->enable= enable;
 
     result_code = *mem_call_function;
     // TODO: resultcode some error checking?!
@@ -322,6 +357,24 @@ uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* ani
         return call_result;
     }
 }   
+// returns: uint8_t f-grp:1 f-id:49
+uint8_t gfx_sprite_get_animator(gfx_sprite_t* sprite){
+    uint8_t result_code;
+    call_gfx_sprite_get_animator_t* func_data;
+    func_data = (call_gfx_sprite_get_animator_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 49;
+    func_data->sprite=(uint16_t) sprite;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        uint8_t call_result = (uint8_t)*mem_call_result;
+
+        return call_result;
+    }
+}   
 // returns: bool f-grp:1 f-id:20
 bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type){
     uint8_t result_code;
@@ -360,10 +413,10 @@ void    gfx_spriteanimator_set_animation(uint8_t spriteanimator_id, uint8_t anim
     }
 }   
 // returns: void f-grp:1 f-id:23
-void    gfx_spriteanimator_set_animation_with_folowup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags){
+void    gfx_spriteanimator_set_animation_with_followup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags){
     uint8_t result_code;
-    call_gfx_spriteanimator_set_animation_with_folowup_t* func_data;
-    func_data = (call_gfx_spriteanimator_set_animation_with_folowup_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    call_gfx_spriteanimator_set_animation_with_followup_t* func_data;
+    func_data = (call_gfx_spriteanimator_set_animation_with_followup_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 23;
     func_data->spriteanimator_id= spriteanimator_id;
@@ -402,6 +455,22 @@ void    gfx_spriteanimator_resume(uint8_t spriteanimator_id){
     func_data = (call_gfx_spriteanimator_resume_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
     func_data->hdr.func_type = 1;
     func_data->hdr.func_id = 25;
+    func_data->spriteanimator_id= spriteanimator_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+
+    }
+}   
+// returns: void f-grp:1 f-id:50
+void    gfx_spriteanimator_restart(uint8_t spriteanimator_id){
+    uint8_t result_code;
+    call_gfx_spriteanimator_restart_t* func_data;
+    func_data = (call_gfx_spriteanimator_restart_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 50;
     func_data->spriteanimator_id= spriteanimator_id;
 
     result_code = *mem_call_function;

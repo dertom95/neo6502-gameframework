@@ -135,9 +135,25 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 48: {
+                call_gfx_spritebuffer_find_free_sprite_t* call = (call_gfx_spritebuffer_find_free_sprite_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  gfx_spritebuffer_find_free_sprite(  call->spritebuffer_id    );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 27: {
                 call_gfx_sprite_apply_data_t* call = (call_gfx_sprite_apply_data_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_sprite_apply_data( (gfx_sprite_t*)(&mem[ call->sprite ])   );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 47: {
+                call_gfx_sprite_set_enabled_t* call = (call_gfx_sprite_set_enabled_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_sprite_set_enabled( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->enable    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -165,6 +181,15 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 49: {
+                call_gfx_sprite_get_animator_t* call = (call_gfx_sprite_get_animator_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                uint8_t call_result =  gfx_sprite_get_animator( (gfx_sprite_t*)(&mem[ call->sprite ])   );
+
+                *call_buffer_return=call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 20: {
                 call_gfx_sprite_remove_extension_t* call = (call_gfx_sprite_remove_extension_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                 bool call_result =  gfx_sprite_remove_extension( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->extension_type    );
@@ -182,8 +207,8 @@ uint8_t call_function()
             }
 
             case 23: {
-                call_gfx_spriteanimator_set_animation_with_folowup_t* call = (call_gfx_spriteanimator_set_animation_with_folowup_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
-                  gfx_spriteanimator_set_animation_with_folowup(  call->spriteanimator_id  ,    call->anim_idx  ,    call->flags  ,    call->followup_animation_idx  ,    call->followup_animation_flags    );
+                call_gfx_spriteanimator_set_animation_with_followup_t* call = (call_gfx_spriteanimator_set_animation_with_followup_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_spriteanimator_set_animation_with_followup(  call->spriteanimator_id  ,    call->anim_idx  ,    call->flags  ,    call->followup_animation_idx  ,    call->followup_animation_flags    );
 
                 return FUNCTION_RETURN_OK;
             }
@@ -198,6 +223,13 @@ uint8_t call_function()
             case 25: {
                 call_gfx_spriteanimator_resume_t* call = (call_gfx_spriteanimator_resume_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_spriteanimator_resume(  call->spriteanimator_id    );
+
+                return FUNCTION_RETURN_OK;
+            }
+
+            case 50: {
+                call_gfx_spriteanimator_restart_t* call = (call_gfx_spriteanimator_restart_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                  gfx_spriteanimator_restart(  call->spriteanimator_id    );
 
                 return FUNCTION_RETURN_OK;
             }

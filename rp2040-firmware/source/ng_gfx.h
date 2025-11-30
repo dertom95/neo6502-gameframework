@@ -139,16 +139,21 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 // create a spritebuffer that can manage the specified sprites that are created in usermemory
 /*api:1:16*/uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount);
 /*api:1:21*/void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
+/*api:1:48*/uint8_t gfx_spritebuffer_find_free_sprite(uint8_t spritebuffer_id);
 
 /*api:1:27*/void    gfx_sprite_apply_data(gfx_sprite_t* sprite);
+/*api:1:47*/void    gfx_sprite_set_enabled(gfx_sprite_t* sprite, bool enable);
 /*api:1:17*/void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
 /*api:1:18*/void    gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
 /*api:1:19*/uint8_t gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* animator);
+/*api:1:49*/uint8_t gfx_sprite_get_animator(gfx_sprite_t* sprite);
+            bool    gfx_sprite_find_extension(gfx_sprite_t* sprite, uint8_t extension_type, gfx_extension_header_t** out_extension_header);
 /*api:1:20*/bool    gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type);
 /*api:1:22*/void    gfx_spriteanimator_set_animation(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags);
-/*api:1:23*/void    gfx_spriteanimator_set_animation_with_folowup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags);
+/*api:1:23*/void    gfx_spriteanimator_set_animation_with_followup(uint8_t spriteanimator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_animation_flags);
 /*api:1:24*/void    gfx_spriteanimator_stop(uint8_t spriteanimator_id);
 /*api:1:25*/void    gfx_spriteanimator_resume(uint8_t spriteanimator_id);
+/*api:1:50*/void    gfx_spriteanimator_restart(uint8_t spriteanimator_id);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
@@ -200,7 +205,6 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:43*/void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
 /*api:1:45*/void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg);
 /*api:1:46*/void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg);
-
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:46
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:50
 
 #endif 

@@ -644,7 +644,7 @@ void gfx_render_scanline(uint16_t *pixbuf, uint8_t y)
                         gfx_sprite_apply_data(sprite);
                     }   
 
-                    if (!flags_isset(sprite->flags,SPRITEFLAG_READY|SPRITEFLAG_VISIBLE))
+                    if (!flags_isset(sprite->flags,SPRITEFLAG_ENABLED|SPRITEFLAG_READY|SPRITEFLAG_VISIBLE))
                     {
                         sprite++;
                         si++;

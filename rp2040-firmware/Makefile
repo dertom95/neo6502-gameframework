@@ -1,5 +1,5 @@
 # helper calls
-MOD_DIR := mod-tests
+MOD_DIR := mod-moorhuhn
 
 
 build:
@@ -28,8 +28,13 @@ kinc_get:
 
 kinc-6502-build: kinc_get mod-assets-create gluecode-create
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --compile		
+kinc-6502-run: kinc_get mod-assets-create mod-assets-create gluecode-create 
+	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --run		
+
 kinc-modnative-build: kinc_get
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-modnative.js --to ../../build-kinc --target linux --graphics opengl --compile		
+kinc-modnative-run: kinc_get mod-assets-create
+	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-modnative.js --to ../../build-kinc --target linux --graphics opengl --run		
 
 
 mod-assets-create:

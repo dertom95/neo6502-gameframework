@@ -15,6 +15,9 @@
 #include <ng_api_shared.h>
 
 #define PIXEL_SIZE 2
+#define TICKRATE (1000/30)
+// mapped to address
+volatile uint16_t* ms_delta = NULL;
 
 gfx_pixelbuffer_t pixelbuffer = {
     .width=320/PIXEL_SIZE,
@@ -28,6 +31,7 @@ uint8_t current_color_index = 0;
 // █ █░▀█ █ ░█░
 
 int mod_init(){
+    ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     // font
     gfx_set_font_from_asset(ASSET_FONT8);
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);    
@@ -47,7 +51,14 @@ int mod_init(){
 // █▄█ █▀▀ █▄▀ █▀█ ░█░ ██▄
 
 void mod_update() {
+    if (*ms_delta<TICK_RATE)
+    {
+        return;
+    }
+    *ms_delta = 0;
+
     // the tick goes here!
+    // TODO: cached keyboard check
     if (io_keyboard_is_pressed(HID_KEY_SPACE)){
         current_color_index++;
         gfx_draw_text(10,10,"Hello World!",current_color_index,COL_WHITE);

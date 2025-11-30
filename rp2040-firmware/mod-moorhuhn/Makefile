@@ -22,6 +22,8 @@ initialize:
 source-compile:
 	cd source && $(LLVM_MOS_SDK)/bin/mos-common-clang -D__NG6502__  -o ../temp/code.bin -Os -g -lexit-loop -linit-stack -I.. -I../../source/api \
 		mod_init.c \
+		moorhuhn.c \
+		mh_globals.c \
 		$(SDK_FOLDER)/source/api/gen/ng_api.c  \
 		$(SDK_FOLDER)/source/api/ng_api_shared.c \
 		&& $(LLVM_MOS_SDK)/bin/llvm-objdump -x ../temp/code.bin.elf > ../temp/code.bin.elf.map \
@@ -33,14 +35,32 @@ assets-create: initialize
 
 	$(NG_TOOL) convert-palette --input $(ASSET_FOLDER)/palette/palette.png --output $(EXPORT_FOLDER)/color_palette.bin --binary 
 
-	# $(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/bird_32px_t.png \
-	# 								--tile-size 32x32 \
-	# 								--palette-file $(ASSET_FOLDER)/palette/palette.png \
-	# 								--array-name sprite_bird \
-	# 								--output $(EXPORT_FOLDER)/sprite_bird.bin \
-	# 								--binary \
-	# 								--format 2 \
-	# 								--debug \
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/bird_16px_t.png \
+									--tile-size 16x16 \
+									--palette-file $(ASSET_FOLDER)/palette/palette.png \
+									--array-name sprite_bird_16 \
+									--output $(EXPORT_FOLDER)/sprite_bird_16.bin \
+									--binary \
+									--format 2 \
+									--debug 
+
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/bird_32px_t.png \
+									--tile-size 32x32 \
+									--palette-file $(ASSET_FOLDER)/palette/palette.png \
+									--array-name sprite_bird_32 \
+									--output $(EXPORT_FOLDER)/sprite_bird_32.bin \
+									--binary \
+									--format 2 \
+									--debug 
+
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/crosshair_16px_t.png \
+									--tile-size 16x16 \
+									--palette-file $(ASSET_FOLDER)/palette/palette.png \
+									--array-name crosshair_16 \
+									--output $(EXPORT_FOLDER)/sprite_crosshair_16.bin \
+									--binary \
+									--format 2 \
+									--debug 																	
 
 	# $(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/pillar.png \
 	# 								--tile-size 43x80 \
@@ -72,7 +92,7 @@ check_code_bin:
 PACK_FILES = temp/code.bin $(EXPORT_FOLDER)/*.bin $(ASSET_FOLDER)/audio/sfx/*.wav $(ASSET_FOLDER)/audio/mod/*.mod --output $(EXPORT_FOLDER)/assets.dat
 
 # Targets
-assets-pack-no-code: check_code_bin
+assets-pack-no-code: check_code_bin assets-create
 	$(NG_TOOL) pack-files $(PACK_FILES) --output $(PACK_OUTPUT)
 
 assets-pack: assets-create source-compile

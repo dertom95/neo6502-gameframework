@@ -16,7 +16,8 @@ project.addDefine('SOUND');
 
 project.addDefine('INCLUDE_DATA');
 //project.addIncludeDir('../../mod-tests')
-project.addIncludeDir('../../mod-flappy')
+//project.addIncludeDir('../../mod-flappy')
+project.addIncludeDir('../../mod-moorhuhn')
 
 //project.addDefine('DATA_FROM_MEMORY');
 project.addFile('../../source/*.c');

@@ -2,7 +2,8 @@ let project = new Project('ng6502');
 const path = require('path');
 
 //const mod_path="../../mod-tests"
-const mod_path="../../mod-flappy"
+//const mod_path="../../mod-flappy"
+const mod_path="../../mod-moorhuhn"
 
 project.cpp = false;
 project.cStd = "c99"

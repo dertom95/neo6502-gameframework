@@ -128,15 +128,31 @@ void ll_remove(linked_list_t** start, linked_list_t* element) {
 }
 
 
-static uint16_t lfsr = 0xABCD; // Initial seed (can be any non-zero value)
+//static uint16_t lfsr = 0xABCD; // Initial seed (can be any non-zero value)
+// uint16_t utils_random_uint16() {
+//     // Perform the LFSR operation
+//     uint16_t lsb = lfsr & 1; // Get the least significant bit
+//     lfsr >>= 1;             // Shift right
+//     if (lsb) {
+//         lfsr ^= 0xB400;     // XOR with a 16-bit polynomial (e.g., 0xB400)
+//     }
+//     return lfsr;          
+// }
+// uint16_t utils_random_uint16() {
+//     uint16_t msb = (lfsr >> 15) & 1; // Get MSB
+//     lfsr <<= 1;                      // Shift left
+//     if (msb) {
+//         lfsr ^= 0x6000;             // XOR with polynomial mask for left shift
+//     }
+//     return lfsr;
+// }
+
+static uint16_t lcg_state = 0xACE0; // Any non-zero seed
+
 uint16_t utils_random_uint16() {
-    // Perform the LFSR operation
-    uint16_t lsb = lfsr & 1; // Get the least significant bit
-    lfsr >>= 1;             // Shift right
-    if (lsb) {
-        lfsr ^= 0xB400;     // XOR with a 16-bit polynomial (e.g., 0xB400)
-    }
-    return lfsr;          
+    // LCG parameters from Numerical Recipes
+    lcg_state = (lcg_state * 25173 + 13849) & 0xFFFF;
+    return lcg_state;
 }
 
 char binary_str[9];

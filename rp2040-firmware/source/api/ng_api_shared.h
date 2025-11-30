@@ -166,13 +166,10 @@ typedef struct gfx_button_t {
 #define GFX_FLAG_FILLED     (1 << 0)
 #define GFX_FLAG_CLIPCHECK  (1 << 1)
 
-#define SPRITEFLAG_READY  (1 << 0)
+// internal flag: don't use manually
+#define SPRITEFLAG_READY  (1 << 0) 
 #define SPRITEFLAG_FLIP_H (1 << 1)
 #define SPRITEFLAG_FLIP_V (1 << 2)
-// sprite data changed (e.g. position, pixel-size) and needs to be recalculated! This is mandatory for changes to showup
-#define SPRITEFLAG_DIRTY  (1 << 7)
-// the sprite is visible at the moment 
-#define SPRITEFLAG_VISIBLE (1 << 8) 
 //TODO: hmm, maybe alignment is the wrong term? (right<->left mixed up). :thinking: doesn't matter for now
 #define SPRITEFLAG_ALIGNH_MASK   (3 << 3)
 #define SPRITEFLAG_ALIGNH_LEFT   (0 << 3)
@@ -184,16 +181,28 @@ typedef struct gfx_button_t {
 #define SPRITEFLAG_ALIGNV_CENTER (1 << 5)
 #define SPRITEFLAG_ALIGNV_BOTTOM (2 << 5)
 
+// sprite data changed (e.g. position, pixel-size) and needs to be recalculated! This is mandatory for changes to showup
+#define SPRITEFLAG_DIRTY  (1 << 8)
+// the sprite is visible at the moment (don't use directly! Turn SPRITEFLAG_ENABLED)
+#define SPRITEFLAG_VISIBLE (1 << 9) 
+// enabled by the user
+#define SPRITEFLAG_ENABLED (1 << 10)
+// this sprite is actually in use
+#define SPRITEFLAG_IN_USE  (1 << 11)
+
+
 
 typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 	int16_t x;
 	int16_t y;
+    // b[9]   Enabled
+    // b[8]   Visible (culling internal)
     // b[7]   DIRTY (calculate internal data)
     // b[5-6] VERTICAL ALIGNMENT
     // b[3-4] HORIZONTAL ALIGNMENT
     // b[2]   FLIP_VERTICAL
     // b[1]   FLIP_HORIZONTAL
-    // b[0]   INUSE
+    // b[0]   READY (don't use manually)
 	uint16_t flags; 
     
     uint8_t tile_idx; //TODO: implement some kind of automatic mapping to trigger set_tile-mechanism when writing to this address (in 6502world)
@@ -291,12 +300,12 @@ typedef struct gfx_tilemap_t{
 
 int ng_snprintf(char* str, uint8_t size, const char* format, ...);
 
-#define flags_set(FLAGS,MASK) FLAGS |= (MASK);
-#define flags_unset(FLAGS,MASK) FLAGS &= ~(MASK);
+#define flags_set(FLAGS,MASK) (FLAGS |= (MASK))
+#define flags_unset(FLAGS,MASK) (FLAGS &= ~(MASK))
 #define flags_isset(FLAGS,MASK) ((FLAGS & (MASK))==(MASK))
 #define flags_isset_some(FLAGS,MASK) ((FLAGS & (MASK))>0)
 #define flags_pack_4_4(HIGH,LOW) ((HIGH)<<4)|(LOW)
-#define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15);
+#define flags_unpack_4_4(INPUT,OUT_VAR_HIGH,OUT_VAR_LOW) OUT_VAR_HIGH=(INPUT>>4);OUT_VAR_LOW=(INPUT&15)
 #define flags_mask_value(INPUT,MASK) (INPUT&(MASK))
 #define flags_mask_value_is(INPUT,MASK,VALUE) ((INPUT&(MASK))==VALUE)
 

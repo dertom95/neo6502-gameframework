@@ -64,6 +64,18 @@ uint8_t gfx_spritebuffer_create(gfx_sprite_t* spritedata,uint8_t spriteamount) {
     return spritebuffer_id;
 }
 
+uint8_t gfx_spritebuffer_find_free_sprite(uint8_t spritebuffer_id) {
+    gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(spritebuffer_id);
+    uint8_t amount = spritebuffer->amount_sprites;
+    for (int i=0,iEnd=spritebuffer->amount_sprites;i<iEnd;i++){
+        gfx_sprite_t* sprite = &spritebuffer->sprites[i];
+        if (!flags_isset(sprite->flags,SPRITEFLAG_IN_USE)){
+            return i;
+        }
+    }
+    return 255;
+}
+
 void  __not_in_flash_func(gfx_spritebuffer_update)(int16_t dt,uint8_t spritebuffer_id){
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(spritebuffer_id);
     
@@ -78,6 +90,8 @@ void  __not_in_flash_func(gfx_spritebuffer_update)(int16_t dt,uint8_t spritebuff
         current_internal_sprite++;
     }
 }
+
+
 
 // -------------
 // 🇸​​​​​🇵​​​​​🇷​​​​​🇮​​​​​🇹​​​​​🇪​​​​​
@@ -337,6 +351,15 @@ void __not_in_flash_func(gfx_sprite_set_tileid)(gfx_sprite_t* sprite,uint8_t til
     _gfx_sprite_set_tileid(sprite,sprite_internal,tile_idx);
 }
 
+void __not_in_flash_func(gfx_sprite_set_enabled)(gfx_sprite_t* sprite,bool enabled){
+    ASSERT_STRICT(sprite!=NULL);
+    if (enabled){
+        flags_set(sprite->flags, SPRITEFLAG_ENABLED);
+    } else {
+        flags_unset(sprite->flags, SPRITEFLAG_ENABLED);
+    }
+}
+
 bool gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type){
     assert(sprite!=NULL);
     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
@@ -347,6 +370,21 @@ bool gfx_sprite_remove_extension(gfx_sprite_t* sprite,uint8_t extension_type){
         if (header->extension_type==extension_type){
             // TODO: I'm lazy and actually could do it right now! But i'm tired and want to come forth
             ll_remove((linked_list_t**)sprite_internal, (linked_list_t*)header);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool gfx_sprite_find_extension(gfx_sprite_t* sprite, uint8_t extension_type, gfx_extension_header_t** out_extension_header){
+    assert(sprite!=NULL);
+    gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
+    gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];
+    
+    gfx_extension_header_t* header = sprite_internal->extensions;
+    while (header!=NULL){
+        if (header->extension_type==extension_type){
+            *out_extension_header = header;
             return true;
         }
     }
@@ -406,7 +444,18 @@ uint8_t  gfx_sprite_add_animator(gfx_sprite_t* sprite, gfx_sprite_animator_t* an
     return id;
 }
 
-void gfx_spriteanimator_set_animation_with_folowup(uint8_t sprite_animator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_flags){
+uint8_t gfx_sprite_get_animator(gfx_sprite_t* sprite) {
+    gfx_extension_header_t* header;
+    bool found_animator = gfx_sprite_find_extension(sprite,GFX_EXTENSION_SPRITEANIMATOR,&header);
+    if (!found_animator){
+        return 255;
+    }
+
+    gfx_internal_sprite_animator_t* animator = (gfx_internal_sprite_animator_t*)header;
+    return animator->id;
+}
+
+void gfx_spriteanimator_set_animation_with_followup(uint8_t sprite_animator_id, uint8_t anim_idx, uint8_t flags, uint8_t followup_animation_idx, uint8_t followup_flags){
     gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(sprite_animator_id);
 
     assert(anim_idx < internal_spriteanimatior->sprite_animator->animation_amount);
@@ -425,18 +474,18 @@ void gfx_spriteanimator_set_animation_with_folowup(uint8_t sprite_animator_id, u
         internal_spriteanimatior->current_anim_idx = anim_idx;
         internal_spriteanimatior->current_animation = &usr_animator->animations[anim_idx];
         internal_spriteanimatior->timer = internal_spriteanimatior->current_animation->delay_ms;
-
-        bool play_backwards = flags_isset(flags,ANIMATIONFLAG_BACKWARDS);
-        if (play_backwards){
-            gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->end_tile);
-        } else {
-            gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
-        }
     }    
+    bool play_backwards = flags_isset(flags,ANIMATIONFLAG_BACKWARDS);
+    if (play_backwards){
+        gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->end_tile);
+    } else {
+        gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
+    }
+    flags_unset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);    
 }
 
 void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx, uint8_t flags) {
-    gfx_spriteanimator_set_animation_with_folowup(sprite_animator,anim_idx,flags,255,0);
+    gfx_spriteanimator_set_animation_with_followup(sprite_animator,anim_idx,flags,255,0);
 }
 
 void gfx_spriteanimator_stop(uint8_t spriteanimator_id){
@@ -448,6 +497,17 @@ void gfx_spriteanimator_resume(uint8_t spriteanimator_id){
     gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
     assert(internal_spriteanimatior->current_anim_idx!=255);
     flags_unset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);
+}
+
+void gfx_spriteanimator_restart(uint8_t spriteanimator_id){
+    gfx_spriteanimator_resume(spriteanimator_id);
+    gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
+    bool play_backwards = flags_isset(internal_spriteanimatior->flags,ANIMATIONFLAG_BACKWARDS);
+    if (play_backwards){
+        gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->end_tile);
+    } else {
+        gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
+    }    
 }
 
 void _internal_gfx_ext_update_spriteanimator(gfx_internal_sprite_animator_t* animator, gfx_sprite_t* sprite, uint16_t dt){
