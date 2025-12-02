@@ -111,7 +111,7 @@ bool mh_huhn_spawn(mh_huhn_t* huhn_data, uint8_t type, mh_huhn_t** out_huhn){
             gfx_sprite_set_tileset(sprite,&mh_rs.ts_bird,0);
             sprite->pixel_size=flags_pack_4_4(1,1);
             uint8_t sprite_anim = gfx_sprite_add_animator(sprite, &anim4x1);
-            gfx_spriteanimator_set_animation(sprite_anim, 0, ANIMATIONFLAG_LOOP);
+            gfx_spriteanimator_set_animation(sprite_anim, 0, 0);
             break;
     }
         
@@ -144,7 +144,8 @@ bool mh_shoot_at(int16_t x,int16_t y) {
         bool hit = gfx_sprite_intersect_with_point(sprite, x,y);
         if (hit) {
             uint8_t animator_id = gfx_sprite_get_animator(sprite);
-            gfx_spriteanimator_set_animation(animator_id,1,0);
+            gfx_spriteanimator_set_animation(animator_id,1,ANIMATIONFLAG_FREE_SPRITE_ON_STOP);
+            mh_huhn_remove_at_idx(i);
             return true;
         }
 

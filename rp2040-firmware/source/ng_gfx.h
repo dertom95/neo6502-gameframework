@@ -155,6 +155,7 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 /*api:1:24*/void    gfx_spriteanimator_stop(uint8_t spriteanimator_id);
 /*api:1:25*/void    gfx_spriteanimator_resume(uint8_t spriteanimator_id);
 /*api:1:50*/void    gfx_spriteanimator_restart(uint8_t spriteanimator_id);
+/*api:1:52*/bool    gfx_spriteanimator_is_animation_running(uint8_t spriteanimator_id);
 
 // gets cached tile. caches it if it is not cached already (platform specific call)
 void*    gfx_tilesheet_get_chached_tile(gfx_tilesheet_t* ts, uint8_t tile_id);
@@ -206,6 +207,6 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:43*/void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
 /*api:1:45*/void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg);
 /*api:1:46*/void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg);
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:522
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:52
 
 #endif 

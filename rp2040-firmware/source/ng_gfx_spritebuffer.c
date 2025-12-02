@@ -494,7 +494,7 @@ void gfx_spriteanimator_set_animation_with_followup(uint8_t sprite_animator_id, 
     } else {
         gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
     }
-    flags_unset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);    
+    flags_unset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);  
 }
 
 void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx, uint8_t flags) {
@@ -502,8 +502,11 @@ void gfx_spriteanimator_set_animation(uint8_t sprite_animator, uint8_t anim_idx,
 }
 
 void gfx_spriteanimator_stop(uint8_t spriteanimator_id){
-    gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
-    flags_set(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);
+    gfx_internal_sprite_animator_t* internal_spriteanimator = id_get_ptr(spriteanimator_id);
+    flags_set(internal_spriteanimator->flags,ANIMATIONFLAG_STOPPED); 
+    if (flags_isset(internal_spriteanimator->flags,ANIMATIONFLAG_FREE_SPRITE_ON_STOP)){
+        flags_unset(internal_spriteanimator->sprite->flags, SPRITEFLAG_ENABLED | SPRITEFLAG_IN_USE);
+    }       
 }
 
 void gfx_spriteanimator_resume(uint8_t spriteanimator_id){
@@ -521,6 +524,12 @@ void gfx_spriteanimator_restart(uint8_t spriteanimator_id){
     } else {
         gfx_sprite_set_tileid(internal_spriteanimatior->sprite, internal_spriteanimatior->current_animation->start_tile);
     }    
+}
+
+bool gfx_spriteanimator_is_animation_running(uint8_t spriteanimator_id) {
+    gfx_internal_sprite_animator_t* internal_spriteanimatior = id_get_ptr(spriteanimator_id);
+    bool stopped = flags_isset(internal_spriteanimatior->flags,ANIMATIONFLAG_STOPPED);
+    return stopped;
 }
 
 void _internal_gfx_ext_update_spriteanimator(gfx_internal_sprite_animator_t* animator, gfx_sprite_t* sprite, uint16_t dt){

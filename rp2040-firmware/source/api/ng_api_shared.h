@@ -219,6 +219,8 @@ typedef struct  __attribute__((aligned(4))) gfx_sprite_t {
 #define ANIMATIONFLAG_LOOP (1 << 1)
 // play animation backwards
 #define ANIMATIONFLAG_BACKWARDS (1 << 2)
+// removes sprite when the animation finished
+#define ANIMATIONFLAG_FREE_SPRITE_ON_STOP (1 << 3)
 
 typedef struct __attribute__((aligned(4))) sprite_animation_t {
     uint16_t delay_ms;
