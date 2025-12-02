@@ -286,6 +286,26 @@ void    gfx_sprite_apply_data(gfx_sprite_t* sprite){
 
     }
 }   
+// returns: bool f-grp:1 f-id:51
+bool    gfx_sprite_intersect_with_point(gfx_sprite_t* sprint,int16_t x, int16_t y){
+    uint8_t result_code;
+    call_gfx_sprite_intersect_with_point_t* func_data;
+    func_data = (call_gfx_sprite_intersect_with_point_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 51;
+    func_data->sprint=(uint16_t) sprint;
+    func_data->x= x;
+    func_data->y= y;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        bool call_result = (bool)*mem_call_result;
+
+        return call_result;
+    }
+}   
 // returns: void f-grp:1 f-id:47
 void    gfx_sprite_set_enabled(gfx_sprite_t* sprite, bool enable){
     uint8_t result_code;

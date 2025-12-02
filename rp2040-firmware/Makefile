@@ -26,9 +26,9 @@ kinc_get:
 		mkdir -p build-scripts/kinc/tmp && cd build-scripts/kinc/tmp && git clone https://github.com/Kode/Kinc.git; \
 	fi
 
-kinc-6502-build: kinc_get mod-assets-create gluecode-create
+kinc-6502-build: kinc_get gluecode-create mod-assets-create 
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --compile		
-kinc-6502-run: kinc_get mod-assets-create mod-assets-create gluecode-create 
+kinc-6502-run: kinc_get gluecode-create mod-assets-create 
 	cd build-scripts/kinc && tmp/Kinc/make --kfile kfile-6502.js --to ../../build-kinc --target linux --graphics opengl --run		
 
 kinc-modnative-build: kinc_get

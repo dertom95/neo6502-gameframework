@@ -151,6 +151,15 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 51: {
+                call_gfx_sprite_intersect_with_point_t* call = (call_gfx_sprite_intersect_with_point_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  gfx_sprite_intersect_with_point( (gfx_sprite_t*)(&mem[ call->sprint ]) ,    call->x  ,    call->y    );
+
+                *call_buffer_return=(uint8_t)call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 47: {
                 call_gfx_sprite_set_enabled_t* call = (call_gfx_sprite_set_enabled_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_sprite_set_enabled( (gfx_sprite_t*)(&mem[ call->sprite ]) ,    call->enable    );

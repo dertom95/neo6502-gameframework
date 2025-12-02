@@ -125,7 +125,12 @@ void mod_update() {
     io_before_tick();
 
     mouse_actionkey_pressed = mouse_actionkey_pressed | bit_is_set_some(*mouse_btn_state_pressed,MOUSE_BTN_LEFT);
-
+    gfx_sprite_t* crosshair = mh_rs.crosshair;
+    if (crosshair->x != *mouse_x || crosshair->y != *mouse_y){
+        crosshair->x = *mouse_x;
+        crosshair->y = *mouse_y;
+        gfx_sprite_apply_data(crosshair);
+    }
     //printf("btn:%d\n",*mouse_btn_state_pressed);
 
     if (*ms_delta<TICK_RATE)
@@ -141,12 +146,7 @@ void mod_update() {
     //printf("%d:%d\n",*mouse_x,*mouse_y);
 
 
-    gfx_sprite_t* crosshair = mh_rs.crosshair;
-    if (crosshair->x != *mouse_x || crosshair->y != *mouse_y){
-        crosshair->x = *mouse_x;
-        crosshair->y = *mouse_y;
-        gfx_sprite_apply_data(crosshair);
-    }
+
 
     if (mouse_actionkey_pressed) {
         mouse_actionkey_pressed = false;

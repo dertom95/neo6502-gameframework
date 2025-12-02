@@ -109,6 +109,8 @@ void    gfx_spritebuffer_update(int16_t dt,uint8_t spritebuffer_id);
 uint8_t gfx_spritebuffer_find_free_sprite(uint8_t spritebuffer_id);
  // returns: void f-grp: f-id:27;
 void    gfx_sprite_apply_data(gfx_sprite_t* sprite);
+ // returns: bool f-grp: f-id:51;
+bool    gfx_sprite_intersect_with_point(gfx_sprite_t* sprint,int16_t x, int16_t y);
  // returns: void f-grp: f-id:47;
 void    gfx_sprite_set_enabled(gfx_sprite_t* sprite, bool enable);
  // returns: void f-grp: f-id:17;
@@ -225,6 +227,13 @@ typedef struct call_gfx_sprite_apply_data_t {
     call_header_t hdr;
     uint16_t sprite;
 } call_gfx_sprite_apply_data_t;
+// returns: bool f-grp: f-id:51
+typedef struct call_gfx_sprite_intersect_with_point_t {
+    call_header_t hdr;
+    uint16_t sprint;
+    int16_t x;
+    int16_t y;
+} call_gfx_sprite_intersect_with_point_t;
 // returns: void f-grp: f-id:47
 typedef struct call_gfx_sprite_set_enabled_t {
     call_header_t hdr;
