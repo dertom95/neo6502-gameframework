@@ -33,7 +33,7 @@ void mh_tick();
 void mh_render();
 
 void mh_update_huhn_positions();
-
+bool mh_shoot_at(int16_t x,int16_t y);
 
 
 bool mh_huhn_find_free(uint8_t* huhn_idx, mh_huhn_t** huhn);

@@ -142,6 +142,7 @@ void     gfx_render_scanline(uint16_t *pixbuf, uint8_t y);
 /*api:1:48*/uint8_t gfx_spritebuffer_find_free_sprite(uint8_t spritebuffer_id);
 
 /*api:1:27*/void    gfx_sprite_apply_data(gfx_sprite_t* sprite);
+//bool    gfx_sprite_intersect_with_point(int16_t x, int16_t y);
 /*api:1:47*/void    gfx_sprite_set_enabled(gfx_sprite_t* sprite, bool enable);
 /*api:1:17*/void    gfx_sprite_set_tileset(gfx_sprite_t* sprite, gfx_tilesheet_data_t* tsdata, uint8_t initial_tile_idx);
 /*api:1:18*/void    gfx_sprite_set_tileid(gfx_sprite_t* sprite,uint8_t tile_idx);
@@ -205,6 +206,6 @@ void     gfx_tile_set_color(uint8_t x,uint8_t y,uint8_t color_idx);
 /*api:1:43*/void gfx_debug_drawinfo_keyboard(uint16_t x, uint16_t y, keyboard_mapping_t* keyb,uint8_t coltext, uint8_t col_bg);
 /*api:1:45*/void gfx_debug_drawinfo_mouse(uint16_t x, uint16_t y,uint8_t coltext, uint8_t col_bg);
 /*api:1:46*/void gfx_debug_drawinfo_gamepad(uint16_t x, uint16_t y,uint8_t gamepad_idx, uint8_t coltext, uint8_t col_bg);
-// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:50
+// PLEASE: ALWAYS MAINTAIN: LAST API ID 1:51
 
 #endif 

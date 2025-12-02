@@ -1,7 +1,7 @@
 #ifndef __MH_GLOBALS_H_
 #define __MH_GLOBALS_H_
 
-#define INIT_MOORHUHN_AMOUNT 4
+#define INIT_MOORHUHN_AMOUNT 10
 #define MAX_MOORHUHN_AMOUNT 10
 
 #define PIXEL_SIZE 2

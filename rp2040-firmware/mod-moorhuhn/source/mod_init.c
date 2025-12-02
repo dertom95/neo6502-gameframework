@@ -18,6 +18,8 @@
 
 volatile uint8_t* mbtn = NULL;
 volatile uint16_t* ms_delta = NULL;
+volatile uint16_t* mouse_x = NULL;
+volatile uint16_t* mouse_y = NULL;
 volatile uint8_t* mouse_btn_state_pressed = NULL;
 
 
@@ -45,22 +47,6 @@ void mh_gfx_init() {
     asset_get_tilesheet(&mh_rs.ts_bird,ASSET_SPRITE_BIRD_16);
     asset_get_tilesheet(&mh_rs.ts_crosshair_16,ASSET_SPRITE_CROSSHAIR_16);
     
-    uint8_t sprite_id = gfx_spritebuffer_find_free_sprite(mh_rs.spritebuffer_id);
-    bool found_sprite = sprite_id != 255;
-    mh_rs.crosshair = &mh_rs.sprites[sprite_id];
-
-    ASSERT_STRICT(found_sprite);
-
-    gfx_sprite_set_tileset(mh_rs.crosshair,&mh_rs.ts_crosshair_16,0);
-    mh_rs.crosshair->flags = SPRITEFLAG_ENABLED | SPRITEFLAG_IN_USE;
-    mh_rs.crosshair->x = 160;
-    mh_rs.crosshair->y = 120;
-    uint8_t sprite_anim = gfx_sprite_add_animator(mh_rs.crosshair, &anim4x1_60);
-    gfx_spriteanimator_set_animation(sprite_anim, 0, ANIMATIONFLAG_STOPPED);
-
-    gfx_sprite_apply_data(mh_rs.crosshair);
-    
-
     for (uint8_t i=0;i<INIT_MOORHUHN_AMOUNT;i++){
         mh_huhn_t huhn_data = {
             .x = utils_random_uint16() % 320,
@@ -78,6 +64,22 @@ void mh_gfx_init() {
         }
     }
 
+    uint8_t sprite_id = gfx_spritebuffer_find_free_sprite(mh_rs.spritebuffer_id);
+    bool found_sprite = sprite_id != 255;
+    mh_rs.crosshair = &mh_rs.sprites[sprite_id];
+
+    ASSERT_STRICT(found_sprite);
+
+    gfx_sprite_set_tileset(mh_rs.crosshair,&mh_rs.ts_crosshair_16,0);
+    mh_rs.crosshair->flags = SPRITEFLAG_ENABLED | SPRITEFLAG_IN_USE | SPRITEFLAG_ALIGNH_CENTER | SPRITEFLAG_ALIGNV_CENTER;
+    mh_rs.crosshair->x = 160;
+    mh_rs.crosshair->y = 120;
+    uint8_t sprite_anim = gfx_sprite_add_animator(mh_rs.crosshair, &anim4x1_60);
+    gfx_spriteanimator_set_animation(sprite_anim, 0, ANIMATIONFLAG_STOPPED);
+
+    gfx_sprite_apply_data(mh_rs.crosshair);
+
+
     mh_update_huhn_positions();
 }
 
@@ -90,6 +92,8 @@ int mod_init(){
     ms_delta = (uint16_t*)MEMPTR(MM_MS_DELTA);
     mbtn = (uint8_t*)MEMPTR(MM_MOUSE_BTN);
     mouse_btn_state_pressed = MEMPTR(MM_MOUSE_BTN_PRESSED);    
+    mouse_x = (uint16_t*) MEMPTR(MM_MOUSE_X);
+    mouse_y = (uint16_t*) MEMPTR(MM_MOUSE_Y);
 
     // font
     gfx_set_font_from_asset(ASSET_FONT8);
@@ -134,6 +138,16 @@ void mod_update() {
         gfx_draw_text(10,10,"Hello World95!",current_color_index,COL_WHITE);
     }
 
+    //printf("%d:%d\n",*mouse_x,*mouse_y);
+
+
+    gfx_sprite_t* crosshair = mh_rs.crosshair;
+    if (crosshair->x != *mouse_x || crosshair->y != *mouse_y){
+        crosshair->x = *mouse_x;
+        crosshair->y = *mouse_y;
+        gfx_sprite_apply_data(crosshair);
+    }
+
     if (mouse_actionkey_pressed) {
         mouse_actionkey_pressed = false;
         
@@ -143,7 +157,9 @@ void mod_update() {
         ASSERT_STRICT(found_animator);
         if (found_animator){
             gfx_spriteanimator_restart(animator_id);
+            mh_shoot_at(*mouse_x,*mouse_y);
         }
+
     }
 
     mh_tick();

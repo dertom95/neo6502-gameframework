@@ -135,3 +135,34 @@ void mh_update_huhn_positions() {
         gfx_sprite_apply_data(sprite);
     }
 }
+
+bool mh_shoot_at(int16_t x,int16_t y) {
+    for (uint8_t i=0,iEnd=mh_gs.mhs_amount;i<iEnd;i++){
+        mh_huhn_t* huhn = &mh_gs.mhs[i];
+        gfx_sprite_t* sprite = &mh_rs.sprites[huhn->sprite_id];
+        
+        uint8_t psx,psy;
+        flags_unpack_4_4(sprite->pixel_size, psx,psy);
+
+        gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
+        gfx_internal_sprite_t *si = spritebuffer->sprite_internals;
+
+        if (    x < sprite->x 
+            ||  y < sprite->y 
+            ||  x > sprite->x + si->sprite_width 
+            ||  y > sprite->y + si->sprite_height
+        ){
+            continue;
+        }
+
+        uint8_t animator_id = gfx_sprite_get_animator(sprite);
+        gfx_spriteanimator_set_animation(animator_id,1,0);
+
+        // flags_unset(sprite->flags,SPRITEFLAG_ENABLED|SPRITEFLAG_IN_USE);
+        // huhn->sprite_id=255;
+        // mh_huhn_remove_at_idx(i);            
+        // gfx_sprite_apply_data(sprite);
+        return true;
+    }
+    return false;
+}

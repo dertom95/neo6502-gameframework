@@ -351,6 +351,15 @@ void __not_in_flash_func(gfx_sprite_set_tileid)(gfx_sprite_t* sprite,uint8_t til
     _gfx_sprite_set_tileid(sprite,sprite_internal,tile_idx);
 }
 
+// bool __not_in_flash_func(gfx_sprite_intersect_with_point)(gfx_sprite_t* sprite, int16_t x, int16_t y){
+//     // TODO
+//     ASSERT_STRICT(sprite!=NULL);
+//     gfx_internal_spritebuffer_t* spritebuffer = id_get_ptr(sprite->spritebuffer_id);
+//     gfx_internal_sprite_t* sprite_internal = &spritebuffer->sprite_internals[sprite->sprite_idx];    
+//     uint8_t psx,psy;
+//     flags_unpack_4_4(sprite->pixel_size,psx,psy);
+// }
+
 void __not_in_flash_func(gfx_sprite_set_enabled)(gfx_sprite_t* sprite,bool enabled){
     ASSERT_STRICT(sprite!=NULL);
     if (enabled){
