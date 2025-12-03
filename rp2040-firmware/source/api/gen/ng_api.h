@@ -133,6 +133,8 @@ void    gfx_spriteanimator_stop(uint8_t spriteanimator_id);
 void    gfx_spriteanimator_resume(uint8_t spriteanimator_id);
  // returns: void f-grp: f-id:50;
 void    gfx_spriteanimator_restart(uint8_t spriteanimator_id);
+ // returns: bool f-grp: f-id:52;
+bool    gfx_spriteanimator_is_animation_running(uint8_t spriteanimator_id);
  // returns: void f-grp: f-id:9;
 void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data);
  // returns: void f-grp: f-id:10;
@@ -301,6 +303,11 @@ typedef struct call_gfx_spriteanimator_restart_t {
     call_header_t hdr;
     uint8_t spriteanimator_id;
 } call_gfx_spriteanimator_restart_t;
+// returns: bool f-grp: f-id:52
+typedef struct call_gfx_spriteanimator_is_animation_running_t {
+    call_header_t hdr;
+    uint8_t spriteanimator_id;
+} call_gfx_spriteanimator_is_animation_running_t;
 // returns: void f-grp: f-id:9
 typedef struct call_gfx_pixelbuffer_create_t {
     call_header_t hdr;

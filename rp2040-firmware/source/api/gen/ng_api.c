@@ -500,6 +500,24 @@ void    gfx_spriteanimator_restart(uint8_t spriteanimator_id){
 
     }
 }   
+// returns: bool f-grp:1 f-id:52
+bool    gfx_spriteanimator_is_animation_running(uint8_t spriteanimator_id){
+    uint8_t result_code;
+    call_gfx_spriteanimator_is_animation_running_t* func_data;
+    func_data = (call_gfx_spriteanimator_is_animation_running_t*)(MEMORY_MAP_CALL_BUFFER_BEGIN);
+    func_data->hdr.func_type = 1;
+    func_data->hdr.func_id = 52;
+    func_data->spriteanimator_id= spriteanimator_id;
+
+    result_code = *mem_call_function;
+    // TODO: resultcode some error checking?!
+
+    {
+        bool call_result = (bool)*mem_call_result;
+
+        return call_result;
+    }
+}   
 // returns: void f-grp:1 f-id:9
 void gfx_pixelbuffer_create(gfx_pixelbuffer_t* initial_data){
     uint8_t result_code;

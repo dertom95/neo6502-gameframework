@@ -243,6 +243,15 @@ uint8_t call_function()
                 return FUNCTION_RETURN_OK;
             }
 
+            case 52: {
+                call_gfx_spriteanimator_is_animation_running_t* call = (call_gfx_spriteanimator_is_animation_running_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
+                bool call_result =  gfx_spriteanimator_is_animation_running(  call->spriteanimator_id    );
+
+                *call_buffer_return=(uint8_t)call_result;
+
+                return FUNCTION_RETURN_OK;
+            }
+
             case 9: {
                 call_gfx_pixelbuffer_create_t* call = (call_gfx_pixelbuffer_create_t*)&mem[MEMORY_MAP_CALL_BUFFER_BEGIN];
                   gfx_pixelbuffer_create( (gfx_pixelbuffer_t*)(&mem[ call->initial_data ])   );

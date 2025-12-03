@@ -1,5 +1,6 @@
 #include "moorhuhn.h"
 #include "mh_globals.h"
+#include "export/assets.h"
 
 #ifdef _MOD_NATIVE_
 # include "../../source/core/memory.h"
@@ -9,9 +10,16 @@
 # include "../../source/ng_all.h"
 #endif
 
-
-
+uint8_t audio_powerup, audio_crash;
 mh_gamestate_t mh_gs;
+
+
+void init_audio(void){
+    audio_mod_play(ASSET_GAME);
+
+    audio_crash = audio_wav_load(ASSET_CRASH);
+    audio_powerup = audio_wav_load(ASSET_POWER_UP_8);
+}
 
 void mh_huhn_new(mh_huhn_t* moorhuhn){
     *moorhuhn = (mh_huhn_t){
@@ -25,6 +33,7 @@ void mh_huhn_new(mh_huhn_t* moorhuhn){
 
 void mh_start_game() {
     mh_gs = (mh_gamestate_t){0};
+    init_audio();
 }
 
 void mh_init() {
@@ -143,11 +152,13 @@ bool mh_shoot_at(int16_t x,int16_t y) {
         
         bool hit = gfx_sprite_intersect_with_point(sprite, x,y);
         if (hit) {
+            audio_wav_play(audio_powerup,false);
+            
             uint8_t animator_id = gfx_sprite_get_animator(sprite);
             gfx_spriteanimator_set_animation(animator_id,1,ANIMATIONFLAG_FREE_SPRITE_ON_STOP);
             mh_huhn_remove_at_idx(i);
             return true;
-        }
+        } 
 
         // uint8_t psx,psy;
         // flags_unpack_4_4(sprite->pixel_size, psx,psy);
@@ -171,5 +182,6 @@ bool mh_shoot_at(int16_t x,int16_t y) {
         // mh_huhn_remove_at_idx(i);            
         // gfx_sprite_apply_data(sprite);
     }
+    audio_wav_play(audio_crash,false);
     return false;
 }
