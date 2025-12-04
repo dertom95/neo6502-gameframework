@@ -147,7 +147,7 @@ void ll_remove(linked_list_t** start, linked_list_t* element) {
 //     return lfsr;
 // }
 
-static uint16_t lcg_state = 0xACE0; // Any non-zero seed
+static uint16_t lcg_state = 0xAC45; // Any non-zero seed
 
 uint16_t utils_random_uint16() {
     // LCG parameters from Numerical Recipes

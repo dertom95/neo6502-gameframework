@@ -21,40 +21,54 @@ volatile uint16_t* ms_delta = NULL;
 volatile uint16_t* mouse_x = NULL;
 volatile uint16_t* mouse_y = NULL;
 volatile uint8_t* mouse_btn_state_pressed = NULL;
-
-
+volatile uint8_t* mouse_btn_state_down = NULL;
+int16_t mouse_delta_x = 0;
+uint16_t mlastx = 0;
 
 
 gfx_pixelbuffer_t pixelbuffer = {
     .width=320/PIXEL_SIZE,
     .height=240/PIXEL_SIZE,
-    .pixel_size=flags_pack_4_4(PIXEL_SIZE,PIXEL_SIZE)
+    .pixel_size=flags_pack_4_4(PIXEL_SIZE+1,PIXEL_SIZE)
 };
 
 uint8_t current_color_index = 0;
 
 
-
-
-
-
 mh_renderstate_t mh_rs={0};
 
-
+keyboard_mapping_t kbm={
+    .keycodes = {
+        HID_KEY_A,
+        HID_KEY_D,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0},
+    .flags = KEYBMAP_FLAG_SCAN_KEY_DOWN
+};
 
 void mh_gfx_init() {
     mh_rs.spritebuffer_id = gfx_spritebuffer_create(mh_rs.sprites,SPRITEAMOUNT);
     asset_get_tilesheet(&mh_rs.ts_bird,ASSET_SPRITE_BIRD_16);
     asset_get_tilesheet(&mh_rs.ts_crosshair_16,ASSET_SPRITE_CROSSHAIR_16);
+    asset_get_tilesheet(&mh_rs.ts_background, ASSET_BITMAP_BG1);
+
+    gfx_tilesheet_current_set(&mh_rs.ts_background);
+    gfx_draw_tile(0,0,0);
     
     for (uint8_t i=0;i<INIT_MOORHUHN_AMOUNT;i++){
         mh_huhn_t huhn_data = {
             .x = utils_random_uint16() % 320,
             .y = utils_random_uint16() % 200,
             .velocity = (utils_random_uint16() % 2)==0 ? -1 : +1,
+            .speed = 0.5f + (utils_random_uint16() % 100)/100.0f,
             .flags = MH_HUHNFLAG_ALIVE,
             .hitpoints = 1,
         };
+        utils_random_uint16();
         
         mh_huhn_t* huhn=NULL;
         bool spawn_successful = mh_huhn_spawn(&huhn_data, MH_HUHNTYPE_DEFAULT, &huhn);
@@ -68,6 +82,8 @@ void mh_gfx_init() {
     bool found_sprite = sprite_id != 255;
     mh_rs.crosshair = &mh_rs.sprites[sprite_id];
 
+    io_keyboardmapping_register(&kbm,1);
+
     ASSERT_STRICT(found_sprite);
 
     gfx_sprite_set_tileset(mh_rs.crosshair,&mh_rs.ts_crosshair_16,0);
@@ -78,7 +94,6 @@ void mh_gfx_init() {
     gfx_spriteanimator_set_animation(sprite_anim, 0, ANIMATIONFLAG_STOPPED);
 
     gfx_sprite_apply_data(mh_rs.crosshair);
-
 
     mh_update_huhn_positions();
 }
@@ -102,17 +117,19 @@ int mod_init(){
     // init goes here
     gfx_pixelbuffer_create(&pixelbuffer);
     gfx_pixelbuffer_set_active(&pixelbuffer);
+    
     gfx_draw_text(00,10,"Hello World!",COL_BLACK,COL_WHITE);
 
     mh_init();
     mh_gfx_init();
 
     // put the pixelbuffer in the render-queue to be rendered at all
-    // gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    gfx_renderqueue_add_id(pixelbuffer.obj_id);
     gfx_renderqueue_add_id(mh_rs.spritebuffer_id);
     gfx_renderqueue_apply();
 
 
+    mlastx = *mouse_x;
 }
 
 
@@ -131,22 +148,51 @@ void mod_update() {
         crosshair->y = *mouse_y;
         gfx_sprite_apply_data(crosshair);
     }
-    //printf("btn:%d\n",*mouse_btn_state_pressed);
 
     if (*ms_delta<TICK_RATE)
     {
         return;
     }    
+
+    mouse_delta_x = mlastx - *mouse_x;
+    //printf("mdx: %d [%d]\n",mouse_delta_x,*mbtn);
+    mlastx = *mouse_x;
+
     // the tick goes here!
     if (io_keyboard_is_pressed(HID_KEY_SPACE)){
         current_color_index++;
         gfx_draw_text(10,10,"Hello World95!",current_color_index,COL_WHITE);
     }
 
-    //printf("%d:%d\n",*mouse_x,*mouse_y);
+    bool view_changed = false;
+    bool mouse_right_down = flags_isset(*mbtn,MOUSE_BTN_RIGHT);
 
+    if (mouse_right_down){
+        if (mouse_delta_x!=0){
+            mh_rs.view_x += mouse_delta_x;
+            view_changed = true;
+        }
+    } else {
+        if (kbm.key_down & KEY_MOVE_VIEW_LEFT){
+            if (mh_rs.view_x > (-VIEW_MAX_X) ){
+                mh_rs.view_x -= VIEW_MOVE_SPEED;
+                view_changed = true;
+            }
+        }
+        if (kbm.key_down & KEY_MOVE_VIEW_RIGHT){
+            if (mh_rs.view_x < 0){
+                mh_rs.view_x += VIEW_MOVE_SPEED;
+                view_changed = true;
+            }
+        }
+    }
+    
+    if (view_changed){
+        mh_rs.view_x = clamp(mh_rs.view_x,(-VIEW_MAX_X),0);
 
-
+        pixelbuffer.x = mh_rs.view_x;
+        gfx_pixelbuffer_apply_data(&pixelbuffer);
+    }
 
     if (mouse_actionkey_pressed) {
         mouse_actionkey_pressed = false;
@@ -159,7 +205,6 @@ void mod_update() {
             gfx_spriteanimator_restart(animator_id);
             mh_shoot_at(*mouse_x,*mouse_y);
         }
-
     }
 
     mh_tick();
@@ -171,7 +216,6 @@ void mod_update() {
 }
 
 void mod_render() {
-
 }
 
 #ifndef _MOD_NATIVE_

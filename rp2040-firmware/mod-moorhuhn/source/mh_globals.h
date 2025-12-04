@@ -5,6 +5,9 @@
 #define MAX_MOORHUHN_AMOUNT 10
 
 #define PIXEL_SIZE 2
+#define VIEW_MAX_X 150
+#define VIEW_MOVE_SPEED 2
+
 #define TICK_RATE (1000/30)
 #define SPRITEAMOUNT MAX_MOORHUHN_AMOUNT+1
 
@@ -17,11 +20,17 @@
 # include "../../source/ng_all.h"
 #endif
 
+#define KEY_MOVE_VIEW_LEFT  (1 << 0)
+#define KEY_MOVE_VIEW_RIGHT (1 << 1)
+
+
 typedef struct mh_renderstate_t {
     uint8_t spritebuffer_id;
+    int16_t view_x;
 
     gfx_tilesheet_data_t ts_bird;
     gfx_tilesheet_data_t ts_crosshair_16;
+    gfx_tilesheet_data_t ts_background;
 
     gfx_sprite_t sprites[SPRITEAMOUNT];
     gfx_sprite_animator_t sprite_animators[MAX_MOORHUHN_AMOUNT];

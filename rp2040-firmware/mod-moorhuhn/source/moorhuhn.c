@@ -23,10 +23,11 @@ void init_audio(void){
 
 void mh_huhn_new(mh_huhn_t* moorhuhn){
     *moorhuhn = (mh_huhn_t){
-        .x = utils_random_uint16() % 320,
+        .x = utils_random_uint16() % (320*2),
         .y = utils_random_uint16() % 200,
         .velocity = (utils_random_uint16() % 2)==0 ? -1 : +1,
         .flags = MH_HUHNFLAG_ALIVE,
+        .speed = (utils_random_uint16() % 100) / 100.0f,
         .hitpoints = 1,
     };
 }
@@ -49,11 +50,11 @@ void mh_tick() {
     for (uint8_t i=0,iEnd=mh_gs.mhs_amount; i<iEnd; i++){
         ASSERT_STRICT(flags_isset(mh->flags,MH_HUHNFLAG_ALIVE));
 
-        mh->x += mh->velocity;
-        if (mh->x > 320){
+        mh->x += mh->velocity * mh->speed;
+        if (mh->x > (320+160)){
             mh->x = 0;
         } else if (mh->x<0){
-            mh->x = 320;
+            mh->x = (320+160);
         }
         mh++;
     }
@@ -120,7 +121,7 @@ bool mh_huhn_spawn(mh_huhn_t* huhn_data, uint8_t type, mh_huhn_t** out_huhn){
             gfx_sprite_set_tileset(sprite,&mh_rs.ts_bird,0);
             sprite->pixel_size=flags_pack_4_4(1,1);
             uint8_t sprite_anim = gfx_sprite_add_animator(sprite, &anim4x1);
-            gfx_spriteanimator_set_animation(sprite_anim, 0, 0);
+            gfx_spriteanimator_set_animation(sprite_anim, 0, ANIMATIONFLAG_LOOP);
             break;
     }
         
@@ -139,7 +140,7 @@ void mh_update_huhn_positions() {
     for (uint8_t i=0,iEnd=mh_gs.mhs_amount;i<iEnd;i++){
         mh_huhn_t* huhn = &mh_gs.mhs[i];
         gfx_sprite_t* sprite = &mh_rs.sprites[huhn->sprite_id];
-        sprite->x = huhn->x;
+        sprite->x = mh_rs.view_x+huhn->x;
         sprite->y = huhn->y;
         gfx_sprite_apply_data(sprite);
     }

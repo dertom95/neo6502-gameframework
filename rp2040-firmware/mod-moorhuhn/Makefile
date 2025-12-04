@@ -71,14 +71,14 @@ assets-create: initialize
 	# 								--format 2 \
 	# 								--debug \
 
-	# $(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/bitmaps/background.png \
-	# 								--tile-size 64x80 \
-	# 								--palette-file $(ASSET_FOLDER)/palette/palette.png \
-	# 								--array-name bitmap_background \
-	# 								--output $(EXPORT_FOLDER)/bitmap_background.bin \
-	# 								--binary \
-	# 								--format 2 \
-	# 								--debug \
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/bitmaps/background1.png \
+	 								--tile-size 160x120 \
+	 								--palette-file $(ASSET_FOLDER)/palette/palette.png \
+	 								--array-name bitmap_bg1 \
+	 								--output $(EXPORT_FOLDER)/bitmap_bg1.bin \
+	 								--binary \
+	 								--format 2 \
+	 								--debug \
 
 
 check_code_bin:

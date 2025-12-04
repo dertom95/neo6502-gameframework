@@ -11,7 +11,8 @@
 #define MH_HUHNTYPE_DEFAULT 0
 
 typedef struct mh_huhn_t {
-    int16_t x,y;
+    float x,y;
+    float speed;
     int8_t velocity;
     uint8_t flags;
 
