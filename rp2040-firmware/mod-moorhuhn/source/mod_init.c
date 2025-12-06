@@ -60,16 +60,9 @@ void mh_gfx_init() {
     gfx_draw_tile(0,0,0);
     
     for (uint8_t i=0;i<INIT_MOORHUHN_AMOUNT;i++){
-        mh_huhn_t huhn_data = {
-            .x = utils_random_uint16() % 320,
-            .y = utils_random_uint16() % 200,
-            .velocity = (utils_random_uint16() % 2)==0 ? -1 : +1,
-            .speed = 0.5f + (utils_random_uint16() % 100)/100.0f,
-            .flags = MH_HUHNFLAG_ALIVE,
-            .hitpoints = 1,
-        };
-        utils_random_uint16();
-        
+        mh_huhn_t huhn_data;
+        mh_huhn_random_values(&huhn_data);
+
         mh_huhn_t* huhn=NULL;
         bool spawn_successful = mh_huhn_spawn(&huhn_data, MH_HUHNTYPE_DEFAULT, &huhn);
         ASSERT_STRICT(spawn_successful);
@@ -157,12 +150,6 @@ void mod_update() {
     mouse_delta_x = mlastx - *mouse_x;
     //printf("mdx: %d [%d]\n",mouse_delta_x,*mbtn);
     mlastx = *mouse_x;
-
-    // the tick goes here!
-    if (io_keyboard_is_pressed(HID_KEY_SPACE)){
-        current_color_index++;
-        gfx_draw_text(10,10,"Hello World95!",current_color_index,COL_WHITE);
-    }
 
     bool view_changed = false;
     bool mouse_right_down = flags_isset(*mbtn,MOUSE_BTN_RIGHT);

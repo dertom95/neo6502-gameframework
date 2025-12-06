@@ -21,15 +21,17 @@ void init_audio(void){
     audio_powerup = audio_wav_load(ASSET_POWER_UP_8);
 }
 
-void mh_huhn_new(mh_huhn_t* moorhuhn){
+void mh_huhn_random_values(mh_huhn_t* moorhuhn){
     *moorhuhn = (mh_huhn_t){
         .x = utils_random_uint16() % (320*2),
         .y = utils_random_uint16() % 200,
-        .velocity = (utils_random_uint16() % 2)==0 ? -1 : +1,
+        .velocity = (utils_random_uint16() % 7) - 3,
         .flags = MH_HUHNFLAG_ALIVE,
-        .speed = (utils_random_uint16() % 100) / 100.0f,
         .hitpoints = 1,
     };
+    if (moorhuhn->velocity == 0){
+        moorhuhn->velocity = (utils_random_uint16() % 2) == 0 ? 1 : -1;        
+    }
 }
 
 void mh_start_game() {
@@ -50,7 +52,7 @@ void mh_tick() {
     for (uint8_t i=0,iEnd=mh_gs.mhs_amount; i<iEnd; i++){
         ASSERT_STRICT(flags_isset(mh->flags,MH_HUHNFLAG_ALIVE));
 
-        mh->x += mh->velocity * mh->speed;
+        mh->x += mh->velocity;
         if (mh->x > (320+160)){
             mh->x = 0;
         } else if (mh->x<0){

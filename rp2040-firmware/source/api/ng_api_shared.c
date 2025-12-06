@@ -1,5 +1,22 @@
 #include "ng_api_shared.h"
 
+// Convert float to Q8.8
+q8_8_t float_to_q8_8(float f) {
+    if (f < 0.0f) return 0;
+    int32_t val = (int)(f * 256.0f + 0.5f);
+    if (val > 65535) val = 65535;
+    return (q8_8_t)val;
+}
+
+// Convert Q8.8 to float
+float q8_8_to_float(q8_8_t x) {
+    return ((float)x) / 256.0f;
+}
+
+// Fast multiplication: (a * b) >> 8
+q8_8_t q8_8_mul(q8_8_t a, q8_8_t b) {
+    return (q8_8_t)(((uint32_t)a * (uint32_t)b) >> 8);
+}
 
 // Helper function to handle unsigned integers
 int snprintf_uint8(char* str, uint8_t size, uint8_t num) {

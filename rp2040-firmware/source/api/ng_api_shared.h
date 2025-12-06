@@ -293,6 +293,16 @@ typedef struct gfx_tilemap_t{
     uint8_t __unused_field;
 } gfx_tilemap_t;
 
+typedef uint16_t q8_8_t;
+
+// Convert float to Q8.8
+q8_8_t float_to_q8_8(float f);
+// Convert Q8.8 to float
+float q8_8_to_float(q8_8_t x);
+// Fast multiplication: (a * b) >> 8
+q8_8_t q8_8_mul(q8_8_t a, q8_8_t b);
+// Print Q8.8 as float
+void q8_8_print(q8_8_t x);
 
 #if defined(_MOD_NATIVE_)
     #define MEMPTR(ADDRESS) (memory_resolve_address((uint16_t)(ADDRESS)))
