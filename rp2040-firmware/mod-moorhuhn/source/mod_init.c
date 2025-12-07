@@ -146,6 +146,10 @@ void mod_update() {
     {
         return;
     }    
+    mh_rs.tick_counter++;
+    if (mh_rs.tick_counter>=SINE_TABLE_SIZE){
+        mh_rs.tick_counter=0;
+    }
 
     mouse_delta_x = mlastx - *mouse_x;
     //printf("mdx: %d [%d]\n",mouse_delta_x,*mbtn);

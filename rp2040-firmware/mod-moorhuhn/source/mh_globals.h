@@ -23,9 +23,14 @@
 #define KEY_MOVE_VIEW_LEFT  (1 << 0)
 #define KEY_MOVE_VIEW_RIGHT (1 << 1)
 
+#define SINE_TABLE_SIZE 160
+#define val_to_sin_idx(val) ((val) % SINE_TABLE_SIZE)
+
+extern const int8_t sine_table[SINE_TABLE_SIZE];
 
 typedef struct mh_renderstate_t {
     uint8_t spritebuffer_id;
+    uint8_t tick_counter;
     int16_t view_x;
 
     gfx_tilesheet_data_t ts_bird;

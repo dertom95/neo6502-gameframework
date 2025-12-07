@@ -12,11 +12,15 @@
 
 typedef struct mh_huhn_t {
     int16_t x,y;
+
     int8_t velocity;
     uint8_t flags;
 
+    uint8_t sin_multi;
     uint8_t hitpoints;
+
     uint8_t sprite_id;
+    uint8_t __freee;
 } mh_huhn_t;
 
 typedef struct mh_gamestate_t {

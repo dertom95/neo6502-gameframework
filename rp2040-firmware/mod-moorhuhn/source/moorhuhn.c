@@ -14,6 +14,9 @@ uint8_t audio_powerup, audio_crash;
 mh_gamestate_t mh_gs;
 
 
+
+
+
 void init_audio(void){
     audio_mod_play(ASSET_GAME);
 
@@ -27,8 +30,10 @@ void mh_huhn_random_values(mh_huhn_t* moorhuhn){
         .y = utils_random_uint16() % 200,
         .velocity = (utils_random_uint16() % 7) - 3,
         .flags = MH_HUHNFLAG_ALIVE,
+        .sin_multi = flags_pack_4_4((utils_random_uint16() % 3)+1, (utils_random_uint16() % 2)+1),
         .hitpoints = 1,
     };
+    utils_random_uint16();
     if (moorhuhn->velocity == 0){
         moorhuhn->velocity = (utils_random_uint16() % 2) == 0 ? 1 : -1;        
     }
@@ -139,11 +144,16 @@ bool mh_huhn_spawn(mh_huhn_t* huhn_data, uint8_t type, mh_huhn_t** out_huhn){
 }
 
 void mh_update_huhn_positions() {
+    uint8_t sin_x_scale;
+    uint8_t sin_y_scale;
     for (uint8_t i=0,iEnd=mh_gs.mhs_amount;i<iEnd;i++){
         mh_huhn_t* huhn = &mh_gs.mhs[i];
         gfx_sprite_t* sprite = &mh_rs.sprites[huhn->sprite_id];
         sprite->x = mh_rs.view_x+huhn->x;
-        sprite->y = huhn->y;
+
+        flags_unpack_4_4(huhn->sin_multi,sin_x_scale,sin_y_scale);
+        int16_t y_offset = sine_table[val_to_sin_idx(mh_rs.tick_counter * sin_x_scale)*1];
+        sprite->y = huhn->y + y_offset;
         gfx_sprite_apply_data(sprite);
     }
 }
