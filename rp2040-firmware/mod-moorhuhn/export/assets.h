@@ -9,10 +9,11 @@
 #define ASSET_SPRITE_BIRD_16 4
 #define ASSET_SPRITE_BIRD_32 5
 #define ASSET_SPRITE_CROSSHAIR_16 6
-#define ASSET_CRASH 7
-#define ASSET_POWER_UP_8 8
-#define ASSET_GAME 9
-#define ASSETS_AMOUNT 10
+#define ASSET_UI_MISC_16 7
+#define ASSET_CRASH 8
+#define ASSET_POWER_UP_8 9
+#define ASSET_GAME 10
+#define ASSETS_AMOUNT 11
 
 #ifdef INCLUDE_DATA
 extern const uint8_t assets_data[];

@@ -133,7 +133,6 @@ def encode_tiles_format2(image_filename, tile_width, tile_height, colors, transp
         for x in range(num_tiles_x):
             # Get the tile pixels from the cropped image
             tile_pixels = image.crop((x * tile_width, y * tile_height, (x + 1) * tile_width, (y + 1) * tile_height))
-
             # Remove the transparent border from the tile
             stripped_tile_pixels,bbox = remove_transparent_border(tile_pixels)
 

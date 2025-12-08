@@ -25,11 +25,18 @@ volatile uint8_t* mouse_btn_state_down = NULL;
 int16_t mouse_delta_x = 0;
 uint16_t mlastx = 0;
 
+char uibuf[41];
 
-gfx_pixelbuffer_t pixelbuffer = {
+gfx_pixelbuffer_t pxb_game_background = {
     .width=320/PIXEL_SIZE,
     .height=240/PIXEL_SIZE,
     .pixel_size=flags_pack_4_4(PIXEL_SIZE+1,PIXEL_SIZE)
+};
+
+gfx_pixelbuffer_t pxb_ui = {
+    .width=320,
+    .height=16,
+    .pixel_size=flags_pack_4_4(1,1)
 };
 
 uint8_t current_color_index = 0;
@@ -55,9 +62,16 @@ void mh_gfx_init() {
     asset_get_tilesheet(&mh_rs.ts_bird,ASSET_SPRITE_BIRD_16);
     asset_get_tilesheet(&mh_rs.ts_crosshair_16,ASSET_SPRITE_CROSSHAIR_16);
     asset_get_tilesheet(&mh_rs.ts_background, ASSET_BITMAP_BG1);
+    asset_get_tilesheet(&mh_rs.ts_ui_misc, ASSET_UI_MISC_16);
 
+    gfx_pixelbuffer_set_active(&pxb_game_background);
     gfx_tilesheet_current_set(&mh_rs.ts_background);
     gfx_draw_tile(0,0,0);
+
+    gfx_pixelbuffer_set_active(&pxb_ui);
+    gfx_tilesheet_current_set(&mh_rs.ts_ui_misc);
+    gfx_draw_tile(0,0,0);
+    gfx_draw_tile(64,0,4);
     
     for (uint8_t i=0;i<INIT_MOORHUHN_AMOUNT;i++){
         mh_huhn_t huhn_data;
@@ -108,17 +122,20 @@ int mod_init(){
     gfx_set_palette_from_assset(ASSET_COLOR_PALETTE,0);    
 
     // init goes here
-    gfx_pixelbuffer_create(&pixelbuffer);
-    gfx_pixelbuffer_set_active(&pixelbuffer);
-    
-    gfx_draw_text(00,10,"Hello World!",COL_BLACK,COL_WHITE);
+    gfx_pixelbuffer_create(&pxb_game_background);
 
+    gfx_pixelbuffer_create(&pxb_ui);
+    gfx_pixelbuffer_set_active(&pxb_game_background);
+    
     mh_init();
     mh_gfx_init();
 
     // put the pixelbuffer in the render-queue to be rendered at all
-    gfx_renderqueue_add_id(pixelbuffer.obj_id);
+    gfx_renderqueue_add_id(pxb_game_background.obj_id);
     gfx_renderqueue_add_id(mh_rs.spritebuffer_id);
+    gfx_renderqueue_add_id(pxb_ui.obj_id);
+
+    gfx_pixelbuffer_set_active(&pxb_ui);
     gfx_renderqueue_apply();
 
 
@@ -151,6 +168,14 @@ void mod_update() {
         mh_rs.tick_counter=0;
     }
 
+    if (flags_isset(mh_gs.flags,GS_FLAG_UIDATA_DIRTY)){
+        ng_snprintf(uibuf,sizeof(uibuf),"%d ",mh_gs.ammo);
+        gfx_draw_text(18,4,uibuf,COL_BLACK, COL_TRANSPARENT);
+
+        ng_snprintf(uibuf,sizeof(uibuf),"%d ",mh_gs.hits);
+        gfx_draw_text(82,4,uibuf,COL_BLACK, COL_TRANSPARENT);
+    }
+
     mouse_delta_x = mlastx - *mouse_x;
     //printf("mdx: %d [%d]\n",mouse_delta_x,*mbtn);
     mlastx = *mouse_x;
@@ -181,8 +206,8 @@ void mod_update() {
     if (view_changed){
         mh_rs.view_x = clamp(mh_rs.view_x,(-VIEW_MAX_X),0);
 
-        pixelbuffer.x = mh_rs.view_x;
-        gfx_pixelbuffer_apply_data(&pixelbuffer);
+        pxb_game_background.x = mh_rs.view_x;
+        gfx_pixelbuffer_apply_data(&pxb_game_background);
     }
 
     if (mouse_actionkey_pressed) {

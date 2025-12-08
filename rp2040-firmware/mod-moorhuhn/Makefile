@@ -60,7 +60,16 @@ assets-create: initialize
 									--output $(EXPORT_FOLDER)/sprite_crosshair_16.bin \
 									--binary \
 									--format 2 \
-									--debug 																	
+									--debug 	
+
+	$(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/ui_misc_16px_t.png \
+									--tile-size 16x16 \
+									--palette-file $(ASSET_FOLDER)/palette/palette.png \
+									--array-name ui_misc_16 \
+									--output $(EXPORT_FOLDER)/ui_misc_16.bin \
+									--binary \
+									--format 2 \
+									--debug 																								
 
 	# $(NG_TOOL) convert-tilesheet 	--tilesheet-file $(ASSET_FOLDER)/sprites/pillar.png \
 	# 								--tile-size 43x80 \

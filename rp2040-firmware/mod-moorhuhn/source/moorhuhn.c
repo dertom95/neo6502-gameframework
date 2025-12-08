@@ -14,7 +14,8 @@ uint8_t audio_powerup, audio_crash;
 mh_gamestate_t mh_gs;
 
 
-
+void change_hits(int16_t dt);
+void change_ammo(int16_t dt);
 
 
 void init_audio(void){
@@ -41,6 +42,7 @@ void mh_huhn_random_values(mh_huhn_t* moorhuhn){
 
 void mh_start_game() {
     mh_gs = (mh_gamestate_t){0};
+    change_ammo(10);
     init_audio();
 }
 
@@ -158,13 +160,32 @@ void mh_update_huhn_positions() {
     }
 }
 
+void change_hits(int16_t dt){
+    mh_gs.hits += dt;
+    flags_set(mh_gs.flags, GS_FLAG_UIDATA_DIRTY);
+}
+
+void change_ammo(int16_t dt){
+    mh_gs.ammo += dt;
+    flags_set(mh_gs.flags, GS_FLAG_UIDATA_DIRTY);
+}
+
 bool mh_shoot_at(int16_t x,int16_t y) {
+    if (mh_gs.ammo == 0){
+        return false;
+    }
+    // TODO no ammo on powerup
+    change_ammo(-1);
+
     for (uint8_t i=0,iEnd=mh_gs.mhs_amount;i<iEnd;i++){
         mh_huhn_t* huhn = &mh_gs.mhs[i];
         gfx_sprite_t* sprite = &mh_rs.sprites[huhn->sprite_id];
         
         bool hit = gfx_sprite_intersect_with_point(sprite, x,y);
+
         if (hit) {
+            change_ammo(+2);
+            change_hits(+1);
             audio_wav_play(audio_powerup,false);
             
             uint8_t animator_id = gfx_sprite_get_animator(sprite);

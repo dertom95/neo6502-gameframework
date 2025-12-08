@@ -23,10 +23,15 @@ typedef struct mh_huhn_t {
     uint8_t __freee;
 } mh_huhn_t;
 
+#define GS_FLAG_UIDATA_DIRTY (1 << 0)
 typedef struct mh_gamestate_t {
     uint8_t flags;
     uint8_t mhs_amount;
     mh_huhn_t mhs[MAX_MOORHUHN_AMOUNT];
+    uint16_t ammo;
+    uint16_t hits;
+    uint16_t miss;
+
 } mh_gamestate_t;
 
 extern mh_gamestate_t mh_gs;

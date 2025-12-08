@@ -5,6 +5,8 @@
 #define MAX_MOORHUHN_AMOUNT 10
 
 #define PIXEL_SIZE 2
+#define UI_PIXEL_SIZE 2
+
 #define VIEW_MAX_X 150
 #define VIEW_MOVE_SPEED 2
 
@@ -36,6 +38,7 @@ typedef struct mh_renderstate_t {
     gfx_tilesheet_data_t ts_bird;
     gfx_tilesheet_data_t ts_crosshair_16;
     gfx_tilesheet_data_t ts_background;
+    gfx_tilesheet_data_t ts_ui_misc;
 
     gfx_sprite_t sprites[SPRITEAMOUNT];
     gfx_sprite_animator_t sprite_animators[MAX_MOORHUHN_AMOUNT];
